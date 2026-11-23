@@ -1,0 +1,64 @@
+# Compila MatematicApp como APK para Android cada vez que cambia la app en main,
+# y la publica en la versión "apk" de GitHub (enlace fijo de descarga).
+name: APK Android
+
+on:
+  push:
+    branches: [main, 'ccr-*']
+    paths: [index.html, apk/**, package.json, capacitor.config.json, .github/workflows/apk.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apk
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # El SDK de Android ya viene instalado en las máquinas ubuntu de GitHub (ANDROID_HOME)
+      - name: Instalar Capacitor
+        run: npm install --no-audit --no-fund
+
+      - name: Preparar proyecto Android
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+        run: bash apk/preparar.sh
+
+      - name: Compilar APK firmado
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon \
+            -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/apk/matematicapp.keystore" \
+            -Pandroid.injected.signing.store.password=matematicapp \
+            -Pandroid.injected.signing.key.alias=matematicapp \
+            -Pandroid.injected.signing.key.password=matematicapp
+          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/MatematicApp.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MatematicApp-apk
+          path: MatematicApp.apk
+
+      - name: Publicar en la versión "apk"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view apk >/dev/null 2>&1 || gh release create apk --title "MatematicApp para Android" \
+            --notes "Archivo APK de MatematicApp. Se actualiza solo cada vez que cambia la app. Descárgalo desde el teléfono Android y ábrelo para instalarlo."
+          gh release upload apk MatematicApp.apk --clobber

@@ -1,0 +1,9 @@
+{
+  "appId": "cl.matematicapp.app",
+  "appName": "MatematicApp",
+  "webDir": "www",
+  "android": {
+    "adjustMarginsForEdgeToEdge": "force",
+    "backgroundColor": "#2457c5"
+  }
+}

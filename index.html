@@ -1,0 +1,1363 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2457c5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MatematicApp">
+<title>MatematicApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Silkscreen:wght@400;700&display=swap">
+<style>
+/* Diseño: dispositivo de bolsillo retro (hermano de FisicApp). Carcasa azul con lente y LEDs arriba,
+   pantalla tipo papel cuadriculado dentro de un marco y botones "físicos" abajo (Inicio, Datos, Ajustes). */
+:root{
+  --case:#2457c5; --case-dk:#163b8c; --case-hi:#5b8ff0; --bezel:#ece6df; --bezel-dk:#c9c1b8; --ink:#1a1a22;
+  --bg:#fbf4dc; --surface:#ffffff; --surface2:#f5edd2; --text:#221d0f; --muted:#6b6049; --line:#d8cca6;
+  --accent:#e0531f; --accent-soft:#fde2d3; --accent-ink:#ffffff; --ok:#1f9d55; --warn:#c96a12; --danger:#c42b2b; --curve:#2457c5;
+  --yellow:#ffcf33; --lcd:#161a2e; --lcd-text:#ffd47a; --lcd-dim:#8f8058;
+  --head:"Chakra Petch",system-ui,-apple-system,"Segoe UI",sans-serif; --body:"Chakra Petch",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --pix:"Silkscreen","Chakra Petch",monospace; --math:"Cambria Math","STIX Two Math","Latin Modern Math","Times New Roman",serif;
+  --shadow:0 3px 0 var(--ink);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --case:#163474; --case-dk:#0c1e4a; --case-hi:#2b4d9c; --bezel:#2b2a30; --bezel-dk:#1c1b20; --ink:#000000;
+    --bg:#17150d; --surface:#232015; --surface2:#2d291b; --text:#f6ecd0; --muted:#b9ac88; --line:#4b432b;
+    --accent:#ff8b52; --accent-soft:#3e2618; --accent-ink:#1a0c04; --ok:#46d083; --warn:#ffad5c; --danger:#ff7a7a; --curve:#7fb0ff; color-scheme:dark; }
+}
+:root[data-theme="dark"]{ --case:#163474; --case-dk:#0c1e4a; --case-hi:#2b4d9c; --bezel:#2b2a30; --bezel-dk:#1c1b20; --ink:#000000;
+  --bg:#17150d; --surface:#232015; --surface2:#2d291b; --text:#f6ecd0; --muted:#b9ac88; --line:#4b432b;
+  --accent:#ff8b52; --accent-soft:#3e2618; --accent-ink:#1a0c04; --ok:#46d083; --warn:#ffad5c; --danger:#ff7a7a; --curve:#7fb0ff; color-scheme:dark; }
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(120% 70% at 20% 0%, var(--case-hi) 0%, var(--case) 45%, var(--case-dk) 100%) var(--case);color:var(--text);
+  font-family:var(--body);font-size:17px;line-height:1.45;display:flex;flex-direction:column;overflow:hidden;
+  -webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%}
+h1,h2,h3{font-family:var(--head);margin:0;text-wrap:balance}
+button{font-family:var(--head);font-size:15px;border:0;cursor:pointer;color:inherit;background:none}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+input,textarea{-webkit-user-select:text;user-select:text}
+[hidden]{display:none!important}
+
+/* ---------- carcasa: parte superior ---------- */
+.top{flex:0 0 auto;display:flex;align-items:center;gap:10px;position:relative;
+  padding:calc(8px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 12px max(12px,env(safe-area-inset-left,0px));min-height:74px;
+  border-bottom:3px solid var(--case-dk);box-shadow:0 2px 0 rgba(255,255,255,.18)}
+.ib{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto;background:rgba(0,0,0,.18);box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+.ib:active{transform:translateY(1px);box-shadow:none}
+.ib svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.lens{width:54px;height:54px;border-radius:50%;flex:0 0 auto;background:#fff;border:3px solid var(--ink);display:grid;place-items:center;box-shadow:0 3px 0 rgba(0,0,0,.3)}
+.lens i{width:40px;height:40px;border-radius:50%;border:2px solid var(--ink);
+  background:radial-gradient(circle at 34% 30%, #fff6dc 0 12%, #ffd36b 24%, #f0902a 58%, #a3470b 100%);transition:filter .3s, box-shadow .3s;filter:saturate(.55) brightness(.8)}
+.lens.on i{filter:none;animation:glow 1.8s ease-in-out infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 6px 1px rgba(255,200,90,.6)}50%{box-shadow:0 0 16px 5px rgba(255,200,90,.95)}}
+.leds{display:flex;gap:6px;align-self:flex-start;margin-top:4px;flex:0 0 auto}
+.led{width:13px;height:13px;border-radius:50%;border:2px solid var(--ink);opacity:.38;transition:opacity .15s, box-shadow .15s}
+.led.r{background:#ff4b4b}.led.y{background:var(--yellow)}.led.g{background:#45e07f}
+.led.on{opacity:1;box-shadow:0 0 8px 2px currentColor}
+.led.r.on{color:#ff6b6b}.led.y.on{color:#ffd84d}.led.g.on{color:#5dff9a}
+.brand{flex:1;min-width:0;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.brand h1{font-size:20px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.01em}
+.brand small{display:block;font-family:var(--pix);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- marco de la pantalla ---------- */
+main{flex:1;min-height:0;position:relative;margin:12px max(12px,env(safe-area-inset-right,0px)) 0 max(12px,env(safe-area-inset-left,0px));
+  background:var(--bezel);border:3px solid var(--ink);border-radius:14px 14px 14px 46px;box-shadow:0 4px 0 rgba(0,0,0,.3), inset 0 -4px 0 var(--bezel-dk)}
+main::before{content:"";position:absolute;top:7px;left:50%;width:9px;height:9px;margin-left:-14px;border-radius:50%;background:#ff4b4b;border:1.5px solid var(--ink);
+  box-shadow:16px 0 0 -1.5px #ff4b4b, 16px 0 0 0 var(--ink)}
+.scr{position:absolute;inset:22px 12px 16px 12px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 12px 20px;
+  border:3px solid var(--ink);border-radius:6px 6px 6px 30px;
+  background:linear-gradient(rgba(36,87,197,.06) 1px, transparent 1px) 0 0/18px 18px, linear-gradient(90deg, rgba(36,87,197,.06) 1px, transparent 1px) 0 0/18px 18px, var(--bg)}
+@media (min-width:760px){ .scr{padding-left:max(20px,calc(50% - 360px));padding-right:max(20px,calc(50% - 360px))} }
+.card{background:var(--surface);border:2px solid var(--ink);border-radius:12px;padding:14px;box-shadow:var(--shadow);margin-bottom:14px}
+.card h2{font-size:17px;font-weight:700;margin-bottom:6px}
+.card p{margin:6px 0;color:var(--muted)}
+.card p b,.card li b{color:var(--text)}
+.card ol,.card ul{margin:6px 0;padding-left:22px;color:var(--muted)}
+.card li{margin:4px 0}
+
+/* ---------- carcasa: botones inferiores ---------- */
+.hw{flex:0 0 auto;display:flex;align-items:center;gap:12px;
+  padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.hw .home-b{width:50px;height:50px;border-radius:50%;background:#26262e;border:3px solid var(--ink);box-shadow:0 4px 0 rgba(0,0,0,.45), inset 0 3px 0 rgba(255,255,255,.12);display:grid;place-items:center;flex:0 0 auto}
+.hw .home-b svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.hw .pill{flex:1;max-width:170px;height:40px;border-radius:99px;border:3px solid var(--ink);font-family:var(--pix);font-size:12px;letter-spacing:.04em;text-transform:uppercase;
+  box-shadow:0 4px 0 rgba(0,0,0,.45), inset 0 3px 0 rgba(255,255,255,.3);color:var(--ink)}
+.hw .pill.p1{background:#ff9a5c}.hw .pill.p2{background:var(--yellow)}
+.hw button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.45)}
+.hw button.on{outline:3px solid #fff;outline-offset:2px}
+.hw .grille{margin-left:auto;display:flex;flex-direction:column;gap:5px;flex:0 0 auto}
+.hw .grille i{display:block;width:34px;height:4px;border-radius:2px;background:var(--case-dk);box-shadow:inset 0 1px 1px rgba(0,0,0,.4)}
+
+/* ---------- inicio ---------- */
+.home{min-height:100%;display:flex;flex-direction:column;gap:0;max-width:640px;margin:0 auto}
+.boot{font-family:var(--pix);font-size:12px;letter-spacing:.05em;color:var(--muted);text-transform:uppercase;margin:0}
+.boot::after{content:"_";animation:blink 1s steps(1) infinite;margin-left:2px}
+@keyframes blink{50%{opacity:0}}
+.dexsec{margin:14px 2px 8px!important}
+.dexgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (min-width:600px){ .dexgrid{grid-template-columns:repeat(3,1fr)} }
+.dex{display:flex;flex-direction:column;align-items:center;gap:1px;text-align:center;padding:12px 8px 10px;min-width:0;
+  background:var(--surface);color:var(--text);border:2px solid var(--ink);border-radius:14px;box-shadow:0 4px 0 var(--ink)}
+.dex:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.dex .ic{width:68px;height:68px;border-radius:14px;background:var(--lcd);border:2px solid var(--ink);display:grid;place-items:center;margin-bottom:5px}
+.dex .ic svg{width:40px;height:40px;stroke:var(--lcd-text);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dex .ic svg .f{fill:var(--lcd-text);stroke:none}
+.dex.cam .ic{background:var(--accent)}
+.dex.cam .ic svg{stroke:#fff}
+.dex.cam .ic svg .f{fill:#fff}
+.dex em{font-style:normal;font-family:var(--pix);font-size:10px;color:var(--muted);letter-spacing:.06em}
+.dex b{font-family:var(--head);font-size:17px;font-weight:700;line-height:1.1}
+.dex small{color:var(--muted);font-size:12.5px;line-height:1.25;margin-top:2px}
+
+/* ---------- visor ---------- */
+#s-alt,#s-pend{display:flex;flex-direction:column;gap:8px;padding:8px}
+#s-alt{overflow:hidden}
+.view{position:relative;flex:1;min-height:240px;border-radius:6px;overflow:hidden;background:#0d1412;border:2px solid var(--ink)}
+.view video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.view canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.tview{flex:1 0 230px;background:var(--surface2)}
+.fview{flex:none;height:min(58vh,540px);min-height:260px}
+.zview{flex:none;height:250px;min-height:0;margin-top:8px;background:var(--surface2)}
+.zview canvas{touch-action:manipulation}
+.vmsg{position:absolute;left:12px;right:12px;top:88px;color:var(--lcd-text);background:rgba(10,14,28,.85);border:1px solid var(--lcd-dim);border-radius:6px;padding:8px 10px;font-size:14px;text-align:center}
+.vmsg:empty{display:none}
+.ovl{position:absolute;left:8px;right:8px;bottom:8px;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;z-index:3}
+.ovl .btn{min-height:52px;font-size:14px;background:rgba(245,245,245,.95);color:#1a1a22;border-color:#1a1a22}
+.ovl .btn.primary{background:var(--accent);color:#fff}
+.ovl .btn.on{background:var(--yellow);color:#1a1a22}
+.activate{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center;color:var(--lcd-text);z-index:4;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 1px, transparent 1px 3px), var(--lcd)}
+.activate b{font-family:var(--pix);font-size:15px;letter-spacing:.04em;text-transform:uppercase}
+.activate p{margin:0;color:#e6d7b0;font-size:15px;max-width:320px}
+.mhint{position:absolute;left:10px;right:10px;bottom:10px;text-align:center;z-index:2;pointer-events:none}
+.mhint span{display:inline-block;background:rgba(10,14,28,.85);color:var(--lcd-text);border:1px solid var(--lcd-dim);border-radius:6px;padding:6px 10px;font-size:13.5px;line-height:1.3}
+.mhint span:empty{display:none}
+.reads{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;flex:0 0 auto}
+.reads.n4{grid-template-columns:repeat(4,1fr)}
+.read{background:var(--lcd);color:var(--lcd-text);border:2px solid var(--ink);border-radius:8px;padding:6px 4px;text-align:center;min-width:0;box-shadow:inset 0 0 0 2px rgba(255,212,122,.08)}
+.read span{display:block;font-family:var(--pix);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--lcd-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.read b{display:block;font-family:var(--head);font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 0 8px rgba(255,212,122,.35)}
+.reads.n4 .read b{font-size:17px}
+.read.tap{cursor:pointer;font-family:var(--body);box-shadow:0 3px 0 var(--ink)}
+.read.tap:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.read.tap i{display:block;font-style:normal;font-family:var(--pix);font-size:10px;letter-spacing:.04em;color:var(--ink);background:var(--yellow);border-radius:4px;margin:3px 6px 0;padding:1px 0;text-transform:uppercase}
+
+/* ---------- controles ---------- */
+.btn{min-height:50px;border-radius:10px;background:var(--surface);border:2px solid var(--ink);box-shadow:0 3px 0 var(--ink);font-weight:700;font-size:15px;color:var(--text);
+  display:flex;align-items:center;justify-content:center;gap:7px;padding:4px 12px;text-align:center;line-height:1.15;cursor:pointer}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--danger)}
+.btn.on{background:var(--yellow);color:#1a1a22}
+.btn:disabled{opacity:.45}
+.btn.wide{width:100%}
+.btn.big{min-height:60px;font-size:17px}
+.btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.acts{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;margin-top:12px}
+.azg{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:6px}
+.azg .btn{min-height:52px;font-size:17px}
+.seg{display:flex;background:var(--lcd);border:2px solid var(--ink);border-radius:10px;padding:3px;gap:3px;flex:0 0 auto}
+.seg button{flex:1;min-height:38px;border-radius:7px;font-size:14px;font-weight:700;color:var(--lcd-dim);line-height:1.1}
+.seg button.on{background:var(--lcd-text);color:var(--lcd)}
+.seg.g{margin-top:8px}
+label.l{display:block;font-family:var(--pix);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:12px 0 4px}
+input[type=text],textarea{width:100%;border-radius:8px;border:2px solid var(--ink);background:var(--surface2);color:var(--text);font-family:var(--body);font-size:17px;padding:10px 12px}
+input[type=text]{height:46px}
+textarea{min-height:70px;resize:vertical}
+.field{padding:12px 0;border-bottom:1px dashed var(--line)}
+.field:last-child{border-bottom:0}
+.field .lb{display:block;font-family:var(--head);font-weight:700;font-size:15px;margin-bottom:8px}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.switch .lb{margin:0}
+.tog{width:54px;height:30px;border-radius:99px;background:var(--surface2);border:2px solid var(--ink);position:relative;flex:0 0 auto}
+.tog::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid var(--ink);transition:transform .15s}
+.tog.on{background:var(--accent)}
+.tog.on::after{transform:translateX(24px)}
+.tnote{margin:0;color:var(--muted);font-size:14px;line-height:1.4}
+.tnote b{color:var(--text)}
+.lnk{font-family:var(--body);font-size:inherit;font-weight:700;color:var(--accent);padding:0;border-bottom:2px dotted var(--accent)}
+
+/* ---------- ecuaciones ---------- */
+.eq{font-family:var(--math);font-size:19px;line-height:1.5;color:var(--text);background:var(--surface2);border:2px solid var(--ink);border-radius:8px;padding:8px 12px;margin:10px 0 4px;overflow-x:auto;-webkit-user-select:text;user-select:text}
+.eq > div{padding:3px 0;white-space:nowrap}
+.eq i{font-style:italic}
+.eq b{font-family:var(--head);color:var(--accent)}
+.eq .r2{font-size:16px;color:var(--muted);margin-top:2px}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px;line-height:1.25}
+.fr > span{padding:0 3px}
+.fr > span:last-child{border-top:1.5px solid currentColor}
+.facts{margin:8px 0 0!important;padding-left:20px}
+.facts li{margin:5px 0;color:var(--text)}
+.facts li.muted{color:var(--muted);font-size:14px}
+
+/* ---------- listas y tablas ---------- */
+.reglist{display:flex;flex-direction:column;gap:10px}
+.regitem{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:2px solid var(--ink);border-radius:12px;padding:10px 12px;box-shadow:var(--shadow);color:var(--text)}
+.regitem:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.regitem .ic{width:44px;height:44px;border-radius:8px;background:var(--lcd);border:2px solid var(--ink);display:grid;place-items:center;flex:0 0 auto}
+.regitem .ic svg{width:24px;height:24px;stroke:var(--lcd-text);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.regitem .ic svg .f{fill:var(--lcd-text);stroke:none}
+.regitem .tx{flex:1;min-width:0}
+.regitem em{display:block;font-style:normal;font-family:var(--pix);font-size:10.5px;color:var(--muted);letter-spacing:.06em}
+.regitem b{display:block;font-family:var(--head);font-weight:700;font-size:16.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.regitem small{display:block;color:var(--muted);font-size:14px}
+.sect{font-family:var(--pix);font-size:12px!important;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:20px 2px 10px!important}
+.empty{text-align:center;color:var(--muted);padding:20px 12px}
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:4px}
+.tbl{width:100%;border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums;min-width:560px}
+.tbl.sm{min-width:0}
+.tbl th,.tbl td{padding:8px 6px;border-bottom:1px dashed var(--line);text-align:left;vertical-align:top;white-space:nowrap}
+.tbl th{font-family:var(--head);font-size:13px;font-weight:700;color:var(--lcd-text);background:var(--lcd)}
+.tbl th:first-child{border-radius:6px 0 0 6px}.tbl th:last-child{border-radius:0 6px 6px 0}
+.tbl td.n{font-family:var(--head);font-weight:700}
+.tbl td.note{color:var(--muted);font-size:14px;min-width:140px;white-space:normal}
+.tbl tbody tr{cursor:pointer}
+.tbl tbody tr:nth-child(even){background:var(--surface2)}
+.tbl tbody tr.sel{background:var(--accent-soft)}
+.tbl tfoot td{font-weight:700;border-bottom:0}
+.muted{color:var(--muted)}
+.hint{display:block;color:var(--muted);font-size:13.5px;margin-top:8px;text-align:center}
+.photo{width:100%;border-radius:8px;border:2px solid var(--ink);display:block;margin:8px 0;background:var(--surface2)}
+
+/* ---------- hoja modal ---------- */
+.sheet{position:fixed;inset:0;z-index:40;background:rgba(5,8,20,.55);display:flex;align-items:flex-end;justify-content:center}
+.sheet .box{width:100%;max-width:520px;background:var(--surface);border:3px solid var(--ink);border-bottom:0;border-top:12px solid var(--case);border-radius:18px 18px 0 0;max-height:92%;overflow-y:auto;
+  padding:16px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.sheet h2{font-size:20px;font-weight:700;margin-bottom:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (min-width:600px){ .sheet{align-items:center} .sheet .box{border-radius:18px;border-bottom:3px solid var(--ink)} }
+
+.sim{position:fixed;right:10px;top:90px;z-index:35;background:var(--surface);border:2px solid var(--ink);border-radius:10px;padding:10px;width:230px;box-shadow:var(--shadow);font-size:13px}
+.sim label{display:flex;justify-content:space-between;color:var(--muted)}
+.sim input{width:100%}
+.toast{position:fixed;left:50%;top:calc(96px + env(safe-area-inset-top,0px));transform:translate(-50%,-12px);background:var(--lcd);color:var(--lcd-text);border:2px solid var(--ink);
+  padding:10px 16px;border-radius:8px;font-family:var(--head);font-weight:600;font-size:14.5px;opacity:0;pointer-events:none;transition:all .2s;z-index:60;max-width:90vw;text-align:center;box-shadow:0 3px 0 var(--ink)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <button class="ib" id="back" aria-label="Volver" hidden><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="lens" id="lens" aria-hidden="true"><i></i></div>
+  <div class="leds" aria-hidden="true"><i class="led r" id="ledR"></i><i class="led y" id="ledY"></i><i class="led g" id="ledG"></i></div>
+  <div class="brand"><h1 id="tTitle">MatematicApp</h1><small id="tSub">Matemática con el teléfono</small></div>
+</header>
+
+<main>
+  <!-- ============ INICIO ============ -->
+  <section class="scr" id="s-inicio">
+    <div class="home">
+      <p class="boot">Sistema listo · elige una herramienta</p>
+      <div id="dexList"></div>
+    </div>
+  </section>
+
+  <!-- ============ ALTURAS ============ -->
+  <section class="scr" id="s-alt" hidden>
+    <div class="view" id="view">
+      <video id="vid" playsinline muted autoplay></video>
+      <canvas id="cv"></canvas>
+      <div class="vmsg" id="vmsg"></div>
+      <div class="ovl"><button class="btn" id="aA">Retener</button><button class="btn primary" id="aB">Registrar altura</button></div>
+      <div class="activate" id="activate" hidden>
+        <b>Activar sensores y cámara</b>
+        <p>El navegador necesita tu permiso para usar el movimiento del teléfono y la cámara.</p>
+        <button class="btn primary actBtn" style="min-width:220px">Activar</button>
+        <p class="actNote"></p>
+      </div>
+    </div>
+    <div class="reads" id="aReads"></div>
+    <div class="seg" data-k="altm" aria-label="Método"><button data-v="d">Con distancia</button><button data-v="2">Dos ángulos</button></div>
+    <p class="tnote" id="aNote"></p>
+  </section>
+
+  <!-- ============ PENDIENTES ============ -->
+  <section class="scr" id="s-pend" hidden>
+    <div class="view tview">
+      <canvas id="pcv"></canvas>
+      <div class="activate" id="pact" hidden>
+        <b>Activar sensores</b>
+        <p>El navegador necesita tu permiso para usar el movimiento del teléfono.</p>
+        <button class="btn primary actBtn" style="min-width:220px">Activar</button>
+        <p class="actNote"></p>
+      </div>
+    </div>
+    <div class="reads">
+      <div class="read"><span>Ángulo</span><b id="pA">–</b></div>
+      <div class="read"><span>Pendiente</span><b id="pM">–</b></div>
+      <div class="read"><span>Porcentaje</span><b id="pP">–</b></div>
+    </div>
+    <div class="acts" style="margin-top:0"><button class="btn" id="pZero">Fijar cero</button><button class="btn" id="pHold">Retener</button><button class="btn primary" id="pReg">Registrar</button></div>
+    <p class="tnote">Apoya el teléfono <b>sobre la rampa</b>, con la pantalla hacia arriba y el lado largo en la dirección de la subida. Si sobre una mesa horizontal no marca 0°, déjalo ahí y toca <b>Fijar cero</b>.</p>
+  </section>
+
+  <!-- ============ FUNCIONES EN FOTOS: lista ============ -->
+  <section class="scr" id="s-fotos" hidden>
+    <label class="btn primary wide big"><input type="file" accept="image/*" capture="environment" class="fIn" hidden><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Tomar foto</label>
+    <label class="btn wide" style="margin-top:10px"><input type="file" accept="image/*" class="fIn" hidden><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/></svg>Elegir foto de la galería</label>
+    <div class="card" style="margin-top:14px">
+      <h2>Cómo usarla</h2>
+      <ol>
+        <li><b>Foto:</b> fotografía <b>de frente</b> algo con forma de recta o curva: un puente, un arco, el chorro de una manguera, una cuerda colgando, una rampa, la trayectoria de una pelota.</li>
+        <li><b>Puntos:</b> toca la foto sobre la curva. Mientras mantienes el dedo aparece una lupa; suelta donde quieras el punto. Arrastra un punto para moverlo.</li>
+        <li><b>Origen y escala</b> (opcional): elige dónde va el (0, 0) y arrastra sobre algo de largo conocido para medir en metros.</li>
+        <li><b>Ajuste:</b> elige lineal, cuadrática o exponencial y compara el R². Obtienes la función y sus elementos: pendiente, vértice, ceros…</li>
+      </ol>
+    </div>
+    <h2 class="sect">Fotos guardadas</h2>
+    <div class="reglist" id="fList"></div>
+  </section>
+
+  <!-- ============ FUNCIONES EN FOTOS: editor ============ -->
+  <section class="scr" id="s-fedit" hidden>
+    <div class="view fview"><canvas id="fcv"></canvas><div class="mhint"><span id="fhint"></span></div></div>
+    <div class="seg g" id="fMode"><button data-m="p">Puntos</button><button data-m="o">Origen</button><button data-m="e">Escala</button></div>
+    <div class="acts" style="margin-top:8px"><button class="btn" id="fUndo">Deshacer</button><button class="btn" id="fDel">Borrar punto</button></div>
+    <div class="card" style="margin-top:14px">
+      <h2>Modelo</h2>
+      <div class="seg" id="fFit"><button data-f="1">Lineal</button><button data-f="2">Cuadrática</button><button data-f="e">Exponencial</button></div>
+      <div class="eq" id="fEq"></div>
+      <ul class="facts" id="fExtra"></ul>
+    </div>
+    <div class="card">
+      <h2>Puntos marcados</h2>
+      <div class="tblwrap"><table class="tbl sm"><thead><tr><th>Punto</th><th>x</th><th>y</th><th>y del modelo</th></tr></thead><tbody id="fBody"></tbody></table></div>
+      <span class="hint" id="fScaleTxt"></span>
+    </div>
+    <div class="card">
+      <div class="acts" style="margin-top:0"><button class="btn primary" id="fImg">Compartir imagen</button><button class="btn" id="fCsv">Descargar CSV</button></div>
+      <div class="acts"><button class="btn" id="fRen">Editar nombre</button><button class="btn danger" id="fRm">Eliminar</button></div>
+    </div>
+  </section>
+
+  <!-- ============ DADOS Y MONEDAS ============ -->
+  <section class="scr" id="s-azar" hidden>
+    <div class="seg" id="zX"><button data-x="moneda">Moneda</button><button data-x="dado">Dado</button><button data-x="dos">Dos dados (suma)</button></div>
+    <div class="reads n4" style="margin-top:8px">
+      <div class="read"><span>Total</span><b id="zN">0</b></div>
+      <div class="read"><span>Último</span><b id="zL">–</b></div>
+      <div class="read"><span>F. rel.</span><b id="zF">–</b></div>
+      <div class="read"><span>Prob.</span><b id="zP">–</b></div>
+    </div>
+    <div class="view zview"><canvas id="zcv"></canvas></div>
+    <div class="seg g" id="zG"><button data-g="f">Frecuencias</button><button data-g="c">Convergencia</button></div>
+    <p class="tnote" id="zEv" style="margin-top:8px"></p>
+    <div class="seg g" id="zM" style="margin-top:12px"><button data-m="sim">Simular</button><button data-m="real">Registrar lanzamientos reales</button></div>
+    <div id="zCtl" style="margin-top:8px"></div>
+    <div class="card" style="margin-top:14px">
+      <h2>Tabla de frecuencias</h2>
+      <div class="tblwrap"><table class="tbl sm"><thead><tr><th>Resultado</th><th>Frec. abs.</th><th>Frec. rel.</th><th>%</th><th>Probabilidad</th></tr></thead><tbody id="zBody"></tbody><tfoot id="zFoot"></tfoot></table></div>
+      <span class="hint">Toca una fila o una barra para elegir el evento que se sigue en el gráfico de convergencia.</span>
+    </div>
+    <div class="card"><h2>¿Qué observar?</h2><div id="zObs"></div></div>
+    <div class="card">
+      <div class="acts" style="margin-top:0"><button class="btn primary" id="zSave">Guardar experimento</button><button class="btn" id="zCsv">Descargar CSV</button></div>
+      <div class="acts"><button class="btn danger" id="zReset">Reiniciar</button></div>
+    </div>
+  </section>
+
+  <!-- ============ DATOS ============ -->
+  <section class="scr" id="s-datos" hidden>
+    <h2 class="sect" style="margin-top:4px!important">Mediciones</h2>
+    <div class="reglist" id="dsMed"></div>
+    <h2 class="sect">Funciones en fotos</h2>
+    <div class="reglist" id="dsFot"></div>
+    <h2 class="sect">Experimentos de azar</h2>
+    <div class="reglist" id="dsAz"></div>
+  </section>
+
+  <!-- ============ UNA TABLA DE MEDICIONES ============ -->
+  <section class="scr" id="s-tabla" hidden>
+    <div class="card">
+      <h2 id="tbTitle"></h2>
+      <p id="tbMeta" style="margin-top:0"></p>
+      <div class="tblwrap"><table class="tbl"><thead id="tbHead"></thead><tbody id="tbBody"></tbody></table></div>
+      <span class="hint">Toca una fila para ver el desarrollo, editarla o eliminarla. Desliza la tabla hacia el lado para ver todas las columnas.</span>
+    </div>
+    <div class="card">
+      <div class="acts" style="margin-top:0"><button class="btn primary" id="tbCsv">Descargar CSV</button><button class="btn" id="tbShare">Compartir CSV</button></div>
+      <div class="acts" id="tbPhRow"><button class="btn" id="tbPh">Compartir o descargar fotos</button></div>
+      <div class="acts"><button class="btn" id="tbGo">Medir más</button><button class="btn danger" id="tbClr">Borrar todo</button></div>
+    </div>
+  </section>
+
+  <!-- ============ AJUSTES ============ -->
+  <section class="scr" id="s-ajustes" hidden>
+    <div class="card">
+      <h2>Preferencias</h2>
+      <div class="field"><span class="lb">Decimales en los ángulos</span><div class="seg" data-k="dec"><button data-v="1">1</button><button data-v="2">2</button></div></div>
+      <div class="field switch"><span class="lb">Altura de tus ojos (h₀)</span><button class="btn" id="setH0" style="min-height:40px"></button></div>
+      <div class="field"><span class="lb">Respuesta de los sensores</span><div class="seg" data-k="resp"><button data-v="fast">Rápida</button><button data-v="normal">Normal</button><button data-v="stable">Estable</button></div></div>
+      <div class="field switch"><span class="lb">Guardar foto del visor en Alturas</span><button class="tog" data-k="photo" aria-label="Guardar foto del visor"></button></div>
+      <div class="field switch"><span class="lb">Sonido</span><button class="tog" data-k="sound" aria-label="Sonido"></button></div>
+      <div class="field"><span class="lb">Tema</span><div class="seg" data-k="theme"><button data-v="system">Sistema</button><button data-v="light">Claro</button><button data-v="dark">Oscuro</button></div></div>
+    </div>
+    <div class="card">
+      <h2>Alturas</h2>
+      <ol>
+        <li>Sostén el teléfono derecho y pon la cruz sobre la <b>punta</b> del objeto. La línea punteada es el horizonte: mantenla horizontal (se pone verde).</li>
+        <li><b>Con distancia:</b> mide la distancia horizontal <i>d</i> hasta la base del objeto (huincha o pasos). La app calcula <i>h</i> = <i>h</i>₀ + <i>d</i> · tan <i>α</i>.</li>
+        <li><b>Dos ángulos:</b> sirve cuando no puedes llegar a la base (un cerro, un edificio con reja). Mide <i>α</i>₁, retrocede <i>s</i> metros en línea recta hacia atrás y mide <i>α</i>₂.</li>
+        <li>Cada registro guarda el <b>desarrollo</b> del cálculo y una foto del visor; los encuentras en <b>Datos</b>.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>Pendientes</h2>
+      <ol>
+        <li>La pendiente es <i>m</i> = tan <i>θ</i>: cuánto sube por cada unidad horizontal. En porcentaje: <i>m</i> · 100 %.</li>
+        <li>Una pendiente de 8 % significa que por cada 100 cm horizontales se suben 8 cm.</li>
+        <li>Como referencia, la normativa chilena de accesibilidad (OGUC) fija en general un máximo de 8 % para rampas; solo tramos muy cortos pueden ser más inclinados.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>Funciones en fotos</h2>
+      <ol>
+        <li>Sin escala, el ancho de la foto mide 10 unidades y el origen está abajo a la izquierda.</li>
+        <li><b>Origen:</b> toca donde quieres el (0, 0), por ejemplo en el suelo bajo el comienzo del arco.</li>
+        <li><b>Escala:</b> arrastra sobre algo de largo conocido que esté a la misma distancia de la cámara que la curva.</li>
+        <li><b>Exponencial</b> necesita que todos los puntos tengan <i>y</i> &gt; 0.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>Dados y monedas</h2>
+      <ol>
+        <li><b>Simular</b> lanza con el generador de números aleatorios del teléfono; <b>Registrar</b> sirve para anotar lanzamientos reales hechos en clase.</li>
+        <li><b>Convergencia</b> muestra cómo la frecuencia relativa se acerca a la probabilidad teórica a medida que crece <i>n</i>.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>Instalar como app</h2>
+      <p><b>iPhone (Safari):</b> Compartir › <b>Agregar a pantalla de inicio</b>.</p>
+      <p><b>Android (Chrome):</b> menú ⋮ › <b>Agregar a la pantalla principal</b>, o instala el archivo APK.</p>
+      <p>Profesor Gonzalo George Toledo</p>
+    </div>
+  </section>
+</main>
+
+<nav class="hw" aria-label="Navegación">
+  <button class="home-b" data-go="inicio" aria-label="Inicio"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6 10v10h12V10"/></svg></button>
+  <button class="pill p1" data-go="datos">Datos</button>
+  <button class="pill p2" data-go="ajustes">Ajustes</button>
+  <span class="grille" aria-hidden="true"><i></i><i></i><i></i></span>
+</nav>
+
+<div class="sheet" id="sheet" hidden><div class="box" id="sheetBox" role="dialog" aria-modal="true"></div></div>
+<div class="sim" id="sim" hidden>
+  <b>Simulador</b> (sin sensores)
+  <label>β adelante/atrás <span id="sbv"></span></label><input type="range" id="sb" min="-180" max="180" step="0.5" value="90">
+  <label>γ izquierda/derecha <span id="sgv"></span></label><input type="range" id="sg" min="-90" max="90" step="0.5" value="0">
+  <label>α giro <span id="sav"></span></label><input type="range" id="sa" min="0" max="360" step="0.5" value="0">
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+/* ============================== utilidades ============================== */
+const $ = s=>document.querySelector(s), $$ = s=>Array.from(document.querySelectorAll(s));
+const DEG = 180/Math.PI, RAD = Math.PI/180;
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const wrap180 = a=>((a+180)%360+360)%360-180;
+function fmt(v,d){ if(v==null || !isFinite(v)) return "–"; const p = Math.pow(10,d); let r = Math.round(v*p)/p; if(r===0) r = 0; return r.toFixed(d).replace(".",",").replace("-","−"); }
+function num(s){ if(s==null || String(s).trim()==="") return null; const v = parseFloat(String(s).replace(",",".").replace("−","-")); return isFinite(v) ? v : NaN; }
+const esc = s=>String(s==null?"":s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let toastT; function toast(m){ const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove("show"), 2600); }
+function fit(c){ const r = c.getBoundingClientRect(), d = window.devicePixelRatio||1, w = Math.round(r.width*d), h = Math.round(r.height*d);
+  if(c.width!==w || c.height!==h){ c.width = w; c.height = h; } const x = c.getContext("2d"); x.setTransform(d,0,0,d,0,0); return {x, w:r.width, h:r.height}; }
+const p2 = n=>String(n).padStart(2,"0");
+const hhmm = t=>{ const d = new Date(t); return `${p2(d.getHours())}:${p2(d.getMinutes())}`; };
+const ymd = t=>{ const d = new Date(t); return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`; };
+const dmy = t=>{ const d = new Date(t); return `${p2(d.getDate())}-${p2(d.getMonth()+1)}-${d.getFullYear()}`; };
+const newId = ()=>Date.now().toString(36) + Math.floor(Math.random()*1e6).toString(36);
+const cssv = k=>getComputedStyle(document.documentElement).getPropertyValue("--"+k).trim();
+const slug = s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^\w-]+/g,"_").replace(/^_+|_+$/g,"");
+const tanD = a=>Math.tan(a*RAD);
+function sig(v){ if(v==null || !isFinite(v)) return "–"; const a = Math.abs(v); const d = a >= 1000 ? 0 : a >= 100 ? 1 : a >= 10 ? 2 : a >= 1 ? 3 : a >= 0.01 ? 4 : a===0 ? 0 : 5; return fmt(v, d); }
+function niceStep(range, n){ const raw = range/Math.max(1, n), p = Math.pow(10, Math.floor(Math.log10(raw || 1))), f = raw/p; return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10)*p; }
+const stepDec = st=>Math.max(0, -Math.floor(Math.log10(st) + 1e-9));
+/* fórmulas en HTML: variables en cursiva y fracciones apiladas */
+const I = s=>`<i>${s}</i>`;
+const frac = (a,b)=>`<span class="fr"><span>${a}</span><span>${b}</span></span>`;
+const eqBox = lines=>`<div class="eq">${lines.map(l=>`<div>${l}</div>`).join("")}</div>`;
+
+/* ============================== datos guardados ============================== */
+const KEY = "matematicapp.v1";
+let D; try{ D = JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ D = {}; }
+D.s = Object.assign({dec:1, h0:1.5, altd:10, alts:5, altm:"d", resp:"normal", sound:true, photo:true, theme:"system", pzero:null, fit:"2", zg:"f", zm:"sim"}, D.s||{});
+["alt","pend","fot","azar"].forEach(k=>{ if(!Array.isArray(D[k])) D[k] = []; });
+if(!D.az) D.az = {x:"moneda", s:"", ev:null};
+const S = D.s;
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){ toast("No se pudo guardar en este navegador"); } }
+
+/* ============================== tema ============================== */
+const mq = window.matchMedia ? matchMedia("(prefers-color-scheme: dark)") : null;
+function theme(){
+  if(S.theme==="system") document.documentElement.removeAttribute("data-theme"); else document.documentElement.dataset.theme = S.theme;
+  const m = document.querySelector('meta[name="theme-color"]'); if(m) m.content = cssv("case");
+  if(route && route.name==="azar") azDraw(); if(route && route.name==="fedit") fDraw();
+}
+if(mq){ if(mq.addEventListener) mq.addEventListener("change", ()=>theme()); else if(mq.addListener) mq.addListener(()=>theme()); }
+
+/* ============================== sonido ============================== */
+let actx = null;
+function beep(f,d){ if(!S.sound) return; try{ actx = actx || new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume();
+  const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime; o.frequency.value = f||1320;
+  g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.25,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+(d||0.1));
+  o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+(d||0.1)+0.02); }catch(e){} }
+function buzz(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms); }catch(e){} }
+
+/* ============================== sensores ==============================
+   deviceorientation (iPhone y Android). R = Rz(α)·Rx(β)·Ry(γ) (convención W3C).
+   La cámara trasera mira hacia −z del teléfono: su dirección en el mundo es −(columna 3 de R).
+   Ángulo de elevación = asin(componente vertical de esa dirección).                                  */
+const SEN = {raw:null, last:0, src:"none", started:false};
+function onOri(e){
+  if(e.beta==null || e.gamma==null) return;
+  SEN.raw = {a:e.alpha, b:e.beta, g:e.gamma}; SEN.last = performance.now();
+  if(SEN.src!=="sensor"){ SEN.src = "sensor"; $("#sim").hidden = true; }
+}
+const needsPerm = typeof DeviceOrientationEvent!=="undefined" && typeof DeviceOrientationEvent.requestPermission==="function";
+let listening = false, wake = null;
+function listen(){ if(!listening){ listening = true; window.addEventListener("deviceorientation", onOri); } }
+async function keepAwake(){ try{ if(navigator.wakeLock && !wake){ wake = await navigator.wakeLock.request("screen"); wake.addEventListener("release", ()=>{ wake = null; }); } }catch(e){} }
+function overlayEl(){ return route.name==="pend" ? $("#pact") : $("#activate"); }
+function showActivate(note){ const o = overlayEl(); o.hidden = false; o.querySelector(".actNote").textContent = note || (needsPerm ? "En iPhone, toca Permitir cuando Safari pregunte." : ""); }
+// Debe llamarse dentro de un toque (el iPhone exige un gesto para pedir el permiso)
+async function ensureSensors(){
+  try{ actx = actx || new (window.AudioContext||window.webkitAudioContext)(); actx.resume(); }catch(e){}
+  if(SEN.started) return true;
+  let perm = "granted";
+  if(needsPerm){ try{ perm = await DeviceOrientationEvent.requestPermission(); }catch(e){ perm = "error"; } }
+  listen(); keepAwake(); SEN.started = true;
+  try{ sessionStorage.setItem("ma-started","1"); }catch(e){}
+  setTimeout(()=>{
+    if(SEN.src!=="none") return;
+    if((navigator.maxTouchPoints||0) > 0){ SEN.started = false;
+      if(route.name==="alt" || route.name==="pend") showActivate(perm==="granted" ? "No llegan datos del movimiento. Revisa que la página esté abierta en Safari o Chrome." :
+        "El navegador no dio permiso. Toca Activar y elige Permitir. En iPhone, si no aparece la pregunta, cierra la pestaña y ábrela de nuevo."); return; }
+    SEN.src = "sim"; $("#sim").hidden = !(route.name==="alt" || route.name==="pend"); toast("No se detectaron sensores: modo simulación");
+  }, 1500);
+  return true;
+}
+if(!needsPerm) listen();
+const sessionStarted = ()=>{ try{ return sessionStorage.getItem("ma-started")==="1"; }catch(e){ return false; } };
+function rotMatrix(a,b,g){
+  const cA = Math.cos(a*RAD), sA = Math.sin(a*RAD), cB = Math.cos(b*RAD), sB = Math.sin(b*RAD), cG = Math.cos(g*RAD), sG = Math.sin(g*RAD);
+  return [[cA*cG - sA*sB*sG, -sA*cB, cA*sG + sA*sB*cG],[sA*cG + cA*sB*sG, cA*cB, sA*sG - cA*sB*cG],[-cB*sG, sB, cB*cG]];
+}
+const KF = {fast:0.35, normal:0.16, stable:0.06};
+let U = null, CW = null;
+function lp(prev, v, k){ if(!prev) return v.slice(); for(let i=0;i<3;i++) prev[i] += k*(v[i]-prev[i]); return prev; }
+const norm = v=>{ const n = Math.hypot(v[0],v[1],v[2]) || 1; return [v[0]/n, v[1]/n, v[2]/n]; };
+function simRaw(){ return {a:+$("#sa").value, b:+$("#sb").value, g:+$("#sg").value}; }
+function sensorStep(){
+  const r = SEN.src==="sim" ? simRaw() : SEN.raw; if(!r) return false;
+  const M = rotMatrix(r.a||0, r.b, r.g), k = KF[S.resp] || 0.16;
+  U = lp(U, [M[2][0], M[2][1], M[2][2]], k);
+  CW = lp(CW, [-M[0][2], -M[1][2], -M[2][2]], k);
+  return true;
+}
+function scr(){ let a = 0; try{ if(screen.orientation && typeof screen.orientation.angle==="number") a = screen.orientation.angle; else if(typeof window.orientation==="number") a = window.orientation; }catch(e){} return ((a%360)+360)%360; }
+["sb","sg","sa"].forEach(id=>{ const el = $("#"+id), out = $("#"+id+"v"); const f = ()=>out.textContent = el.value + "°"; el.oninput = f; f(); });
+
+/* ============================== cámara ============================== */
+const Cam = {stream:null, pending:null};
+async function camStart(){
+  const v = $("#vid"), msg = $("#vmsg");
+  if(Cam.stream){ if(v.srcObject!==Cam.stream){ v.srcObject = Cam.stream; v.play().catch(()=>{}); } return; }
+  if(Cam.pending) return;
+  const tok = {}; Cam.pending = tok; msg.textContent = "Abriendo la cámara…";
+  try{
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("nocam");
+    const s = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}, width:{ideal:1280}, height:{ideal:720}}, audio:false});
+    if(Cam.pending!==tok){ s.getTracks().forEach(t=>t.stop()); return; }
+    Cam.stream = s; Cam.pending = null; v.srcObject = s; await v.play().catch(()=>{}); msg.textContent = "";
+  }catch(e){
+    if(Cam.pending===tok) Cam.pending = null;
+    msg.textContent = (e && (e.name==="NotAllowedError" || e.name==="SecurityError")) ? "Sin permiso para la cámara. Actívalo en los ajustes del navegador; igual puedes medir apuntando con el teléfono." : "No se pudo abrir la cámara.";
+  }
+}
+function camStop(){ if(Cam.stream) Cam.stream.getTracks().forEach(t=>t.stop()); $("#vid").srcObject = null; Cam.stream = null; Cam.pending = null; }
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="hidden") camStop(); else { if(route.name==="alt" && SEN.started) camStart(); if(SEN.started) keepAwake(); } });
+$$(".actBtn").forEach(b=>b.onclick = async ()=>{ await ensureSensors(); $("#activate").hidden = true; $("#pact").hidden = true; if(route.name==="alt") camStart(); });
+
+/* ============================== hoja modal ============================== */
+function sheet(html){ $("#sheetBox").innerHTML = html; $("#sheet").hidden = false; const f = $("#sheetBox").querySelector("input,textarea"); if(f && !f.dataset.nofocus) setTimeout(()=>f.focus(), 50); return $("#sheetBox"); }
+function closeSheet(){ $("#sheet").hidden = true; $("#sheetBox").innerHTML = ""; }
+$("#sheet").addEventListener("click", e=>{ if(e.target.id==="sheet") closeSheet(); });
+function editNum(title, desc, key, after){
+  const b = sheet(`<h2>${title}</h2><p class="muted" style="margin:0">${desc}</p>
+    <label class="l" for="enV">Valor en metros</label><input type="text" inputmode="decimal" id="enV" value="${fmt(S[key], 2)}">
+    <div class="acts"><button class="btn" id="enNo">Cancelar</button><button class="btn primary" id="enOk">Guardar</button></div>`);
+  b.querySelector("#enV").select();
+  b.querySelector("#enNo").onclick = closeSheet;
+  const ok = ()=>{ const v = num(b.querySelector("#enV").value); if(v==null || !isFinite(v) || v < 0){ toast("Escribe un número válido (por ejemplo 12,5)"); return; } S[key] = v; save(); closeSheet(); if(after) after(); };
+  b.querySelector("#enOk").onclick = ok; b.querySelector("#enV").onkeydown = e=>{ if(e.key==="Enter") ok(); };
+}
+
+/* ============================== fotos (IndexedDB) ============================== */
+const PH = {
+  db:null,
+  open(){ return this.db || (this.db = new Promise((res, rej)=>{ try{ const r = indexedDB.open("matematicapp-fotos", 1);
+    r.onupgradeneeded = ()=>r.result.createObjectStore("f"); r.onsuccess = ()=>res(r.result); r.onerror = ()=>rej(r.error); }catch(e){ rej(e); } })); },
+  async tx(mode, fn){ const db = await this.open(); return new Promise((res, rej)=>{ const t = db.transaction("f", mode), st = t.objectStore("f"), q = fn(st);
+    t.oncomplete = ()=>res(q && q.result); t.onerror = ()=>rej(t.error); t.onabort = ()=>rej(t.error); }); },
+  put(k, b){ return this.tx("readwrite", st=>st.put(b, k)); },
+  get(k){ return this.tx("readonly", st=>st.get(k)); },
+  del(k){ return this.tx("readwrite", st=>st.delete(k)).catch(()=>{}); }
+};
+try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+
+/* ============================== exportar ============================== */
+const q = s=>{ s = String(s==null?"":s); return /[;"\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; };
+const n2 = (v,d)=>v==null || !isFinite(v) ? "" : v.toFixed(d==null ? 2 : d).replace(".",",");
+const csvOf = (title, head, rows)=>"﻿" + q(title) + "\r\n\r\n" + [head.map(q).join(";")].concat(rows.map(r=>r.map(q).join(";"))).join("\r\n");
+const fname = (s, ext)=>(slug(s) || "datos") + "." + (ext || "csv");
+/* En la app Android (Capacitor) no hay descargas del navegador: los archivos se guardan y se abren en el menú Compartir. */
+const NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform==="function" && window.Capacitor.isNativePlatform());
+const blobB64 = b=>new Promise((res, rej)=>{ const r = new FileReader(); r.onload = ()=>res(String(r.result).split(",")[1]); r.onerror = ()=>rej(r.error); r.readAsDataURL(b); });
+async function nativeShare(files, title){
+  const P = window.Capacitor.Plugins, uris = [];
+  for(const f of files){ const w = await P.Filesystem.writeFile({path:f.name, data:await blobB64(f), directory:"CACHE"}); uris.push(w.uri); }
+  await P.Share.share({title, dialogTitle:title, files:uris});
+}
+function download(files){
+  files.forEach((f, k)=>setTimeout(()=>{ const u = URL.createObjectURL(f), a = document.createElement("a"); a.href = u; a.download = f.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u), 5000); }, k*350));
+}
+async function exportFiles(files, title, mode){
+  if(NATIVE){ try{ await nativeShare(files, title); }catch(e){ if(!/cancel/i.test(String(e && e.message))) toast("No se pudo compartir el archivo"); } return; }
+  if(mode==="share"){ try{ if(navigator.canShare && navigator.canShare({files})){ await navigator.share({files, title}); return; } }catch(e){ if(e && e.name==="AbortError") return; } }
+  try{ download(files); toast(files.length > 1 ? `Descargando ${files.length} archivos` : "Descargando " + files[0].name); }catch(e){ toast("No se pudo descargar"); }
+}
+async function shareCsvText(text, name, title){
+  if(NATIVE) return exportFiles([new File([text], name, {type:"text/csv"})], title);
+  try{ const file = new File([text], name, {type:"text/csv"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title}); return; }
+    if(navigator.share){ await navigator.share({title, text:text.replace("﻿","")}); return; }
+  }catch(e){ if(e && e.name==="AbortError") return; }
+  try{ await navigator.clipboard.writeText(text.replace("﻿","")); toast("Tabla copiada: pégala en Excel o en un correo"); }catch(e){ toast("No se pudo compartir"); }
+}
+const csvFile = (text, name)=>new File([text], name, {type:"text/csv;charset=utf-8"});
+
+/* ============================== dibujo común ============================== */
+function crosshair(c,x,y,col){ c.save(); c.lineCap = "round";
+  [["rgba(0,0,0,.55)",5],[col||"#fff",2.2]].forEach(([cc,lw])=>{ c.strokeStyle = cc; c.lineWidth = lw; c.beginPath(); c.arc(x,y,22,0,7);
+    c.moveTo(x-48,y); c.lineTo(x-10,y); c.moveTo(x+10,y); c.lineTo(x+48,y); c.moveTo(x,y-48); c.lineTo(x,y-10); c.moveTo(x,y+10); c.lineTo(x,y+48); c.stroke(); });
+  c.fillStyle = col||"#fff"; c.beginPath(); c.arc(x,y,2.5,0,7); c.fill(); c.restore(); }
+function pill(c,t,x,y,sz,bg,fg){ c.font = `700 ${sz}px "Chakra Petch", system-ui, sans-serif`; c.textAlign = "center"; c.textBaseline = "middle";
+  const w = c.measureText(t).width + 24, h = sz + 14, r = h/2, x0 = x - w/2, y0 = y - h/2;
+  c.fillStyle = bg || "rgba(0,0,0,.6)"; c.beginPath(); c.moveTo(x0+r,y0); c.arcTo(x0+w,y0,x0+w,y0+h,r); c.arcTo(x0+w,y0+h,x0,y0+h,r); c.arcTo(x0,y0+h,x0,y0,r); c.arcTo(x0,y0,x0+w,y0,r); c.fill();
+  c.fillStyle = fg || "#fff"; c.fillText(t, x, y+1); return w; }
+let ledT; function ledFlash(){ const l = $("#ledR"); l.classList.add("on"); clearTimeout(ledT); ledT = setTimeout(()=>l.classList.remove("on"), 450); }
+
+/* =====================================================================================
+   ALTURAS (trigonometría con la cámara)
+   Con distancia:  h = h₀ + d·tan α
+   Dos ángulos:    h = h₀ + s·tan α₁·tan α₂ / (tan α₁ − tan α₂)   (α₁ desde más cerca, α₂ desde s metros más atrás)
+   ===================================================================================== */
+const AL = {held:null, live:null, a1:null};
+function measureNow(){
+  if(!U || !CW) return null;
+  const u = norm(U), c = norm(CW);
+  return {e:Math.asin(clamp(c[2],-1,1))*DEG, roll:wrap180(Math.atan2(u[0], u[1])*DEG - scr())};
+}
+const fA = v=>fmt(v, S.dec) + "°", fL = v=>fmt(v, 2);
+function altH(r){
+  if(r.m==="d") return r.h0 + r.d*tanD(r.e);
+  const t1 = tanD(r.e1), t2 = tanD(r.e); if(!(t1 > t2) || !(t2 > 0)) return null;
+  return r.h0 + r.d*t1*t2/(t1 - t2);
+}
+function altDev(r){
+  if(r.m==="d"){ const k = r.d*tanD(r.e);
+    return eqBox([`${I("h")} = ${I("h")}₀ + ${I("d")} · tan ${I("α")}`,
+      `${I("h")} = ${fL(r.h0)} + ${fL(r.d)} · tan ${fA(r.e)}`,
+      `${I("h")} = ${fL(r.h0)} + ${fL(r.d)} · ${fmt(tanD(r.e), 3)}`,
+      `${I("h")} = ${fL(r.h0)} + ${fL(k)} = <b>${fL(r.h)} m</b>`]); }
+  const t1 = tanD(r.e1), t2 = tanD(r.e), H = r.h - r.h0, x = r.d*t2/(t1 - t2), T = v=>fmt(v, 3);
+  return eqBox([`${I("h")} = ${I("h")}₀ + ${frac(`${I("s")} · tan ${I("α")}₁ · tan ${I("α")}₂`, `tan ${I("α")}₁ − tan ${I("α")}₂`)}`,
+    `${I("h")} = ${fL(r.h0)} + ${frac(`${fL(r.d)} · tan ${fA(r.e1)} · tan ${fA(r.e)}`, `tan ${fA(r.e1)} − tan ${fA(r.e)}`)}`,
+    `${I("h")} = ${fL(r.h0)} + ${frac(`${fL(r.d)} · ${T(t1)} · ${T(t2)}`, `${T(t1)} − ${T(t2)}`)}`,
+    `${I("h")} = ${fL(r.h0)} + ${fL(H)} = <b>${fL(r.h)} m</b>`]) +
+    `<p class="tnote">Distancia desde el primer punto hasta la base del objeto: ${I("x")} = ${frac(`${I("s")} · tan ${I("α")}₂`, `tan ${I("α")}₁ − tan ${I("α")}₂`)} = ${fL(x)} m</p>`;
+}
+function altUI(){
+  const two = S.altm==="2";
+  const tiles = two ? [["a","Ángulo","–",0],["a1","1.er ángulo", AL.a1==null ? "–" : fA(AL.a1),0],["s","Separación", fL(S.alts) + " m",1]]
+                    : [["a","Ángulo","–",0],["d","Distancia", fL(S.altd) + " m",1],["h","Altura","–",0]];
+  $("#aReads").innerHTML = tiles.map(([k,l,v,tap])=>tap ? `<button class="read tap" id="rd-${k}"><span>${l}</span><b id="v-${k}">${v}</b><i>Cambiar</i></button>` : `<div class="read"><span>${l}</span><b id="v-${k}">${v}</b></div>`).join("");
+  if(two) $("#rd-s").onclick = ()=>editNum("Separación s", "Distancia en línea recta entre los dos lugares desde donde mides, alejándote del objeto.", "alts", altUI);
+  else $("#rd-d").onclick = ()=>editNum("Distancia d", "Distancia horizontal desde tus pies hasta la base del objeto. Mídela con huincha o contando pasos.", "altd", altUI);
+  $("#aA").textContent = two ? "Reiniciar" : (AL.held ? "Soltar" : "Retener");
+  $("#aA").classList.toggle("on", !two && !!AL.held);
+  $("#aB").textContent = two ? (AL.a1==null ? "1 · Fijar α₁ (cerca)" : "2 · Fijar α₂ (lejos)") : "Registrar altura";
+  $("#aNote").innerHTML = (two ? `Mide ${I("α")}₁, retrocede ${I("s")} metros en línea recta y mide ${I("α")}₂. No necesitas llegar a la base del objeto.`
+    : `Pon la cruz en la punta del objeto: ${I("h")} = ${I("h")}₀ + ${I("d")} · tan ${I("α")}.`) + ` Tus ojos: <button class="lnk" id="aH0">${I("h")}₀ = ${fL(S.h0)} m</button>`;
+  $("#aH0").onclick = ()=>editNum("Altura de tus ojos h₀", "Desde el suelo hasta tus ojos. Se suma porque el ángulo se mide desde la altura de tus ojos.", "h0", altUI);
+}
+$("#aA").onclick = ()=>{
+  if(S.altm==="2"){ AL.a1 = null; AL.held = null; altUI(); toast("Medición reiniciada"); return; }
+  AL.held = AL.held ? null : (AL.live ? Object.assign({}, AL.live, {frame:grabFrame()}) : null);
+  if(AL.held){ beep(1320,.06); buzz(25); } altUI();
+};
+$("#aB").onclick = ()=>{
+  const m = AL.held || AL.live; if(!m){ toast("Aún no hay lectura del sensor"); return; }
+  const e = Math.round(m.e*100)/100;
+  if(S.altm==="2"){
+    if(AL.a1==null){ if(e <= 0){ toast("Apunta hacia arriba, a la punta del objeto"); return; }
+      AL.a1 = e; beep(1100,.08); buzz(40); ledFlash(); toast(`α₁ = ${fA(e)}. Ahora retrocede ${fL(S.alts)} m en línea recta y mide α₂`); altUI(); return; }
+    const r = {m:"2", e1:AL.a1, e, d:S.alts, h0:S.h0}; r.h = altH(r);
+    if(r.h==null){ toast("α₂ debe ser menor que α₁ y mayor que 0°: mide α₂ más lejos del objeto"); return; }
+    openSaveAlt(r, grabFrame(), m); return;
+  }
+  const r = {m:"d", e, d:S.altd, h0:S.h0}; r.h = altH(r);
+  openSaveAlt(r, AL.held ? AL.held.frame : grabFrame(), m);
+};
+function openSaveAlt(r, frame, m){
+  const def = "Objeto " + (D.alt.length + 1);
+  const b = sheet(`<h2>Altura: ${fL(r.h)} m</h2>${altDev(r)}
+    <label class="l" for="soObj">Objeto</label><input type="text" id="soObj" maxlength="50" value="${esc(def)}" data-nofocus="1">
+    <label class="l" for="soN">Nota (opcional)</label><input type="text" id="soN" maxlength="200" placeholder="Lugar, grupo, comentario…">
+    <div class="acts"><button class="btn" id="soNo">Descartar</button><button class="btn primary" id="soOk">Guardar</button></div>`);
+  b.querySelector("#soNo").onclick = closeSheet;
+  b.querySelector("#soOk").onclick = ()=>{
+    Object.assign(r, {id:newId(), t:Date.now(), obj:b.querySelector("#soObj").value.trim() || def, n:b.querySelector("#soN").value.trim(), foto:false});
+    D.alt.push(r); save(); closeSheet(); beep(1320,.1); buzz(50); ledFlash(); toast(`${r.obj}: ${fL(r.h)} m · guardado en Datos`);
+    if(frame){ try{ composeAlt(frame, m, r).toBlob(bl=>{ if(!bl) return; PH.put("al-"+r.id, bl).then(()=>{ r.foto = true; save(); }).catch(()=>{}); }, "image/jpeg", 0.82); }catch(e){} }
+    AL.held = null; AL.a1 = null; altUI();
+  };
+}
+/* foto del visor: la imagen de la cámara recortada como se ve en pantalla */
+function grabFrame(){
+  const v = $("#vid"); if(!S.photo || !Cam.stream || !v.videoWidth) return null;
+  const r = $("#view").getBoundingClientRect(), asp = r.width / Math.max(1, r.height), vw = v.videoWidth, vh = v.videoHeight;
+  let sw = vw, sh = vw/asp; if(sh > vh){ sh = vh; sw = vh*asp; }
+  const k = Math.min(1, 1080/Math.max(sw, sh)), c = document.createElement("canvas");
+  c.width = Math.round(sw*k); c.height = Math.round(sh*k);
+  try{ c.getContext("2d").drawImage(v, (vw-sw)/2, (vh-sh)/2, sw, sh, 0, 0, c.width, c.height); }catch(e){ return null; }
+  return c;
+}
+function composeAlt(frame, m, r){
+  const W = frame.width, H0 = frame.height, u = W/360, band = Math.round(64*u), c = document.createElement("canvas");
+  c.width = W; c.height = H0 + band; const x = c.getContext("2d");
+  x.drawImage(frame, 0, 0);
+  x.save(); x.translate(W/2, H0/2); x.rotate(m.roll*RAD); x.setLineDash([10*u, 8*u]); x.lineWidth = 2*u; x.strokeStyle = "rgba(255,255,255,.8)";
+  x.beginPath(); x.moveTo(-W,0); x.lineTo(-60*u,0); x.moveTo(60*u,0); x.lineTo(W,0); x.stroke(); x.restore();
+  x.save(); x.translate(W/2, H0/2); x.scale(u, u); crosshair(x, 0, 0, "#fff"); x.restore();
+  x.save(); x.scale(u, u); pill(x, `α = ${fA(r.e)}`, 180, 30, 20, "rgba(224,83,31,.92)"); x.restore();
+  x.fillStyle = "#11152a"; x.fillRect(0, H0, W, band);
+  x.fillStyle = "#fff"; x.textBaseline = "middle"; x.textAlign = "left";
+  x.font = `700 ${Math.round(17*u)}px "Chakra Petch", system-ui, sans-serif`;
+  x.fillText(`${r.obj} · altura h = ${fL(r.h)} m`, 12*u, H0 + band*0.32, W - 24*u);
+  x.font = `600 ${Math.round(12.5*u)}px "Chakra Petch", system-ui, sans-serif`; x.fillStyle = "#e6d7b0";
+  const det = r.m==="d" ? `α = ${fA(r.e)} · d = ${fL(r.d)} m · h₀ = ${fL(r.h0)} m` : `α₁ = ${fA(r.e1)} · α₂ = ${fA(r.e)} · s = ${fL(r.d)} m · h₀ = ${fL(r.h0)} m`;
+  x.fillText(`${det} · ${dmy(r.t)} ${hhmm(r.t)}`, 12*u, H0 + band*0.72, W - 24*u);
+  return c;
+}
+function drawAlt(m){
+  const {x:c, w, h} = fit($("#cv")); c.clearRect(0,0,w,h); if(!m) return;
+  const lvl = Math.abs(m.roll) <= 1;
+  c.save(); c.translate(w/2, h/2); c.rotate(m.roll*RAD); c.setLineDash([10,8]); c.lineWidth = 2;
+  c.strokeStyle = lvl ? "rgba(70,208,131,.95)" : "rgba(255,255,255,.78)"; c.beginPath(); c.moveTo(-w,0); c.lineTo(-60,0); c.moveTo(60,0); c.lineTo(w,0); c.stroke(); c.restore();
+  crosshair(c, w/2, h/2, AL.held ? "#ffcf33" : "#fff");
+  const s = Math.min(21, w/17), bg = AL.held ? "rgba(224,83,31,.9)" : null;
+  pill(c, `α ${m.e>=0?"▲":"▼"} ${fA(Math.abs(m.e))}`, w*0.27, 30, s, bg);
+  if(S.altm==="d"){ const H = altH({m:"d", e:m.e, d:S.altd, h0:S.h0}); pill(c, `h ≈ ${fL(H)} m`, w*0.73, 30, s, bg); }
+  else if(AL.a1!=null) pill(c, `α₁ = ${fA(AL.a1)}`, w*0.73, 30, s, "rgba(36,87,197,.9)");
+  if(!lvl && Math.abs(m.roll) > 4 && !AL.held) pill(c, "Endereza el teléfono", w/2, h - 96, 15);
+}
+
+/* =====================================================================================
+   PENDIENTES: ángulo de inclinación θ de una superficie, m = tan θ y porcentaje = 100·m
+   ===================================================================================== */
+const PD = {v:null, t:null, frozen:false};
+function pRaw(){ return SEN.src==="sim" ? {b:+$("#sb").value - 90, g:+$("#sg").value} : SEN.raw; }
+function pStep(){
+  if(PD.frozen) return; const r = pRaw(); if(!r) return;
+  const z = S.pzero || {b:0, g:0}, b = r.b - z.b, g = r.g - z.g;
+  const t = Math.acos(clamp(Math.cos(b*RAD)*Math.cos(g*RAD), -1, 1))*DEG;
+  PD.t = PD.t==null ? t : PD.t + (KF[S.resp] || 0.16)*(t - PD.t);
+  PD.v = {t:PD.t};
+}
+function acc(p){ return p <= 8 ? ["Accesible: pendiente de hasta 8 %", "ok", "rgba(31,157,85,.95)"] : p <= 12 ? ["Sobre 8 %: solo aceptable en tramos muy cortos", "warn", "rgba(201,106,18,.95)"] : ["Demasiado inclinada para una rampa accesible", "danger", "rgba(196,43,43,.95)"]; }
+function pendDev(r){ const m = tanD(r.a), p = 100*m;
+  return eqBox([`${I("m")} = tan ${I("θ")} = tan ${fA(r.a)} = <b>${fmt(m, 3)}</b>`, `pendiente = ${I("m")} · 100 % = <b>${fmt(p, 1)} %</b>`]) +
+    `<p class="tnote">Por cada <b>100 cm</b> de avance horizontal, sube <b>${fmt(p, 1)} cm</b>.${m > 0.001 ? ` Razón 1 : ${fmt(1/m, 1)} (sube 1 cm cada ${fmt(1/m, 1)} cm).` : ""} ${acc(p)[0]}.</p>`; }
+function pReads(){ const v = PD.v; if(!v) return; const m = tanD(v.t);
+  $("#pA").textContent = fmt(v.t, 1) + "°"; $("#pM").textContent = v.t < 89 ? fmt(m, 3) : "∞"; $("#pP").textContent = v.t < 89 ? fmt(100*m, 1) + " %" : "–"; }
+function pDraw(){
+  const {x:c, w, h} = fit($("#pcv")); c.clearRect(0, 0, w, h); const v = PD.v;
+  c.fillStyle = cssv("muted"); c.font = `600 15px "Chakra Petch", system-ui, sans-serif`; c.textAlign = "center"; c.textBaseline = "middle";
+  if(!v){ c.fillText("Esperando el sensor…", w/2, h/2); return; }
+  const th = v.t, m = tanD(th), pct = 100*m, big = Math.min(42, w/8);
+  c.textAlign = "left"; c.textBaseline = "top"; c.fillStyle = cssv("text"); c.font = `700 ${big}px "Chakra Petch", system-ui, sans-serif`;
+  c.fillText(th < 89 ? fmt(pct, 1) + " %" : "Vertical", 14, 10);
+  c.fillStyle = cssv("muted"); c.font = `600 14px "Chakra Petch", system-ui, sans-serif`;
+  c.fillText(`m = tan θ = ${th < 89 ? fmt(m, 3) : "∞"}`, 14, 16 + big);
+  const A = acc(pct); pill(c, A[0], w/2, 40 + big + 18, Math.min(14, w/30), A[2]);
+  const thV = Math.min(th, 60), tv = tanD(thV), top = 40 + big + 44, left = 30;
+  const availW = w - left - 92, availH = Math.max(20, h - 34 - top);
+  let L = availW; if(L*tv > availH) L = availH/tv;
+  const bot = top + (availH + L*tv)/2;   // triángulo centrado en el espacio disponible
+  const Ax = left, Ay = bot, Bx = left + L, Cy = bot - L*tv;
+  c.fillStyle = cssv("accent-soft"); c.strokeStyle = cssv("text"); c.lineWidth = 2.5; c.lineJoin = "round";
+  c.beginPath(); c.moveTo(Ax, Ay); c.lineTo(Bx, Ay); c.lineTo(Bx, Cy); c.closePath(); c.fill(); c.stroke();
+  c.lineWidth = 1.5; const q = Math.min(12, (Ay - Cy)*0.6); if(q > 4){ c.beginPath(); c.moveTo(Bx - q, Ay); c.lineTo(Bx - q, Ay - q); c.lineTo(Bx, Ay - q); c.stroke(); }
+  c.strokeStyle = cssv("accent"); c.lineWidth = 2.5; c.beginPath(); c.arc(Ax, Ay, Math.min(46, L*0.35), -thV*RAD, 0); c.stroke();
+  c.fillStyle = cssv("text"); c.font = `700 14px "Chakra Petch", system-ui, sans-serif`;
+  c.textAlign = "center"; c.textBaseline = "top"; c.fillText("100 cm horizontales", Ax + L/2, Ay + 6);
+  c.textAlign = "left"; c.textBaseline = "middle"; c.fillText(`sube ${fmt(pct, 1)} cm`, Bx + 8, (Ay + Cy)/2);
+  const lx = Ax + Math.min(46, L*0.35) + 10; c.fillStyle = cssv("accent"); c.textBaseline = "bottom"; c.fillText(`θ = ${fmt(th, 1)}°`, lx, Ay - (lx - Ax)*tv - 6);
+  if(th > 60){ c.fillStyle = cssv("muted"); c.font = `500 12px "Chakra Petch", system-ui, sans-serif`; c.textAlign = "right"; c.fillText("(dibujo limitado a 60°)", w - 8, h - 6); }
+  if(PD.frozen) pill(c, "Retenido", w - 60, top - 4, 13, "rgba(36,87,197,.92)");
+}
+$("#pZero").onclick = ()=>{ const r = pRaw(); if(!r){ toast("Aún no hay lectura del sensor"); return; }
+  if(S.pzero){ S.pzero = null; toast("Cero de fábrica"); } else { S.pzero = {b:r.b, g:r.g}; toast("Cero fijado en la posición actual"); }
+  PD.t = null; save(); pBtns(); };
+$("#pHold").onclick = ()=>{ PD.frozen = !PD.frozen; if(PD.frozen){ beep(1320,.06); buzz(25); } pBtns(); };
+function pBtns(){ $("#pZero").textContent = S.pzero ? "Quitar cero" : "Fijar cero"; $("#pHold").textContent = PD.frozen ? "Soltar" : "Retener"; $("#pHold").classList.toggle("on", PD.frozen); }
+$("#pReg").onclick = ()=>{
+  const v = PD.v; if(!v){ toast("Aún no hay lectura del sensor"); return; }
+  const r = {a:Math.round(v.t*100)/100}, def = "Rampa " + (D.pend.length + 1);
+  const b = sheet(`<h2>Pendiente: ${fmt(100*tanD(r.a), 1)} %</h2>${pendDev(r)}
+    <label class="l" for="soObj">Lugar</label><input type="text" id="soObj" maxlength="50" value="${esc(def)}" data-nofocus="1">
+    <label class="l" for="soN">Nota (opcional)</label><input type="text" id="soN" maxlength="200" placeholder="Largo de la rampa, ubicación…">
+    <div class="acts"><button class="btn" id="soNo">Descartar</button><button class="btn primary" id="soOk">Guardar</button></div>`);
+  b.querySelector("#soNo").onclick = closeSheet;
+  b.querySelector("#soOk").onclick = ()=>{
+    Object.assign(r, {id:newId(), t:Date.now(), obj:b.querySelector("#soObj").value.trim() || def, n:b.querySelector("#soN").value.trim()});
+    D.pend.push(r); save(); closeSheet(); beep(1320,.1); buzz(50); ledFlash(); toast(`${r.obj}: ${fmt(100*tanD(r.a), 1)} % · guardado en Datos`);
+    if(PD.frozen){ PD.frozen = false; pBtns(); }
+  };
+};
+
+/* =====================================================================================
+   FUNCIONES EN FOTOS: puntos sobre una imagen, origen, escala y ajuste por mínimos cuadrados
+   Las posiciones se guardan en píxeles de la imagen; x = (px − Ox)·k ; y = (Oy − py)·k
+   ===================================================================================== */
+const FITN = {"1":"lineal", "2":"cuadrática", "e":"exponencial"};
+const FT = {id:null, f:null, img:null, url:null, mode:"p", sel:-1, drag:null, scl:null, ptr:null};
+const fotById = id=>D.fot.find(f=>f.id===id) || null;
+$$(".fIn").forEach(inp=>inp.onchange = ()=>{ const file = inp.files && inp.files[0]; inp.value = ""; if(file) newPhoto(file); });
+async function newPhoto(file){
+  toast("Cargando la foto…");
+  const url = URL.createObjectURL(file);
+  try{
+    const im = await new Promise((res, rej)=>{ const i = new Image(); i.onload = ()=>res(i); i.onerror = rej; i.src = url; });
+    const k = Math.min(1, 1600/Math.max(im.naturalWidth, im.naturalHeight)), W = Math.round(im.naturalWidth*k), H = Math.round(im.naturalHeight*k);
+    const c = document.createElement("canvas"); c.width = W; c.height = H; c.getContext("2d").drawImage(im, 0, 0, W, H);
+    const blob = await new Promise(res=>c.toBlob(res, "image/jpeg", 0.86)); if(!blob) throw new Error("blob");
+    const d = new Date(), f = {id:newId(), name:`Foto ${p2(d.getDate())}-${p2(d.getMonth()+1)} ${p2(d.getHours())}:${p2(d.getMinutes())}`, created:Date.now(), w:W, h:H, pts:[], O:[0, H], k:10/W, unit:"", fit:S.fit};
+    await PH.put("ft-"+f.id, blob);
+    D.fot.unshift(f); save(); nav("f-"+f.id);
+  }catch(e){ toast("No se pudo abrir la imagen"); }
+  finally{ URL.revokeObjectURL(url); }
+}
+function polyfit(X, Y, deg){
+  const n = X.length; if(n < deg + 1) return null;
+  const xm = X.reduce((s, v)=>s+v, 0)/n, N = deg + 1, A = [], B = [];
+  for(let i=0; i<N; i++){ A.push(new Array(N).fill(0)); B.push(0); }
+  for(let k=0; k<n; k++){ const z = X[k] - xm, pw = [1]; for(let i=1; i<2*N; i++) pw.push(pw[i-1]*z);
+    for(let i=0; i<N; i++){ B[i] += pw[i]*Y[k]; for(let j=0; j<N; j++) A[i][j] += pw[i+j]; } }
+  for(let i=0; i<N; i++){ let mx = i; for(let r=i+1; r<N; r++) if(Math.abs(A[r][i]) > Math.abs(A[mx][i])) mx = r;
+    [A[i], A[mx]] = [A[mx], A[i]]; [B[i], B[mx]] = [B[mx], B[i]]; if(Math.abs(A[i][i]) < 1e-12) return null;
+    for(let r=i+1; r<N; r++){ const f = A[r][i]/A[i][i]; for(let j=i; j<N; j++) A[r][j] -= f*A[i][j]; B[r] -= f*B[i]; } }
+  const cz = new Array(N).fill(0);
+  for(let i=N-1; i>=0; i--){ let s = B[i]; for(let j=i+1; j<N; j++) s -= A[i][j]*cz[j]; cz[i] = s/A[i][i]; }
+  const c = deg===1 ? [cz[0] - cz[1]*xm, cz[1]] : [cz[0] - cz[1]*xm + cz[2]*xm*xm, cz[1] - 2*cz[2]*xm, cz[2]];
+  const f = z=>c.reduce((s, ci, i)=>s + ci*Math.pow(z, i), 0);
+  return {c, f, r2:r2of(X, Y, f)};
+}
+function r2of(X, Y, f){ const n = Y.length, ym = Y.reduce((s, v)=>s+v, 0)/n; let ssr = 0, sst = 0; for(let k=0; k<n; k++){ ssr += (Y[k]-f(X[k]))**2; sst += (Y[k]-ym)**2; } return sst > 0 ? 1 - ssr/sst : 1; }
+function polyEq(c, html){
+  const xv = html ? I("x") : "x", ts = [];
+  for(let i=c.length-1; i>=0; i--) ts.push({neg:c[i] < 0, t:sig(Math.abs(c[i])) + (i===0 ? "" : i===1 ? xv : xv + "²")});
+  return `${html ? I("y") : "y"} = ` + ts.map((t, i)=>(i===0 ? (t.neg ? "−" : "") : (t.neg ? " − " : " + ")) + t.t).join("");
+}
+const pt = (x, y)=>`(${sig(x)}; ${sig(y)})`;
+function fXY(f){ return {X:f.pts.map(p=>(p[0]-f.O[0])*f.k), Y:f.pts.map(p=>(f.O[1]-p[1])*f.k)}; }
+function fModel(f){
+  const {X, Y} = fXY(f), need = f.fit==="2" ? 3 : 2;
+  if(X.length < need) return {err:`Marca al menos ${need} puntos para el ajuste ${FITN[f.fit]}.`};
+  if(f.fit==="1"){
+    const p = polyfit(X, Y, 1); if(!p) return {err:"Con estos puntos no se puede ajustar una recta (¿tienen todos el mismo x?)."};
+    const [n, m] = p.c, ex = [`Pendiente: ${I("m")} = ${sig(m)} → por cada unidad que avanza ${I("x")}, ${I("y")} ${m >= 0 ? "aumenta" : "disminuye"} ${sig(Math.abs(m))}.`,
+      `Coeficiente de posición: ${I("n")} = ${sig(n)} → corta el eje ${I("y")} en ${pt(0, n)}.`];
+    if(Math.abs(m) > 1e-12) ex.push(`Corta el eje ${I("x")} en ${pt(-n/m, 0)}.`);
+    ex.push(`Ángulo de inclinación: tan ${I("θ")} = ${I("m")} → ${I("θ")} = ${fmt(Math.atan(m)*DEG, 1)}°.`);
+    return {fn:p.f, r2:p.r2, eq:polyEq(p.c, true), txt:polyEq(p.c, false), extra:ex};
+  }
+  if(f.fit==="2"){
+    const p = polyfit(X, Y, 2); if(!p) return {err:"Con estos puntos no se puede ajustar una parábola (necesitas al menos 3 valores de x distintos)."};
+    const [c, b, a] = p.c; if(Math.abs(a) < 1e-12) return {err:"Los puntos están alineados: prueba el ajuste lineal."};
+    const hx = -b/(2*a), ky = p.f(hx), disc = b*b - 4*a*c;
+    const ex = [`Concavidad: ${I("a")} = ${sig(a)} ${a < 0 ? "< 0 → abre hacia abajo (tiene un máximo)" : "> 0 → abre hacia arriba (tiene un mínimo)"}.`,
+      `Vértice: ${I("x")}<sub>v</sub> = ${frac(`−${I("b")}`, `2${I("a")}`)} = ${sig(hx)} ; ${I("y")}<sub>v</sub> = ${I("f")}(${I("x")}<sub>v</sub>) = ${sig(ky)} → ${I("V")} = ${pt(hx, ky)}, ${a < 0 ? "valor máximo" : "valor mínimo"} de ${I("y")}.`,
+      `Eje de simetría: ${I("x")} = ${sig(hx)}.`,
+      `Discriminante: Δ = ${I("b")}² − 4${I("a")}${I("c")} = ${sig(disc)}.`];
+    if(disc > 0){ const r1 = (-b - Math.sqrt(disc))/(2*a), r2 = (-b + Math.sqrt(disc))/(2*a); ex.push(`Ceros (Δ > 0): ${I("x")}₁ = ${sig(Math.min(r1, r2))} y ${I("x")}₂ = ${sig(Math.max(r1, r2))} → distancia entre ellos: ${sig(Math.abs(r2 - r1))}.`); }
+    else if(disc===0) ex.push(`Un solo cero (Δ = 0): ${I("x")} = ${sig(hx)}.`);
+    else ex.push(`No corta el eje ${I("x")} (Δ < 0).`);
+    ex.push(`Corta el eje ${I("y")} en ${pt(0, c)}.`);
+    return {fn:p.f, r2:p.r2, eq:polyEq(p.c, true), txt:polyEq(p.c, false), extra:ex};
+  }
+  if(Y.some(y=>y <= 0)) return {err:`El ajuste exponencial necesita que todos los puntos tengan ${I("y")} > 0. Mueve el origen más abajo.`};
+  const p = polyfit(X, Y.map(Math.log), 1); if(!p) return {err:"Con estos puntos no se puede ajustar una exponencial."};
+  const a = Math.exp(p.c[0]), b = Math.exp(p.c[1]), fn = x=>a*Math.pow(b, x);
+  const ex = [`Valor inicial: ${I("a")} = ${sig(a)} → es el valor de ${I("y")} cuando ${I("x")} = 0.`,
+    `Factor: ${I("b")} = ${sig(b)} ${b > 1 ? "> 1 → crece" : "< 1 → decrece"}: ${I("y")} se multiplica por ${sig(b)} cada vez que ${I("x")} aumenta 1 (un ${fmt(Math.abs(b - 1)*100, 1)} % ${b > 1 ? "más" : "menos"}).`];
+  if(Math.abs(Math.log(b)) > 1e-9) ex.push(b > 1 ? `Se duplica cada ${sig(Math.log(2)/Math.log(b))} unidades de ${I("x")}.` : `Se reduce a la mitad cada ${sig(Math.log(0.5)/Math.log(b))} unidades de ${I("x")}.`);
+  return {fn, r2:r2of(X, Y, fn), eq:`${I("y")} = ${sig(a)} · ${sig(b)}<sup>${I("x")}</sup>`, txt:`y = ${sig(a)} · ${sig(b)}^x`, extra:ex};
+}
+function fEnter(id){
+  const f = fotById(id);
+  if(FT.id===id && FT.img){ FT.f = f; fUI(); fDraw(); return; }
+  if(FT.url) URL.revokeObjectURL(FT.url);
+  Object.assign(FT, {id, f, img:null, url:null, sel:-1, drag:null, scl:null, ptr:null, mode:"p"});
+  PH.get("ft-"+id).then(b=>{ if(FT.id!==id) return; if(!b){ toast("La imagen no está guardada en este navegador"); return; }
+    FT.url = URL.createObjectURL(b); const im = new Image(); im.onload = ()=>{ if(FT.id===id){ FT.img = im; fDraw(); } }; im.src = FT.url; }).catch(()=>toast("No se pudo leer la imagen"));
+  fUI(); fDraw();
+}
+function fMap(w, h){ const f = FT.f, s = Math.min(w/f.w, h/f.h); return {s, ox:(w - f.w*s)/2, oy:(h - f.h*s)/2}; }
+function fOverlay(c, M, u, live){
+  const f = FT.f, P = (ix, iy)=>[M.ox + ix*M.s, M.oy + iy*M.s];
+  const x0 = M.ox, y0 = M.oy, x1 = M.ox + f.w*M.s, y1 = M.oy + f.h*M.s;
+  c.save(); c.beginPath(); c.rect(x0, y0, x1 - x0, y1 - y0); c.clip();
+  const [Ox, Oy] = P(f.O[0], f.O[1]);
+  const stroke2 = (path, col, lw)=>{ path(); c.strokeStyle = "rgba(0,0,0,.55)"; c.lineWidth = lw + 2.5*u; c.stroke(); path(); c.strokeStyle = col; c.lineWidth = lw; c.stroke(); };
+  const lbl = (t, x, y, al, bl)=>{ c.textAlign = al; c.textBaseline = bl; c.lineJoin = "round"; c.lineWidth = 3.5*u; c.strokeStyle = "rgba(0,0,0,.75)"; c.strokeText(t, x, y); c.fillStyle = "#fff"; c.fillText(t, x, y); };
+  stroke2(()=>{ c.beginPath(); c.moveTo(x0, Oy); c.lineTo(x1, Oy); c.moveTo(Ox, y0); c.lineTo(Ox, y1); }, "rgba(255,255,255,.92)", 1.6*u);
+  const pxU = M.s/f.k, st = niceStep(f.w*f.k, 6), ppx = st*pxU, dd = stepDec(st);
+  c.font = `600 ${11*u}px "Chakra Petch", system-ui, sans-serif`;
+  if(ppx > 8*u){
+    for(let k = Math.ceil((x0 - Ox)/ppx); k <= Math.floor((x1 - Ox)/ppx); k++){ if(!k) continue; const X = Ox + k*ppx;
+      stroke2(()=>{ c.beginPath(); c.moveTo(X, Oy - 5*u); c.lineTo(X, Oy + 5*u); }, "#fff", 1.4*u); lbl(fmt(k*st, dd), X, Oy + 7*u, "center", "top"); }
+    for(let k = Math.ceil((Oy - y1)/ppx); k <= Math.floor((Oy - y0)/ppx); k++){ if(!k) continue; const Y = Oy - k*ppx;
+      stroke2(()=>{ c.beginPath(); c.moveTo(Ox - 5*u, Y); c.lineTo(Ox + 5*u, Y); }, "#fff", 1.4*u); lbl(fmt(k*st, dd), Ox - 8*u, Y, "right", "middle"); }
+  }
+  c.font = `700 ${13*u}px "Chakra Petch", system-ui, sans-serif`;
+  lbl("x" + (f.unit ? ` (${f.unit})` : ""), x1 - 6*u, Oy - 6*u, "right", "bottom"); lbl("y" + (f.unit ? ` (${f.unit})` : ""), Ox + 8*u, y0 + 6*u, "left", "top");
+  const Mo = fModel(f);
+  if(Mo.fn){ c.beginPath(); let pen = false;
+    for(let i=0; i<=300; i++){ const sx = x0 + (x1 - x0)*i/300, yu = Mo.fn((sx - Ox)/pxU), sy = Oy - yu*pxU;
+      if(!isFinite(sy) || Math.abs(sy) > 1e5){ pen = false; continue; } if(pen) c.lineTo(sx, sy); else { c.moveTo(sx, sy); pen = true; } }
+    c.lineJoin = "round"; c.strokeStyle = "rgba(255,255,255,.95)"; c.lineWidth = 6.5*u; c.stroke(); c.strokeStyle = "#2f6fe4"; c.lineWidth = 3.4*u; c.stroke(); }
+  f.pts.forEach((p, i)=>{ const [sx, sy] = P(p[0], p[1]), sel = live && i===FT.sel, r = (sel ? 9 : 6.5)*u;
+    c.beginPath(); c.arc(sx, sy, r, 0, 7); c.fillStyle = sel ? "#ffcf33" : "#ff6a2b"; c.fill(); c.lineWidth = 2*u; c.strokeStyle = "#fff"; c.stroke();
+    c.beginPath(); c.arc(sx, sy, 1.5*u, 0, 7); c.fillStyle = "#1a1a22"; c.fill(); });
+  c.beginPath(); c.arc(Ox, Oy, 4.5*u, 0, 7); c.fillStyle = "#fff"; c.fill(); c.lineWidth = 1.5*u; c.strokeStyle = "#000"; c.stroke();
+  c.restore();
+  return Mo;
+}
+function fDraw(){
+  if(route.name!=="fedit" || !FT.f) return;
+  const cv = $("#fcv"), {x:c, w, h} = fit(cv); c.fillStyle = "#0d1020"; c.fillRect(0, 0, w, h);
+  if(!FT.img){ c.fillStyle = "#e6d7b0"; c.font = `600 15px "Chakra Petch", system-ui, sans-serif`; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("Cargando la imagen…", w/2, h/2); return; }
+  const f = FT.f, M = fMap(w, h);
+  c.drawImage(FT.img, M.ox, M.oy, f.w*M.s, f.h*M.s);
+  fOverlay(c, M, 1, true);
+  if(FT.scl){ const a = [M.ox + FT.scl.a[0]*M.s, M.oy + FT.scl.a[1]*M.s], b = [M.ox + FT.scl.b[0]*M.s, M.oy + FT.scl.b[1]*M.s];
+    c.lineCap = "round"; c.strokeStyle = "rgba(0,0,0,.6)"; c.lineWidth = 7; c.beginPath(); c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); c.stroke();
+    c.strokeStyle = "#ffcf33"; c.lineWidth = 3.5; c.stroke(); [a, b].forEach(p=>{ c.beginPath(); c.arc(p[0], p[1], 6, 0, 7); c.fillStyle = "#ffcf33"; c.fill(); }); }
+  if(FT.ptr && FT.drag){ // lupa para ubicar el punto con precisión
+    const p = FT.ptr, R = 54, Z = 3, Lx = clamp(p.sx, R + 4, w - R - 4), Ly = p.sy > 150 ? p.sy - 105 : p.sy + 105;
+    let fx = p.ix, fy = p.iy; if(FT.drag.i!=null){ const q = f.pts[FT.drag.i]; if(q){ fx = q[0]; fy = q[1]; } } else if(FT.drag.o){ fx = f.O[0]; fy = f.O[1]; }
+    const hs = R/(M.s*Z), kk = R/hs, sx0 = Math.max(0, fx - hs), sy0 = Math.max(0, fy - hs), sx1 = Math.min(f.w, fx + hs), sy1 = Math.min(f.h, fy + hs);
+    c.save(); c.beginPath(); c.arc(Lx, Ly, R, 0, 7); c.clip(); c.fillStyle = "#000"; c.fillRect(Lx - R, Ly - R, 2*R, 2*R);
+    if(sx1 > sx0 && sy1 > sy0) c.drawImage(FT.img, sx0, sy0, sx1 - sx0, sy1 - sy0, Lx - R + (sx0 - fx + hs)*kk, Ly - R + (sy0 - fy + hs)*kk, (sx1 - sx0)*kk, (sy1 - sy0)*kk);
+    c.strokeStyle = "#ffcf33"; c.lineWidth = 1.5; c.beginPath(); c.moveTo(Lx - R, Ly); c.lineTo(Lx - 6, Ly); c.moveTo(Lx + 6, Ly); c.lineTo(Lx + R, Ly); c.moveTo(Lx, Ly - R); c.lineTo(Lx, Ly - 6); c.moveTo(Lx, Ly + 6); c.lineTo(Lx, Ly + R); c.stroke();
+    c.restore(); c.lineWidth = 3; c.strokeStyle = "#fff"; c.beginPath(); c.arc(Lx, Ly, R, 0, 7); c.stroke(); c.lineWidth = 1.5; c.strokeStyle = "#1a1a22"; c.beginPath(); c.arc(Lx, Ly, R + 2, 0, 7); c.stroke();
+  }
+}
+function fUI(){
+  const f = FT.f; if(!f) return;
+  $$("#fMode button").forEach(b=>b.classList.toggle("on", b.dataset.m===FT.mode));
+  $$("#fFit button").forEach(b=>b.classList.toggle("on", b.dataset.f===f.fit));
+  $("#fhint").textContent = {p:"Toca sobre la curva para marcar puntos. Mantén el dedo para ver la lupa; arrastra un punto para moverlo.",
+    o:"Toca donde quieres el origen (0, 0). Los ejes se dibujan desde ahí.", e:"Arrastra el dedo a lo largo de algo cuyo largo conozcas."}[FT.mode];
+  $("#fDel").disabled = !(FT.sel >= 0 && FT.sel < f.pts.length); $("#fUndo").disabled = !f.pts.length;
+  const M = fModel(f);
+  if(M.err){ $("#fEq").innerHTML = `<span class="muted" style="font-family:var(--body);font-size:15px">${M.err}</span>`; $("#fExtra").innerHTML = ""; }
+  else { $("#fEq").innerHTML = `<div>${M.eq}</div><div class="r2">${I("R")}² = ${fmt(M.r2, 4)}</div>`;
+    $("#fExtra").innerHTML = M.extra.map(s=>`<li>${s}</li>`).join("") + `<li class="muted">${I("R")}² indica qué tan cerca están los puntos de la curva: 1 es un ajuste perfecto. Compara los tres modelos y elige el que mejor describe la foto.</li>`; }
+  const {X, Y} = fXY(f);
+  $("#fBody").innerHTML = X.length ? X.map((x, i)=>`<tr data-i="${i}"${i===FT.sel ? ' class="sel"' : ""}><td class="n">P${i+1}</td><td>${sig(x)}</td><td>${sig(Y[i])}</td><td>${M.fn ? sig(M.fn(x)) : "–"}</td></tr>`).join("")
+    : `<tr><td colspan="4" class="muted" style="white-space:normal">Aún no hay puntos: toca la foto sobre la curva.</td></tr>`;
+  $("#fBody").querySelectorAll("[data-i]").forEach(tr=>tr.onclick = ()=>{ FT.sel = +tr.dataset.i; fUI(); fDraw(); });
+  $("#fScaleTxt").textContent = f.unit ? `Escala: 1 ${f.unit} = ${fmt(1/f.k, 1)} píxeles de la foto.` : "Sin escala: el ancho de la foto equivale a 10 unidades. Usa Escala para medir en metros u otra unidad.";
+}
+const fcv = $("#fcv");
+function fPt(e){ const r = fcv.getBoundingClientRect(), M = fMap(r.width, r.height), sx = e.clientX - r.left, sy = e.clientY - r.top;
+  return {sx, sy, M, ix:clamp((sx - M.ox)/M.s, 0, FT.f.w), iy:clamp((sy - M.oy)/M.s, 0, FT.f.h)}; }
+fcv.addEventListener("pointerdown", e=>{
+  if(!FT.f || !FT.img || FT.drag) return; e.preventDefault(); try{ fcv.setPointerCapture(e.pointerId); }catch(er){}
+  const p = fPt(e), f = FT.f;
+  if(FT.mode==="p"){
+    let best = -1, bd = 26; f.pts.forEach((q, i)=>{ const d = Math.hypot((q[0] - p.ix)*p.M.s, (q[1] - p.iy)*p.M.s); if(d < bd){ bd = d; best = i; } });
+    if(best >= 0) FT.drag = {i:best, x0:p.sx, y0:p.sy, moved:false, off:[f.pts[best][0] - p.ix, f.pts[best][1] - p.iy]};
+    else { f.pts.push([p.ix, p.iy]); FT.drag = {i:f.pts.length - 1, x0:p.sx, y0:p.sy, moved:true, off:[0, 0]}; }
+    FT.sel = FT.drag.i;
+  } else if(FT.mode==="o"){ f.O = [p.ix, p.iy]; FT.drag = {o:true}; }
+  else { FT.scl = {a:[p.ix, p.iy], b:[p.ix, p.iy]}; FT.drag = {e:true}; }
+  FT.ptr = p; fDraw();
+});
+fcv.addEventListener("pointermove", e=>{
+  const d = FT.drag; if(!d) return; const p = fPt(e), f = FT.f; FT.ptr = p;
+  if(d.i!=null){ if(Math.hypot(p.sx - d.x0, p.sy - d.y0) > 5) d.moved = true; if(d.moved) f.pts[d.i] = [clamp(p.ix + d.off[0], 0, f.w), clamp(p.iy + d.off[1], 0, f.h)]; }
+  else if(d.o) f.O = [p.ix, p.iy]; else if(d.e) FT.scl.b = [p.ix, p.iy];
+  fDraw();
+});
+function fUp(){
+  const d = FT.drag; FT.drag = null; FT.ptr = null; if(!d) return;
+  if(d.e){ const s = FT.scl, r = fcv.getBoundingClientRect(), len = Math.hypot(s.b[0] - s.a[0], s.b[1] - s.a[1]);
+    if(len*fMap(r.width, r.height).s < 15){ FT.scl = null; toast("Arrastra a lo largo de todo el objeto de largo conocido"); fDraw(); return; }
+    fDraw(); askScale(len); return; }
+  if(d.o) toast("Origen fijado"); else if(d.i!=null && !d.moved){ buzz(10); }
+  else beep(1500, .04);
+  save(); fUI(); fDraw();
+}
+fcv.addEventListener("pointerup", fUp); fcv.addEventListener("pointercancel", fUp);
+function askScale(len){
+  const f = FT.f;
+  const b = sheet(`<h2>Escala</h2><p class="muted" style="margin:0">¿Cuánto mide en la realidad el trazo que dibujaste?</p>
+    <div class="grid2"><div><label class="l" for="scV">Largo</label><input type="text" inputmode="decimal" id="scV" value="1"></div>
+    <div><label class="l" for="scU">Unidad</label><input type="text" id="scU" maxlength="6" value="${esc(f.unit || "m")}" data-nofocus="1"></div></div>
+    <div class="acts"><button class="btn" id="scNo">Cancelar</button><button class="btn primary" id="scOk">Usar escala</button></div>
+    <div class="acts"><button class="btn" id="scOff">Quitar escala</button></div>`);
+  b.querySelector("#scV").select();
+  const done = ()=>{ FT.scl = null; closeSheet(); save(); fUI(); fDraw(); };
+  b.querySelector("#scNo").onclick = done;
+  b.querySelector("#scOff").onclick = ()=>{ f.k = 10/f.w; f.unit = ""; done(); toast("Sin escala: el ancho de la foto mide 10 unidades"); };
+  b.querySelector("#scOk").onclick = ()=>{ const v = num(b.querySelector("#scV").value); if(!(v > 0)){ toast("Escribe un largo mayor que 0"); return; }
+    f.k = v/len; f.unit = b.querySelector("#scU").value.trim() || "m"; done(); toast(`Escala fijada: el trazo mide ${fmt(v, 2)} ${f.unit}`); };
+}
+$$("#fMode button").forEach(b=>b.onclick = ()=>{ FT.mode = b.dataset.m; if(FT.mode!=="p") FT.sel = -1; fUI(); fDraw(); });
+$$("#fFit button").forEach(b=>b.onclick = ()=>{ FT.f.fit = S.fit = b.dataset.f; save(); fUI(); fDraw(); });
+$("#fUndo").onclick = ()=>{ const f = FT.f; if(!f.pts.length) return; f.pts.pop(); FT.sel = -1; save(); fUI(); fDraw(); };
+$("#fDel").onclick = ()=>{ const f = FT.f; if(FT.sel < 0 || FT.sel >= f.pts.length) return; f.pts.splice(FT.sel, 1); FT.sel = -1; save(); fUI(); fDraw(); };
+$("#fImg").onclick = ()=>{
+  const f = FT.f, im = FT.img; if(!im){ toast("La imagen aún no carga"); return; }
+  const W = f.w, H = f.h, u = Math.max(1, W/650), band = Math.round(70*u), c = document.createElement("canvas");
+  c.width = W; c.height = H + band; const x = c.getContext("2d");
+  x.drawImage(im, 0, 0, W, H); const Mo = fOverlay(x, {s:1, ox:0, oy:0}, u, false);
+  x.fillStyle = "#11152a"; x.fillRect(0, H, W, band); x.textAlign = "left"; x.textBaseline = "middle";
+  x.fillStyle = "#fff"; x.font = `700 ${Math.round(19*u)}px "Chakra Petch", system-ui, sans-serif`;
+  x.fillText(Mo.fn ? `${Mo.txt}   (R² = ${fmt(Mo.r2, 4)})` : f.name, 14*u, H + band*0.36, W - 28*u);
+  x.fillStyle = "#e6d7b0"; x.font = `600 ${Math.round(13*u)}px "Chakra Petch", system-ui, sans-serif`;
+  x.fillText(`${f.name} · modelo ${FITN[f.fit]} · ${f.pts.length} puntos${f.unit ? " · unidades: " + f.unit : ""} · MatematicApp`, 14*u, H + band*0.74, W - 28*u);
+  c.toBlob(bl=>{ if(bl) exportFiles([new File([bl], fname(f.name, "jpg"), {type:"image/jpeg"})], f.name, "share"); }, "image/jpeg", 0.9);
+};
+$("#fCsv").onclick = ()=>{
+  const f = FT.f, {X, Y} = fXY(f), Mo = fModel(f), u = f.unit ? ` (${f.unit})` : "";
+  let t = csvOf(f.name, ["Punto", "x" + u, "y" + u, "y del modelo"], X.map((x, i)=>["P" + (i+1), n2(x, 4), n2(Y[i], 4), Mo.fn ? n2(Mo.fn(x), 4) : ""]));
+  t += "\r\n\r\n" + q("Modelo " + FITN[f.fit]) + ";" + q(Mo.fn ? Mo.txt : Mo.err.replace(/<[^>]+>/g, "")) + (Mo.fn ? "\r\nR²;" + n2(Mo.r2, 4) : "");
+  exportFiles([csvFile(t, fname(f.name))], f.name, "download");
+};
+$("#fRen").onclick = ()=>renameDlg(FT.f, ()=>{ $("#tTitle").textContent = FT.f.name; });
+$("#fRm").onclick = ()=>{ const f = FT.f; if(!confirm(`¿Eliminar “${f.name}” con sus ${f.pts.length} puntos? No se puede deshacer.`)) return;
+  PH.del("ft-"+f.id); D.fot = D.fot.filter(x=>x.id!==f.id); save(); FT.id = null; toast("Foto eliminada"); history.replaceState(null, "", "#fotos"); render(); };
+function renameDlg(o, after){
+  const b = sheet(`<h2>Editar nombre</h2><label class="l" for="rnV">Nombre</label><input type="text" id="rnV" maxlength="60" value="${esc(o.name)}">
+    <div class="acts"><button class="btn" id="rnNo">Cancelar</button><button class="btn primary" id="rnOk">Guardar</button></div>`);
+  b.querySelector("#rnV").select(); b.querySelector("#rnNo").onclick = closeSheet;
+  b.querySelector("#rnOk").onclick = ()=>{ o.name = b.querySelector("#rnV").value.trim() || o.name; save(); closeSheet(); if(after) after(); };
+}
+function renderFotos(){
+  $("#fList").innerHTML = D.fot.length ? D.fot.map((f, k)=>item(`data-href="f-${f.id}"`, "fotos", "N.º " + String(D.fot.length - k).padStart(3, "0"), f.name, `${dmy(f.created)} · ${f.pts.length} puntos · ${FITN[f.fit]}`)).join("")
+    : `<div class="empty">Aún no hay fotos. Toma una o elígela de la galería.</div>`;
+  bindItems($("#fList"));
+}
+
+/* =====================================================================================
+   DADOS Y MONEDAS: frecuencia relativa, probabilidad teórica (Laplace) y ley de los grandes números
+   ===================================================================================== */
+const EXP = {
+  moneda:{name:"Moneda", out:["Cara","Sello"], w:[1,1], tot:2, ev:0},
+  dado:{name:"Dado", out:["1","2","3","4","5","6"], w:[1,1,1,1,1,1], tot:6, ev:5},
+  dos:{name:"Suma de dos dados", out:["2","3","4","5","6","7","8","9","10","11","12"], w:[1,2,3,4,5,6,5,4,3,2,1], tot:36, ev:5}
+};
+const gcd = (a,b)=>b ? gcd(b, a%b) : a;
+const pFrac = (w, t)=>{ const g = gcd(w, t); return `${w/g}/${t/g}`; };
+const rnd = n=>{ try{ const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; }catch(e){ return Math.floor(Math.random()*n); } };
+const roll = x=>x==="moneda" ? rnd(2) : x==="dado" ? rnd(6) : rnd(6) + rnd(6);
+const AZ = {x:"moneda", seq:[], cnt:[], ev:0, hits:[]};
+const MAXZ = 100000;
+function azLoad(o){
+  AZ.x = EXP[o.x] ? o.x : "moneda"; const E = EXP[AZ.x];
+  AZ.seq = []; AZ.cnt = E.out.map(()=>0);
+  for(const ch of (o.s || "")){ const i = ch.charCodeAt(0) - 97; if(i >= 0 && i < E.out.length){ AZ.seq.push(i); AZ.cnt[i]++; } }
+  AZ.ev = o.ev==null ? E.ev : clamp(o.ev|0, 0, E.out.length - 1);
+}
+const azStr = ()=>AZ.seq.map(i=>String.fromCharCode(97 + i)).join("");
+let azT; function azSave(now){ clearTimeout(azT); const f = ()=>{ D.az = {x:AZ.x, s:azStr(), ev:AZ.ev}; save(); }; if(now) f(); else azT = setTimeout(f, 400); }
+function evName(x, i){ const E = EXP[x]; return x==="dos" ? `la suma es ${E.out[i]}` : x==="moneda" ? `sale ${E.out[i].toLowerCase()}` : `sale ${E.out[i]}`; }
+function azRoll(n){
+  const room = MAXZ - AZ.seq.length; if(room <= 0){ toast("Llegaste al máximo de 100 000 lanzamientos. Reinicia para seguir."); return; }
+  n = Math.min(n, room); for(let k=0; k<n; k++){ const i = roll(AZ.x); AZ.seq.push(i); AZ.cnt[i]++; }
+  beep(n===1 ? 900 + 60*AZ.seq[AZ.seq.length - 1] : 1200, .05); azSave(); azRender();
+}
+function azReal(i){ if(AZ.seq.length >= MAXZ) return; AZ.seq.push(i); AZ.cnt[i]++; beep(1100, .05); buzz(20); azSave(); azRender(); }
+function azRender(){
+  const E = EXP[AZ.x], N = AZ.seq.length, p = E.w[AZ.ev]/E.tot, fr = N ? AZ.cnt[AZ.ev]/N : null;
+  $$("#zX button").forEach(b=>b.classList.toggle("on", b.dataset.x===AZ.x));
+  $$("#zG button").forEach(b=>b.classList.toggle("on", b.dataset.g===S.zg));
+  $$("#zM button").forEach(b=>b.classList.toggle("on", b.dataset.m===S.zm));
+  $("#zN").textContent = N.toLocaleString("es-CL"); $("#zL").textContent = N ? E.out[AZ.seq[N - 1]] : "–";
+  $("#zF").textContent = fr==null ? "–" : fmt(fr, 3); $("#zP").textContent = fmt(p, 3);
+  $("#zEv").innerHTML = `Evento: <b>${evName(AZ.x, AZ.ev)}</b> · ${I("P")} = ${pFrac(E.w[AZ.ev], E.tot)} ≈ ${fmt(p, 3)}. Toca una barra o una fila de la tabla para elegir otro.`;
+  if(S.zm==="sim"){
+    if(!$("#zCtl").dataset.m || $("#zCtl").dataset.m!=="sim"){ $("#zCtl").dataset.m = "sim";
+      $("#zCtl").innerHTML = `<div class="acts" style="margin-top:0"><button class="btn primary" data-n="1">Lanzar 1</button><button class="btn" data-n="10">×10</button><button class="btn" data-n="100">×100</button><button class="btn" data-n="1000">×1000</button></div>`;
+      $("#zCtl").querySelectorAll("[data-n]").forEach(b=>b.onclick = ()=>azRoll(+b.dataset.n)); }
+  } else if($("#zCtl").dataset.m!=="real-" + AZ.x){ $("#zCtl").dataset.m = "real-" + AZ.x;
+    $("#zCtl").innerHTML = `<div class="azg">${E.out.map((o, i)=>`<button class="btn" data-i="${i}">${o}</button>`).join("")}</div>
+      <div class="acts"><button class="btn" id="zUndo">Deshacer el último</button></div>
+      <p class="tnote" style="margin-top:8px">Lanza ${AZ.x==="moneda" ? "la moneda" : AZ.x==="dado" ? "el dado" : "los dos dados"} de verdad y toca ${AZ.x==="dos" ? "la suma" : "el resultado"} que salió. Así comparas datos reales con la probabilidad teórica.</p>`;
+    $("#zCtl").querySelectorAll("[data-i]").forEach(b=>b.onclick = ()=>azReal(+b.dataset.i));
+    $("#zUndo").onclick = ()=>{ if(!AZ.seq.length) return; const i = AZ.seq.pop(); AZ.cnt[i]--; azSave(); azRender(); }; }
+  $("#zBody").innerHTML = E.out.map((o, i)=>{ const f = N ? AZ.cnt[i]/N : null;
+    return `<tr data-i="${i}"${i===AZ.ev ? ' class="sel"' : ""}><td class="n">${o}</td><td>${AZ.cnt[i]}</td><td>${f==null ? "–" : fmt(f, 3)}</td><td>${f==null ? "–" : fmt(100*f, 1)}</td><td>${pFrac(E.w[i], E.tot)} ≈ ${fmt(E.w[i]/E.tot, 3)}</td></tr>`; }).join("");
+  $("#zFoot").innerHTML = `<tr><td>Total</td><td>${N}</td><td>${N ? "1" : "–"}</td><td>${N ? "100" : "–"}</td><td>1</td></tr>`;
+  $("#zBody").querySelectorAll("[data-i]").forEach(tr=>tr.onclick = ()=>{ AZ.ev = +tr.dataset.i; azSave(); azRender(); });
+  let obs = `<p>La <b>probabilidad teórica</b> se calcula con la regla de Laplace: ${I("P")}(${I("A")}) = ${frac("casos favorables", "casos posibles")}.</p>`;
+  if(AZ.x==="dos") obs += `<p>Con dos dados hay 6 · 6 = <b>36</b> casos posibles igualmente probables, pero las sumas <b>no</b> son equiprobables: el 7 se obtiene de 6 formas (1+6, 2+5, 3+4, 4+3, 5+2, 6+1) y el 2 o el 12 de una sola.</p>`;
+  obs += `<p>Con pocos lanzamientos la frecuencia relativa cambia mucho; a medida que ${I("n")} crece se estabiliza cerca de la probabilidad teórica: es la <b>ley de los grandes números</b>. Míralo en <b>Convergencia</b>.</p>`;
+  if(N) obs += `<p>Ahora: con ${I("n")} = ${N}, la frecuencia relativa de «${evName(AZ.x, AZ.ev)}» es <b>${fmt(fr, 3)}</b> y la probabilidad teórica es <b>${fmt(p, 3)}</b>. Diferencia: |${fmt(fr, 3)} − ${fmt(p, 3)}| = <b>${fmt(Math.abs(fr - p), 3)}</b>.</p>`;
+  $("#zObs").innerHTML = obs.replace(/<p>/g, '<p class="tnote" style="margin:6px 0">');
+  azDraw();
+}
+function azDraw(){
+  if(route.name!=="azar") return;
+  const {x:c, w, h} = fit($("#zcv")); c.clearRect(0, 0, w, h);
+  const E = EXP[AZ.x], N = AZ.seq.length, nO = E.out.length, L = 46, R = 12, T = 28, B = 34, pw = w - L - R, ph = h - T - B;
+  const col = {text:cssv("text"), muted:cssv("muted"), line:cssv("line"), acc:cssv("accent"), cur:cssv("curve")};
+  const font = (wt, sz)=>c.font = `${wt} ${sz}px "Chakra Petch", system-ui, sans-serif`;
+  const yAxis = (ym, dec)=>{ const st = niceStep(ym, 4); font(500, 12); c.textAlign = "right"; c.textBaseline = "middle"; c.strokeStyle = col.line; c.lineWidth = 1;
+    for(let v = 0; v <= ym + 1e-9; v += st){ const y = T + ph - v/ym*ph; c.beginPath(); c.moveTo(L, y); c.lineTo(L + pw, y); c.stroke(); c.fillStyle = col.muted; c.fillText(fmt(v, dec==null ? stepDec(st) : dec), L - 6, y); } };
+  const legend = ()=>{ font(600, 12); c.textAlign = "left"; c.textBaseline = "middle"; c.fillStyle = col.acc; c.fillRect(L, 9, 12, 12); c.fillStyle = col.text; c.fillText("frec. relativa", L + 17, 15);
+    const x2 = L + 17 + c.measureText("frec. relativa").width + 16; c.strokeStyle = col.cur; c.lineWidth = 2.5; c.setLineDash([5, 4]); c.beginPath(); c.moveTo(x2, 15); c.lineTo(x2 + 20, 15); c.stroke(); c.setLineDash([]);
+    c.fillText("prob. teórica", x2 + 25, 15); };
+  AZ.hits = [];
+  if(S.zg==="f"){
+    const fr = AZ.cnt.map(k=>N ? k/N : 0), pr = E.w.map(k=>k/E.tot); let ym = Math.max(...fr, ...pr)*1.15; const st0 = niceStep(ym, 4); ym = Math.min(1, Math.max(0.1, Math.ceil(ym/st0)*st0));
+    yAxis(ym); legend();
+    const bw = pw/nO;
+    for(let i=0; i<nO; i++){ const x = L + i*bw, bh = Math.min(fr[i], ym)/ym*ph, sel = i===AZ.ev;
+      c.fillStyle = col.acc; c.globalAlpha = sel ? 1 : 0.72; c.fillRect(x + bw*0.16, T + ph - bh, bw*0.68, bh); c.globalAlpha = 1;
+      if(sel){ c.strokeStyle = col.text; c.lineWidth = 2; c.strokeRect(x + bw*0.16, T + ph - bh, bw*0.68, bh); }
+      const yp = T + ph - pr[i]/ym*ph; c.strokeStyle = col.cur; c.lineWidth = 2.5; c.setLineDash([5, 4]); c.beginPath(); c.moveTo(x + bw*0.06, yp); c.lineTo(x + bw*0.94, yp); c.stroke(); c.setLineDash([]);
+      font(sel ? 700 : 600, nO > 6 ? 12 : 13.5); c.fillStyle = col.text; c.textAlign = "center"; c.textBaseline = "top"; c.fillText(E.out[i], x + bw/2, T + ph + 6);
+      if(N && bw > 34){ font(600, 11); c.fillStyle = col.muted; c.textBaseline = "bottom"; c.fillText(fmt(fr[i], 2), x + bw/2, Math.min(T + ph - bh, yp) - 3); }
+      AZ.hits.push([x, x + bw, i]); }
+    c.strokeStyle = col.text; c.lineWidth = 1.5; c.beginPath(); c.moveTo(L, T); c.lineTo(L, T + ph); c.lineTo(L + pw, T + ph); c.stroke();
+    if(!N){ font(600, 15); c.fillStyle = col.muted; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText(S.zm==="sim" ? "Toca Lanzar para empezar" : "Toca el resultado de cada lanzamiento", L + pw/2, T + ph/2); }
+  } else {
+    const p = E.w[AZ.ev]/E.tot, ym = Math.min(1, Math.max(p*3, 0.2)), xN = Math.max(N, 10);
+    yAxis(ym); legend();
+    const sx = n=>L + (n - 1)/(xN - 1)*pw, sy = v=>T + ph - v/ym*ph;
+    const xs = niceStep(xN, Math.max(3, Math.floor(pw/80))); font(500, 12); c.fillStyle = col.muted; c.textAlign = "center"; c.textBaseline = "top";
+    for(let v = xs; v <= xN; v += xs) c.fillText(v.toLocaleString("es-CL"), sx(v), T + ph + 5);
+    c.textAlign = "right"; c.textBaseline = "bottom"; font(700, 12); c.fillStyle = col.text; c.fillText("n (lanzamientos)", L + pw, h - 1);
+    c.strokeStyle = col.cur; c.lineWidth = 2.5; c.setLineDash([5, 4]); c.beginPath(); c.moveTo(L, sy(p)); c.lineTo(L + pw, sy(p)); c.stroke(); c.setLineDash([]);
+    c.save(); c.beginPath(); c.rect(L, T, pw, ph); c.clip();
+    if(N){ const step = Math.max(1, Math.floor(N/900)); let k = 0; c.strokeStyle = col.acc; c.lineWidth = 2; c.lineJoin = "round"; c.beginPath();
+      for(let n=1; n<=N; n++){ if(AZ.seq[n-1]===AZ.ev) k++; if(n % step===0 || n===N){ const X = sx(n), Y = sy(k/n); if(n===1 || (step > 1 && n===step)) c.moveTo(X, Y); else c.lineTo(X, Y); } }
+      c.stroke(); if(N < 60){ c.fillStyle = col.acc; k = 0; for(let n=1; n<=N; n++){ if(AZ.seq[n-1]===AZ.ev) k++; c.beginPath(); c.arc(sx(n), sy(k/n), 2.5, 0, 7); c.fill(); } } }
+    c.restore();
+    c.strokeStyle = col.text; c.lineWidth = 1.5; c.beginPath(); c.moveTo(L, T); c.lineTo(L, T + ph); c.lineTo(L + pw, T + ph); c.stroke();
+    font(700, 12); c.fillStyle = col.cur; c.textAlign = "right"; c.textBaseline = "bottom"; c.fillText(`P = ${pFrac(E.w[AZ.ev], E.tot)}`, L + pw - 4, sy(p) - 3);
+    if(!N){ font(600, 15); c.fillStyle = col.muted; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("Sin lanzamientos todavía", L + pw/2, T + ph/2); }
+  }
+}
+$("#zcv").addEventListener("click", e=>{ if(S.zg!=="f") return; const x = e.clientX - e.currentTarget.getBoundingClientRect().left, hit = AZ.hits.find(hh=>x >= hh[0] && x < hh[1]); if(hit){ AZ.ev = hit[2]; azSave(); azRender(); } });
+$$("#zX button").forEach(b=>b.onclick = ()=>{ const x = b.dataset.x; if(x===AZ.x) return;
+  if(AZ.seq.length && !confirm(`¿Cambiar de experimento? Se borran los ${AZ.seq.length} lanzamientos actuales (guárdalos antes si los necesitas).`)) return;
+  azLoad({x, s:"", ev:null}); $("#zCtl").dataset.m = ""; azSave(true); azRender(); });
+$$("#zG button").forEach(b=>b.onclick = ()=>{ S.zg = b.dataset.g; save(); azRender(); });
+$$("#zM button").forEach(b=>b.onclick = ()=>{ S.zm = b.dataset.m; save(); azRender(); });
+$("#zReset").onclick = ()=>{ if(AZ.seq.length && !confirm(`¿Borrar los ${AZ.seq.length} lanzamientos y empezar de nuevo?`)) return; azLoad({x:AZ.x, s:"", ev:AZ.ev}); azSave(true); azRender(); };
+function azCsv(name, x, s){
+  const E = EXP[x], cnt = E.out.map(()=>0), seq = []; for(const ch of s){ const i = ch.charCodeAt(0) - 97; if(i >= 0 && i < cnt.length){ cnt[i]++; seq.push(i); } }
+  const N = seq.length;
+  let t = csvOf(`${name} (${E.name}, n = ${N})`, ["Resultado","Frecuencia absoluta","Frecuencia relativa","Porcentaje","Probabilidad teórica"],
+    E.out.map((o, i)=>[o, cnt[i], N ? n2(cnt[i]/N, 4) : "", N ? n2(100*cnt[i]/N, 2) : "", n2(E.w[i]/E.tot, 4)]));
+  t += "\r\nTotal;" + N + "\r\n\r\nLanzamiento;Resultado\r\n" + seq.map((i, k)=>(k + 1) + ";" + E.out[i]).join("\r\n");
+  return t;
+}
+$("#zCsv").onclick = ()=>{ if(!AZ.seq.length){ toast("Aún no hay lanzamientos"); return; } const nm = `${EXP[AZ.x].name} ${dmy(Date.now())}`; exportFiles([csvFile(azCsv(nm, AZ.x, azStr()), fname(nm))], nm, "download"); };
+$("#zSave").onclick = ()=>{
+  if(!AZ.seq.length){ toast("Aún no hay lanzamientos para guardar"); return; }
+  const def = `${EXP[AZ.x].name} · ${AZ.seq.length} lanzamientos`;
+  const b = sheet(`<h2>Guardar experimento</h2><p class="muted" style="margin:0">Queda en Datos para revisarlo o descargarlo después.</p>
+    <label class="l" for="zsN">Nombre</label><input type="text" id="zsN" maxlength="60" value="${esc(def)}">
+    <div class="acts"><button class="btn" id="zsNo">Cancelar</button><button class="btn primary" id="zsOk">Guardar</button></div>`);
+  b.querySelector("#zsN").select(); b.querySelector("#zsNo").onclick = closeSheet;
+  b.querySelector("#zsOk").onclick = ()=>{ D.azar.unshift({id:newId(), name:b.querySelector("#zsN").value.trim() || def, created:Date.now(), x:AZ.x, s:azStr(), ev:AZ.ev}); save(); closeSheet(); toast("Experimento guardado en Datos"); };
+};
+function azSheet(id){
+  const z = D.azar.find(o=>o.id===id); if(!z) return;
+  const b = sheet(`<h2>${esc(z.name)}</h2><p class="muted" style="margin:0">${EXP[z.x].name} · ${z.s.length} lanzamientos · ${dmy(z.created)}</p>
+    <div class="acts"><button class="btn primary" id="azO">Abrir</button><button class="btn" id="azC">Descargar CSV</button></div>
+    <div class="acts"><button class="btn" id="azR">Editar nombre</button><button class="btn danger" id="azD">Eliminar</button></div>
+    <div class="acts"><button class="btn" id="azNo">Cerrar</button></div>`);
+  b.querySelector("#azNo").onclick = closeSheet;
+  b.querySelector("#azO").onclick = ()=>{ if(AZ.seq.length && azStr()!==z.s && !confirm(`Se reemplaza el experimento que tienes abierto (${AZ.seq.length} lanzamientos). ¿Continuar?`)) return;
+    azLoad(z); $("#zCtl").dataset.m = ""; azSave(true); closeSheet(); nav("azar"); };
+  b.querySelector("#azC").onclick = ()=>{ exportFiles([csvFile(azCsv(z.name, z.x, z.s), fname(z.name))], z.name, "download"); };
+  b.querySelector("#azR").onclick = ()=>renameDlg(z, renderDatos);
+  b.querySelector("#azD").onclick = ()=>{ if(!confirm(`¿Eliminar “${z.name}”?`)) return; D.azar = D.azar.filter(o=>o.id!==z.id); save(); closeSheet(); renderDatos(); toast("Experimento eliminado"); };
+}
+
+/* ============================== datos y tablas ============================== */
+const IC = {
+  alt:'<path d="M3 20h18"/><path d="M17 20V5"/><path d="M4 20L17 5" stroke-dasharray="1.6 2.4"/><path d="M8.6 20a4.6 4.6 0 0 0-1.4-3.3"/><circle class="f" cx="17" cy="5" r="1.6"/>',
+  pend:'<path d="M3 19h18V8z"/><path d="M18.3 19v-2.7H21"/><path d="M8.2 19a5.2 5.2 0 0 0-.4-2.1"/>',
+  fotos:'<rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="M5 17.5c3-11.5 11-11.5 14 0"/><circle class="f" cx="7.3" cy="11.8" r="1.3"/><circle class="f" cx="12" cy="8.2" r="1.3"/><circle class="f" cx="16.7" cy="11.8" r="1.3"/>',
+  azar:'<rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle class="f" cx="8.4" cy="8.4" r="1.45"/><circle class="f" cx="15.6" cy="15.6" r="1.45"/><circle class="f" cx="12" cy="12" r="1.45"/><circle class="f" cx="15.6" cy="8.4" r="1.45"/><circle class="f" cx="8.4" cy="15.6" r="1.45"/>'
+};
+const svgI = k=>`<svg viewBox="0 0 24 24">${IC[k]}</svg>`;
+const item = (attrs, ic, em, name, small)=>`<button class="regitem" ${attrs}><span class="ic">${svgI(ic)}</span><span class="tx"><em>${em}</em><b>${esc(name)}</b><small>${small}</small></span></button>`;
+function bindItems(root){ root.querySelectorAll("[data-href]").forEach(b=>b.onclick = ()=>nav(b.dataset.href)); root.querySelectorAll("[data-az]").forEach(b=>b.onclick = ()=>azSheet(b.dataset.az)); }
+function renderDatos(){
+  $("#dsMed").innerHTML = item('data-href="l-alt"', "alt", "TABLA", "Alturas", `${D.alt.length} ${D.alt.length===1 ? "medición" : "mediciones"}`) + item('data-href="l-pend"', "pend", "TABLA", "Pendientes", `${D.pend.length} ${D.pend.length===1 ? "medición" : "mediciones"}`);
+  $("#dsFot").innerHTML = D.fot.length ? D.fot.map((f, k)=>item(`data-href="f-${f.id}"`, "fotos", "N.º " + String(D.fot.length - k).padStart(3, "0"), f.name, `${dmy(f.created)} · ${f.pts.length} puntos · ${FITN[f.fit]}`)).join("") : `<div class="empty">Toma una foto en Funciones en fotos y aparecerá aquí.</div>`;
+  $("#dsAz").innerHTML = D.azar.length ? D.azar.map(z=>item(`data-az="${z.id}"`, "azar", EXP[z.x].name.toUpperCase(), z.name, `${dmy(z.created)} · ${z.s.length} lanzamientos`)).join("") : `<div class="empty">Guarda un experimento en Dados y monedas y aparecerá aquí.</div>`;
+  bindItems($("#s-datos"));
+}
+const phName = (r, i)=>`${p2(i + 1)}_${slug(r.obj) || "objeto"}.jpg`;
+const TB = {
+  alt:{title:"Alturas", go:"alt", rows:()=>D.alt, dev:altDev,
+    head:["N°","Objeto","Método","α₁","α (o α₂)","d o s","h₀","Altura h","Foto","Nota","Fecha"],
+    row:(r, i)=>[i + 1, esc(r.obj), r.m==="d" ? "Distancia" : "Dos ángulos", r.m==="2" ? fA(r.e1) : "–", fA(r.e), fL(r.d) + " m", fL(r.h0) + " m", `<b>${fL(r.h)} m</b>`, r.foto ? "Sí" : "–", esc(r.n), `${dmy(r.t)} ${hhmm(r.t)}`],
+    csvH:["N°","Objeto","Método","α1 (°)","α o α2 (°)","d o s (m)","h0 (m)","Altura h (m)","Foto","Nota","Fecha","Hora"],
+    csvR:(r, i)=>[i + 1, r.obj, r.m==="d" ? "Con distancia" : "Dos ángulos", r.m==="2" ? n2(r.e1) : "", n2(r.e), n2(r.d), n2(r.h0), n2(r.h), r.foto ? phName(r, i) : "", r.n, ymd(r.t), hhmm(r.t)]},
+  pend:{title:"Pendientes", go:"pend", rows:()=>D.pend, dev:pendDev,
+    head:["N°","Lugar","Ángulo θ","Pendiente m","Porcentaje","Razón","Nota","Fecha"],
+    row:(r, i)=>{ const m = tanD(r.a); return [i + 1, esc(r.obj), fA(r.a), fmt(m, 3), `<b>${fmt(100*m, 1)} %</b>`, m > 0.001 ? "1 : " + fmt(1/m, 1) : "–", esc(r.n), `${dmy(r.t)} ${hhmm(r.t)}`]; },
+    csvH:["N°","Lugar","Ángulo (°)","Pendiente m","Porcentaje (%)","Razón 1 : n","Nota","Fecha","Hora"],
+    csvR:(r, i)=>{ const m = tanD(r.a); return [i + 1, r.obj, n2(r.a), n2(m, 4), n2(100*m, 2), m > 0.001 ? n2(1/m, 2) : "", r.n, ymd(r.t), hhmm(r.t)]; }}
+};
+function renderTabla(id){
+  const T = TB[id], rows = T.rows();
+  $("#tbTitle").textContent = "Tabla de " + T.title.toLowerCase(); $("#tbMeta").textContent = `${rows.length} ${rows.length===1 ? "medición" : "mediciones"}`;
+  $("#tbHead").innerHTML = `<tr>${T.head.map(hh=>`<th>${hh}</th>`).join("")}</tr>`;
+  $("#tbBody").innerHTML = rows.length ? rows.map((r, i)=>`<tr data-i="${i}">${T.row(r, i).map((v, k)=>`<td${k===0 ? ' class="n"' : (T.head[k]==="Nota" ? ' class="note"' : "")}>${v}</td>`).join("")}</tr>`).join("")
+    : `<tr><td colspan="${T.head.length}" class="muted">Sin mediciones todavía. Toca «Medir más».</td></tr>`;
+  $("#tbBody").querySelectorAll("[data-i]").forEach(tr=>tr.onclick = ()=>rowSheet(id, +tr.dataset.i));
+  $("#tbPhRow").hidden = id!=="alt";
+}
+function rowSheet(id, i){
+  const T = TB[id], r = T.rows()[i]; if(!r) return;
+  const b = sheet(`<h2>${esc(r.obj)}</h2><p class="muted" style="margin:0">${dmy(r.t)} ${hhmm(r.t)}</p>${T.dev(r)}
+    <img class="photo" id="rsImg" alt="Foto del visor al medir" hidden>
+    <label class="l" for="rsO">${id==="alt" ? "Objeto" : "Lugar"}</label><input type="text" id="rsO" maxlength="50" value="${esc(r.obj)}" data-nofocus="1">
+    <label class="l" for="rsN">Nota</label><input type="text" id="rsN" maxlength="200" value="${esc(r.n)}">
+    <div class="acts"><button class="btn danger" id="rsDel">Eliminar</button><button class="btn primary" id="rsOk">Guardar</button></div>`);
+  if(id==="alt" && r.foto) PH.get("al-"+r.id).then(bl=>{ const im = b.querySelector("#rsImg"); if(!bl || !im) return; const u = URL.createObjectURL(bl); im.onload = ()=>URL.revokeObjectURL(u); im.src = u; im.hidden = false; }).catch(()=>{});
+  b.querySelector("#rsOk").onclick = ()=>{ r.obj = b.querySelector("#rsO").value.trim() || r.obj; r.n = b.querySelector("#rsN").value.trim(); save(); closeSheet(); renderTabla(id); };
+  b.querySelector("#rsDel").onclick = ()=>{ if(!confirm(`¿Eliminar “${r.obj}”?`)) return; if(id==="alt") PH.del("al-"+r.id); D[id] = D[id].filter(x=>x!==r); save(); closeSheet(); renderTabla(id); toast("Medición eliminada"); };
+}
+const tbCsvText = id=>{ const T = TB[id]; return csvOf(T.title + " · MatematicApp", T.csvH, T.rows().map(T.csvR)); };
+$("#tbCsv").onclick = ()=>{ const id = route.id; exportFiles([csvFile(tbCsvText(id), fname(TB[id].title))], TB[id].title, "download"); };
+$("#tbShare").onclick = ()=>{ const id = route.id; shareCsvText(tbCsvText(id), fname(TB[id].title), TB[id].title); };
+$("#tbPh").onclick = async ()=>{ const files = [];
+  for(let i=0; i<D.alt.length; i++){ const r = D.alt[i]; if(!r.foto) continue; const bl = await PH.get("al-"+r.id).catch(()=>null); if(bl) files.push(new File([bl], phName(r, i), {type:"image/jpeg"})); }
+  if(!files.length){ toast("No hay fotos guardadas en este navegador"); return; } exportFiles(files, "Alturas", "share"); };
+$("#tbGo").onclick = async ()=>{ const g = TB[route.id].go; await ensureSensors(); nav(g); };
+$("#tbClr").onclick = ()=>{ const id = route.id, rows = TB[id].rows(); if(!rows.length) return;
+  if(!confirm(`¿Borrar las ${rows.length} mediciones de ${TB[id].title.toLowerCase()}? No se puede deshacer.`)) return;
+  if(id==="alt") rows.forEach(r=>{ if(r.foto) PH.del("al-"+r.id); }); D[id] = []; save(); renderTabla(id); toast("Tabla borrada"); };
+
+/* ============================== ajustes ============================== */
+function bindSegs(root){ root.querySelectorAll(".seg[data-k]").forEach(sg=>{ const k = sg.dataset.k, bs = Array.from(sg.querySelectorAll("button"));
+  const sync = ()=>bs.forEach(b=>b.classList.toggle("on", String(S[k])===b.dataset.v)); sync();
+  bs.forEach(b=>b.onclick = ()=>{ let v = b.dataset.v; if(k==="dec") v = parseFloat(v); S[k] = v; save(); sync();
+    if(k==="theme") theme(); if(k==="altm"){ AL.a1 = null; AL.held = null; altUI(); } }); }); }
+$$(".tog[data-k]").forEach(t=>{ const k = t.dataset.k; t.classList.toggle("on", !!S[k]); t.onclick = ()=>{ S[k] = !S[k]; save(); t.classList.toggle("on", !!S[k]); }; });
+const setH0Txt = ()=>$("#setH0").textContent = fmt(S.h0, 2) + " m · Cambiar";
+$("#setH0").onclick = ()=>editNum("Altura de tus ojos h₀", "Desde el suelo hasta tus ojos. Se suma en Alturas porque el ángulo se mide desde tus ojos.", "h0", setH0Txt);
+
+/* ============================== inicio ============================== */
+const TI = {alt:{name:"Alturas", tag:"TRIGONOMETRÍA", sub:"Altura de árboles y edificios con tan α", cam:true},
+  fotos:{name:"Funciones en fotos", tag:"FUNCIONES", sub:"Marca puntos en una foto y ajusta un modelo", cam:true},
+  pend:{name:"Pendientes", tag:"FUNCIÓN AFÍN", sub:"Pendiente y porcentaje de rampas y calles"},
+  azar:{name:"Dados y monedas", tag:"PROBABILIDAD", sub:"Frecuencia relativa y ley de los grandes números"}};
+const DEX = [["Cámara", ["alt","fotos"]], ["Sensores de movimiento", ["pend"]], ["Azar", ["azar"]]];
+function renderDex(){
+  $("#dexList").innerHTML = DEX.map(([g, ids])=>`<h2 class="sect dexsec">${g}</h2><div class="dexgrid">` + ids.map(id=>{ const T = TI[id];
+    return `<button class="dex${T.cam ? " cam" : ""}" data-t="${id}"><span class="ic">${svgI(id)}</span><em>${T.tag}</em><b>${T.name}</b><small>${T.sub}</small></button>`; }).join("") + `</div>`).join("");
+  $$("#dexList [data-t]").forEach(b=>b.onclick = async ()=>{ const id = b.dataset.t; if(id==="alt" || id==="pend") await ensureSensors(); nav(id); });
+}
+
+/* ============================== navegación (con el botón atrás del teléfono) ============================== */
+const route = {name:"inicio", id:null};
+const ROUTES = ["inicio","alt","pend","fotos","fedit","azar","datos","tabla","ajustes"];
+function parse(){ const h = (location.hash||"").replace(/^#/,"");
+  if(["alt","pend","fotos","azar","datos","ajustes"].indexOf(h) >= 0) return {name:h};
+  if(h.indexOf("f-")===0) return {name:"fedit", id:h.slice(2)}; if(h.indexOf("l-")===0) return {name:"tabla", id:h.slice(2)}; return {name:"inicio"}; }
+function nav(h){ if(location.hash !== "#"+h) location.hash = h; else render(); }
+function render(){
+  const r = parse(); Object.assign(route, {name:r.name, id:r.id||null});
+  if(route.name==="fedit" && !fotById(route.id)){ history.replaceState(null, "", "#fotos"); route.name = "fotos"; }
+  if(route.name==="tabla" && !TB[route.id]){ history.replaceState(null, "", "#datos"); route.name = "datos"; }
+  closeSheet();
+  ROUTES.forEach(n=>$("#s-"+n).hidden = n!==route.name);
+  $("#back").hidden = route.name==="inicio";
+  const grp = ["datos","tabla"].indexOf(route.name) >= 0 ? "datos" : route.name;
+  $$(".hw [data-go]").forEach(b=>b.classList.toggle("on", b.dataset.go===grp));
+  const T = {inicio:["MatematicApp","Matemática con el teléfono"], alt:["Alturas","Trigonometría con la cámara"], pend:["Pendientes","Inclinación, pendiente y porcentaje"],
+    fotos:["Funciones en fotos","Puntos sobre una foto y ajuste"], azar:["Dados y monedas","Frecuencia relativa y probabilidad"], datos:["Datos","Todo lo que has guardado"], ajustes:["Ajustes","Preferencias y ayuda"]};
+  if(route.name==="fedit"){ $("#tTitle").textContent = fotById(route.id).name; $("#tSub").textContent = "Funciones en fotos"; }
+  else if(route.name==="tabla"){ $("#tTitle").textContent = TB[route.id].title; $("#tSub").textContent = "Tabla de mediciones"; }
+  else { $("#tTitle").textContent = T[route.name][0]; $("#tSub").textContent = T[route.name][1]; }
+  if(route.name==="alt"){ altUI();
+    if(SEN.started || (!needsPerm && sessionStarted())){ $("#activate").hidden = true; if(!SEN.started) ensureSensors(); camStart(); } else { showActivate(); camStop(); } }
+  else camStop();
+  if(route.name==="pend"){ pBtns(); if(SEN.started || !needsPerm){ $("#pact").hidden = true; if(!SEN.started) ensureSensors(); } else showActivate(); }
+  $("#sim").hidden = !(SEN.src==="sim" && (route.name==="alt" || route.name==="pend"));
+  if(route.name==="fotos") renderFotos();
+  if(route.name==="fedit") fEnter(route.id);
+  if(route.name==="azar") azRender();
+  if(route.name==="datos") renderDatos();
+  if(route.name==="tabla") renderTabla(route.id);
+  if(route.name==="ajustes") setH0Txt();
+}
+window.addEventListener("hashchange", render);
+window.addEventListener("resize", ()=>{ if(route.name==="fedit") fDraw(); if(route.name==="azar") azDraw(); });
+$("#back").onclick = ()=>{ if(history.length > 1 && route.name!=="inicio") history.back(); else nav(""); };
+$$(".hw [data-go]").forEach(b=>b.onclick = ()=>{ const g = b.dataset.go; nav(g==="inicio" ? "" : g); });
+
+/* ============================== LEDs y bucle ============================== */
+function leds(){
+  $("#lens").classList.toggle("on", !!Cam.stream);
+  let g = false, y = false;
+  if(route.name==="alt"){ const m = AL.held || AL.live; g = !!m && Math.abs(m.roll) <= 1; y = !!AL.held || AL.a1!=null; }
+  else if(route.name==="pend"){ g = !!PD.v && !PD.frozen; y = PD.frozen; }
+  $("#ledG").classList.toggle("on", g); $("#ledY").classList.toggle("on", y);
+}
+let lastUI = 0;
+function loop(now){
+  if(route.name==="alt"){
+    if(sensorStep()) AL.live = measureNow();
+    const m = AL.held || AL.live; drawAlt(m);
+    if(now - lastUI > 90){ lastUI = now; const a = $("#v-a"), hh = $("#v-h");
+      if(a) a.textContent = m ? fA(m.e) : "–";
+      if(hh) hh.textContent = m ? fL(altH({m:"d", e:m.e, d:S.altd, h0:S.h0})) + " m" : "–";
+      leds(); }
+  } else if(route.name==="pend"){ pStep(); pDraw(); if(now - lastUI > 120){ lastUI = now; pReads(); leds(); } }
+  else if(now - lastUI > 300){ lastUI = now; leds(); }
+  requestAnimationFrame(loop);
+}
+
+azLoad(D.az); theme(); bindSegs(document); renderDex(); render(); requestAnimationFrame(loop);
+if(!window.isSecureContext && location.protocol!=="file:") toast("Abre la página desde su dirección https para usar los sensores");
+})();
+</script>
+</body>
+</html>
