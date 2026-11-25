@@ -10,11 +10,14 @@ rm -rf www && mkdir -p www && cp index.html www/
 # Ícono y pantalla de carga
 cp -r apk/res/. android/app/src/main/res/
 
-# Permisos: cámara (Alturas y fotos)
+# Permisos: cámara (Alturas y fotos) y ubicación (Área del terreno)
 M=android/app/src/main/AndroidManifest.xml
 add(){ grep -q "$1" "$M" || sed -i "s|<uses-permission android:name=\"android.permission.INTERNET\" />|&\\n    $2|" "$M"; }
 add 'permission.CAMERA' '<uses-permission android:name="android.permission.CAMERA" />'
+add 'permission.ACCESS_FINE_LOCATION' '<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />'
+add 'permission.ACCESS_COARSE_LOCATION' '<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />'
 add 'hardware.camera"' '<uses-feature android:name="android.hardware.camera" android:required="false" />'
+add 'hardware.location.gps' '<uses-feature android:name="android.hardware.location.gps" android:required="false" />'
 
 # La pantalla no se apaga mientras la app está abierta
 A=$(find android/app/src/main/java -name MainActivity.java)

@@ -115,7 +115,7 @@ main::before{content:"";position:absolute;top:7px;left:50%;width:9px;height:9px;
 .dex small{color:var(--muted);font-size:12.5px;line-height:1.25;margin-top:2px}
 
 /* ---------- visor ---------- */
-#s-alt,#s-pend{display:flex;flex-direction:column;gap:8px;padding:8px}
+#s-alt,#s-pend,#s-area{display:flex;flex-direction:column;gap:8px;padding:8px}
 #s-alt{overflow:hidden}
 .view{position:relative;flex:1;min-height:240px;border-radius:6px;overflow:hidden;background:#0d1412;border:2px solid var(--ink)}
 .view video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -143,6 +143,9 @@ main::before{content:"";position:absolute;top:7px;left:50%;width:9px;height:9px;
 .read span{display:block;font-family:var(--pix);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--lcd-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .read b{display:block;font-family:var(--head);font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 0 8px rgba(255,212,122,.35)}
 .reads.n4 .read b{font-size:17px}
+.reads.n4 .read span,#tReads .read span{font-size:9px;letter-spacing:.02em}
+#arP,#arA{font-size:15px}
+.regbar .t small{display:block;font-family:var(--pix);font-size:10px;letter-spacing:.04em;text-transform:uppercase}
 .read.tap{cursor:pointer;font-family:var(--body);box-shadow:0 3px 0 var(--ink)}
 .read.tap:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
 .read.tap i{display:block;font-style:normal;font-family:var(--pix);font-size:10px;letter-spacing:.04em;color:var(--ink);background:var(--yellow);border-radius:4px;margin:3px 6px 0;padding:1px 0;text-transform:uppercase}
@@ -184,7 +187,7 @@ textarea{min-height:70px;resize:vertical}
 
 /* ---------- ecuaciones ---------- */
 .eq{font-family:var(--math);font-size:19px;line-height:1.5;color:var(--text);background:var(--surface2);border:2px solid var(--ink);border-radius:8px;padding:8px 12px;margin:10px 0 4px;overflow-x:auto;-webkit-user-select:text;user-select:text}
-.eq > div{padding:3px 0;white-space:nowrap}
+.eq > div{padding:3px 0}
 .eq i{font-style:italic}
 .eq b{font-family:var(--head);color:var(--accent)}
 .eq .r2{font-size:16px;color:var(--muted);margin-top:2px}
@@ -238,6 +241,20 @@ textarea{min-height:70px;resize:vertical}
 .toast{position:fixed;left:50%;top:calc(96px + env(safe-area-inset-top,0px));transform:translate(-50%,-12px);background:var(--lcd);color:var(--lcd-text);border:2px solid var(--ink);
   padding:10px 16px;border-radius:8px;font-family:var(--head);font-weight:600;font-size:14.5px;opacity:0;pointer-events:none;transition:all .2s;z-index:60;max-width:90vw;text-align:center;box-shadow:0 3px 0 var(--ink)}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+.regbar{display:flex;align-items:center;gap:6px;background:var(--surface);border:2px solid var(--ink);border-radius:10px;padding:5px 5px 5px 12px;min-height:50px}
+.regbar .t{flex:1;min-width:0;font-size:15px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.regbar .t b{color:var(--text)}
+.regbar .btn{min-height:38px;font-size:14px;padding:4px 10px}
+.rxpad{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;height:min(40vh,290px);margin:10px 0;border:3px solid var(--ink);border-radius:16px;
+  background:var(--lcd);color:var(--lcd-text);box-shadow:0 4px 0 var(--ink);touch-action:manipulation;padding:16px;text-align:center;-webkit-user-select:none;user-select:none}
+.rxpad b{font-family:var(--head);font-size:36px;line-height:1.1}
+.rxpad span{font-family:var(--body);font-size:15px;opacity:.92;max-width:300px}
+.rxpad.wait{background:#c42b2b;color:#fff}.rxpad.go{background:#1f9d55;color:#fff}.rxpad.neutral{background:#3a3f55;color:#fff}
+.rxpad.res{background:var(--case);color:#fff}.rxpad.early{background:var(--yellow);color:#1a1a22}
+.row{display:flex;gap:8px;align-items:center}.row input{flex:1;min-width:0}.row .btn{flex:0 0 auto;min-height:46px}
+.catg{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:6px}
+.catg .btn{flex-direction:column;gap:0;min-height:58px}
+.cnt{font-family:var(--pix);font-size:11px;color:var(--accent)}
 @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
 </style>
 </head>
@@ -363,12 +380,109 @@ textarea{min-height:70px;resize:vertical}
     </div>
   </section>
 
+  <!-- ============ SOMBRAS Y TALES ============ -->
+  <section class="scr" id="s-tales" hidden>
+    <div class="seg" data-k="talm" aria-label="Método"><button data-v="s">Sombras</button><button data-v="e">Espejo</button></div>
+    <div class="view tview" style="flex:none;height:250px;margin-top:8px"><canvas id="tcv"></canvas></div>
+    <div class="reads" id="tReads" style="margin-top:8px"></div>
+    <div class="card" style="margin-top:12px">
+      <h2>Resultado</h2>
+      <div id="tDev"></div>
+      <div class="acts"><button class="btn primary" id="tReg">Registrar</button></div>
+    </div>
+    <div class="card"><h2>Cómo medir</h2><ol id="tHow"></ol></div>
+  </section>
+
+  <!-- ============ ÁREA DEL TERRENO (GPS) ============ -->
+  <section class="scr" id="s-area" hidden>
+    <div class="view tview"><canvas id="arcv"></canvas><div class="vmsg" id="armsg" style="top:12px"></div></div>
+    <div class="reads n4">
+      <div class="read"><span>Vértices</span><b id="arN">0</b></div>
+      <div class="read"><span>Perímetro</span><b id="arP">–</b></div>
+      <div class="read"><span>Área</span><b id="arA">–</b></div>
+      <div class="read"><span>GPS</span><b id="arG">–</b></div>
+    </div>
+    <div class="acts" style="margin-top:0"><button class="btn" id="arU">Deshacer</button><button class="btn primary" id="arM">Marcar vértice</button></div>
+    <div class="acts" style="margin-top:0"><button class="btn" id="arMan">Coordenadas a mano</button><button class="btn" id="arS">Terminar y guardar</button></div>
+    <p class="tnote">Camina por el borde del terreno <b>en orden</b> (sin cruzar) y marca cada esquina quedándote quieto unos segundos. El GPS tiene un error de algunos metros: úsalo en terrenos grandes, como la cancha.</p>
+  </section>
+
+  <!-- ============ UN TERRENO GUARDADO ============ -->
+  <section class="scr" id="s-ared" hidden>
+    <div class="view tview" style="flex:none;height:300px"><canvas id="arcv2"></canvas></div>
+    <div class="card" style="margin-top:12px"><h2>Área y perímetro</h2><div id="arDev"></div></div>
+    <div class="card">
+      <div class="acts" style="margin-top:0"><button class="btn primary" id="arCsv">Descargar CSV</button><button class="btn" id="arRen">Editar nombre</button></div>
+      <div class="acts"><button class="btn danger" id="arDel">Eliminar</button></div>
+    </div>
+  </section>
+
+  <!-- ============ TIEMPO DE REACCIÓN ============ -->
+  <section class="scr" id="s-reac" hidden>
+    <div class="regbar"><div class="t"><small>Participante</small><b id="rxP"></b></div><button class="btn" id="rxPn">Siguiente</button><button class="btn" id="rxPc">Cambiar</button></div>
+    <div class="seg g" data-k="rxs" aria-label="Estímulo"><button data-v="v">Estímulo visual</button><button data-v="s">Estímulo sonoro</button></div>
+    <button class="rxpad" id="rxPad"><b id="rxBig"></b><span id="rxSmall"></span></button>
+    <div class="reads n4">
+      <div class="read"><span>Intentos</span><b id="rxN">0</b></div>
+      <div class="read"><span>Último</span><b id="rxL">–</b></div>
+      <div class="read"><span>Promedio</span><b id="rxA">–</b></div>
+      <div class="read"><span>Mejor</span><b id="rxB">–</b></div>
+    </div>
+    <p class="tnote" style="margin-top:6px">Los cuadros son del participante actual. El análisis de abajo usa los datos de todo el curso.</p>
+    <h2 class="sect">Análisis de los datos (ms)</h2>
+    <div class="seg" data-k="rxsc" aria-label="Datos a analizar" style="margin-bottom:12px"><button data-v="all">Todos los intentos</button><button data-v="per">Promedio por persona</button></div>
+    <p class="tnote" id="rxCmp" style="margin:-4px 0 12px"></p>
+    <div id="rxStats"></div>
+    <div class="card"><h2>Intentos</h2><div class="tblwrap" style="max-height:260px;overflow-y:auto"><table class="tbl sm"><thead><tr><th>N°</th><th>Persona</th><th>Estímulo</th><th>Tiempo</th></tr></thead><tbody id="rxBody"></tbody></table></div><span class="hint">Toca un intento para eliminarlo.</span></div>
+    <div class="card">
+      <div class="acts" style="margin-top:0"><button class="btn primary" id="rxSave">Guardar sesión</button><button class="btn" id="rxCsv">Descargar CSV</button></div>
+      <div class="acts"><button class="btn danger" id="rxReset">Reiniciar</button></div>
+    </div>
+  </section>
+
+  <!-- ============ ENCUESTA DEL CURSO: lista ============ -->
+  <section class="scr" id="s-enc" hidden>
+    <button class="btn primary wide big" id="encNew"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nueva variable</button>
+    <div class="card" style="margin-top:14px">
+      <h2>Ideas para el curso</h2>
+      <ul>
+        <li><b>Cuantitativas:</b> estatura (cm), número de hermanos, minutos de viaje al colegio, horas de sueño, número de calzado.</li>
+        <li><b>Cualitativas:</b> deporte favorito, medio de transporte, mes de cumpleaños, red social más usada.</li>
+        <li>Una variable <b>cuantitativa</b> entrega tabla de frecuencias, histograma, diagrama de cajón, media, mediana, moda, cuartiles y desviación estándar. Una <b>cualitativa</b>, tabla, gráfico de barras, gráfico circular y moda.</li>
+      </ul>
+    </div>
+    <h2 class="sect">Variables guardadas</h2>
+    <div class="reglist" id="encList"></div>
+  </section>
+
+  <!-- ============ ENCUESTA DEL CURSO: una variable ============ -->
+  <section class="scr" id="s-encd" hidden>
+    <div class="card">
+      <h2 id="edName"></h2>
+      <p id="edMeta" style="margin-top:0"></p>
+      <div id="edIn"></div>
+      <div class="acts"><button class="btn" id="edUndo">Deshacer el último</button><button class="btn" id="edEdit">Ver y editar datos</button></div>
+    </div>
+    <div id="edSN"></div>
+    <div id="edSC"></div>
+    <div class="card">
+      <div class="acts" style="margin-top:0"><button class="btn primary" id="edCsv">Descargar CSV</button><button class="btn" id="edRen">Editar nombre</button></div>
+      <div class="acts"><button class="btn danger" id="edDel">Eliminar</button></div>
+    </div>
+  </section>
+
   <!-- ============ DATOS ============ -->
   <section class="scr" id="s-datos" hidden>
     <h2 class="sect" style="margin-top:4px!important">Mediciones</h2>
     <div class="reglist" id="dsMed"></div>
+    <h2 class="sect">Terrenos (GPS)</h2>
+    <div class="reglist" id="dsTer"></div>
     <h2 class="sect">Funciones en fotos</h2>
     <div class="reglist" id="dsFot"></div>
+    <h2 class="sect">Encuestas del curso</h2>
+    <div class="reglist" id="dsEnc"></div>
+    <h2 class="sect">Tiempo de reacción</h2>
+    <div class="reglist" id="dsRx"></div>
     <h2 class="sect">Experimentos de azar</h2>
     <div class="reglist" id="dsAz"></div>
   </section>
@@ -414,6 +528,30 @@ textarea{min-height:70px;resize:vertical}
         <li>La pendiente es <i>m</i> = tan <i>θ</i>: cuánto sube por cada unidad horizontal. En porcentaje: <i>m</i> · 100 %.</li>
         <li>Una pendiente de 8 % significa que por cada 100 cm horizontales se suben 8 cm.</li>
         <li>Como referencia, la normativa chilena de accesibilidad (OGUC) fija en general un máximo de 8 % para rampas; solo tramos muy cortos pueden ser más inclinados.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>Sombras y Tales</h2>
+      <ol>
+        <li><b>Sombras:</b> con sol, mide al mismo tiempo la sombra de una referencia de altura conocida y la del objeto alto. Por semejanza: <i>h</i>₂ = <i>h</i>₁ · <i>s</i>₂ / <i>s</i>₁.</li>
+        <li><b>Espejo:</b> pon un espejo en el suelo y ubícate donde veas en él la punta del objeto: <i>h</i>₂ = <i>h</i>₁ · <i>d</i>₂ / <i>d</i>₁.</li>
+        <li>Toca cada cuadro de datos para cambiar su valor; el resultado y el dibujo se actualizan solos.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>Área del terreno</h2>
+      <ol>
+        <li>Al aire libre, párate en una esquina, espera a que la precisión del GPS sea de pocos metros y toca <b>Marcar vértice</b>: la app promedia 5 segundos de lecturas.</li>
+        <li>Recorre el borde en orden y marca cada esquina. Con 3 o más vértices calcula el perímetro y el área con la fórmula del zapato.</li>
+        <li>Con <b>Coordenadas a mano</b> puedes calcular el área de cualquier polígono del plano cartesiano.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>Tiempo de reacción y Encuesta</h2>
+      <ol>
+        <li><b>Tiempo de reacción:</b> cada estudiante hace varios intentos con su nombre (<b>Siguiente</b> pasa a la persona que sigue). Se puede comparar el estímulo visual con el sonoro.</li>
+        <li><b>Encuesta del curso:</b> crea una variable cuantitativa o cualitativa y agrega las respuestas del curso.</li>
+        <li>Los cuartiles se calculan como la mediana de cada mitad de los datos ordenados, y la desviación estándar es poblacional (se divide por <i>n</i>).</li>
       </ol>
     </div>
     <div class="card">
@@ -490,8 +628,11 @@ const eqBox = lines=>`<div class="eq">${lines.map(l=>`<div>${l}</div>`).join("")
 /* ============================== datos guardados ============================== */
 const KEY = "matematicapp.v1";
 let D; try{ D = JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ D = {}; }
-D.s = Object.assign({dec:1, h0:1.5, altd:10, alts:5, altm:"d", resp:"normal", sound:true, photo:true, theme:"system", pzero:null, fit:"2", zg:"f", zm:"sim"}, D.s||{});
-["alt","pend","fot","azar"].forEach(k=>{ if(!Array.isArray(D[k])) D[k] = []; });
+D.s = Object.assign({dec:1, h0:1.5, altd:10, alts:5, altm:"d", resp:"normal", sound:true, photo:true, theme:"system", pzero:null, fit:"2", zg:"f", zm:"sim",
+  talm:"s", tsh1:1, tss1:1.6, tss2:12, teh1:1.5, ted1:2, ted2:10, rxs:"v", rxsc:"all"}, D.s||{});
+if(!D.arCur || !Array.isArray(D.arCur.ll)) D.arCur = {ll:[]};
+if(!D.rx || !Array.isArray(D.rx.tries)) D.rx = {p:"Persona 1", tries:[]};
+["alt","pend","fot","azar","tal","ter","reac","enc"].forEach(k=>{ if(!Array.isArray(D[k])) D[k] = []; });
 if(!D.az) D.az = {x:"moneda", s:"", ev:null};
 const S = D.s;
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){ toast("No se pudo guardar en este navegador"); } }
@@ -501,7 +642,7 @@ const mq = window.matchMedia ? matchMedia("(prefers-color-scheme: dark)") : null
 function theme(){
   if(S.theme==="system") document.documentElement.removeAttribute("data-theme"); else document.documentElement.dataset.theme = S.theme;
   const m = document.querySelector('meta[name="theme-color"]'); if(m) m.content = cssv("case");
-  if(route && route.name==="azar") azDraw(); if(route && route.name==="fedit") fDraw();
+  if(typeof redraw==="function" && route) redraw();
 }
 if(mq){ if(mq.addEventListener) mq.addEventListener("change", ()=>theme()); else if(mq.addListener) mq.addListener(()=>theme()); }
 
@@ -1214,18 +1355,539 @@ function azSheet(id){
   b.querySelector("#azD").onclick = ()=>{ if(!confirm(`¿Eliminar “${z.name}”?`)) return; D.azar = D.azar.filter(o=>o.id!==z.id); save(); closeSheet(); renderDatos(); toast("Experimento eliminado"); };
 }
 
+/* =====================================================================================
+   ESTADÍSTICA COMPARTIDA (Tiempo de reacción y Encuesta del curso)
+   Cuartiles: mediana de cada mitad de los datos ordenados. σ poblacional (se divide por n).
+   ===================================================================================== */
+const PAL = ["#e0531f","#2457c5","#1f9d55","#c99a06","#8e44ad","#d6336c","#0f8a8a","#7a6a48"];
+const decs = x=>{ for(let k=0; k<6; k++){ const v = x*Math.pow(10, k); if(Math.abs(v - Math.round(v)) < 1e-7) return k; } return 6; };
+const dataDec = v=>Math.min(3, v.reduce((m, x)=>Math.max(m, decs(x)), 0));
+const medOf = a=>{ const n = a.length; if(!n) return null; return n % 2 ? a[(n - 1)/2] : (a[n/2 - 1] + a[n/2])/2; };
+function stats(v){
+  const a = v.filter(x=>x!=null && isFinite(x)).sort((x, y)=>x - y), n = a.length; if(!n) return null;
+  const sum = a.reduce((s, x)=>s + x, 0), mean = sum/n, lo = a.slice(0, Math.floor(n/2)), hi = a.slice(Math.ceil(n/2));
+  const q1 = n > 1 ? medOf(lo) : a[0], q3 = n > 1 ? medOf(hi) : a[0], ss = a.reduce((s, x)=>s + (x - mean)**2, 0), cnt = new Map();
+  a.forEach(x=>cnt.set(x, (cnt.get(x) || 0) + 1));
+  let mc = 0; cnt.forEach(c=>{ if(c > mc) mc = c; });
+  const modes = mc > 1 ? [...cnt].filter(e=>e[1]===mc).map(e=>e[0]) : [];
+  return {a, n, sum, mean, med:medOf(a), q1, q3, iqr:q3 - q1, min:a[0], max:a[n - 1], range:a[n - 1] - a[0], ss, vr:ss/n, sd:Math.sqrt(ss/n), modes, mc, cnt};
+}
+function niceUp(v){ if(!(v > 0)) return 1; const p = Math.pow(10, Math.floor(Math.log10(v))); for(const f of [1, 2, 2.5, 5, 10]) if(f*p >= v*(1 - 1e-9)) return f*p; return 10*p; }
+function freqRows(st, group){
+  if(!group || st.range===0) return {grp:false, rows:[...st.cnt].sort((p, q)=>p[0] - q[0]).map(([x, f])=>({x, f}))};
+  const isInt = st.a.every(x=>Math.abs(x - Math.round(x)) < 1e-9);
+  let A = niceUp(st.range/Math.max(3, Math.round(1 + 3.322*Math.log10(st.n)))); if(isInt) A = Math.max(1, Math.ceil(A));
+  const L0 = Math.floor(st.min/A + 1e-9)*A, m = Math.floor((st.max - L0)/A + 1e-9) + 1, rows = [];
+  for(let i=0; i<m; i++){ const lo = L0 + i*A; rows.push({lo, hi:lo + A, x:lo + A/2, f:0}); }
+  st.a.forEach(x=>{ rows[clamp(Math.floor((x - L0)/A + 1e-9), 0, m - 1)].f++; });
+  return {grp:true, A, rows, dl:Math.max(decs(A), decs(L0))};
+}
+const SV = {};
+function statsHTML(p){ return `
+  <div class="card"><h2>Gráfico</h2>
+    <div class="seg" id="${p}Ch"><button data-c="h">Histograma</button><button data-c="b">Diagrama de cajón</button></div>
+    <div class="view zview"><canvas id="${p}Cv"></canvas></div>
+    <div class="field switch" style="padding-bottom:0"><span class="lb">Agrupar en intervalos</span><button class="tog" id="${p}Gr" aria-label="Agrupar en intervalos"></button></div>
+    <div class="field switch" id="${p}NrRow" style="padding-bottom:0"><span class="lb">Curva normal</span><button class="tog" id="${p}Nr" aria-label="Curva normal"></button></div>
+  </div>
+  <div class="card"><h2>Medidas</h2><div class="reads n4" id="${p}R"></div><div id="${p}Dev"></div></div>
+  <div class="card"><h2>Tabla de frecuencias</h2><div class="tblwrap"><table class="tbl sm"><thead id="${p}TH"></thead><tbody id="${p}TB"></tbody><tfoot id="${p}TF"></tfoot></table></div><span class="hint" id="${p}TN"></span></div>`; }
+function statsInit(p, root, def){
+  root.innerHTML = statsHTML(p); SV[p] = Object.assign({c:"h", g:true, nr:false, v:[], unit:"", dec:0}, def);
+  $$(`#${p}Ch button`).forEach(b=>b.onclick = ()=>{ SV[p].c = b.dataset.c; statsRender(p); });
+  $("#"+p+"Gr").onclick = ()=>{ SV[p].g = !SV[p].g; statsRender(p); };
+  $("#"+p+"Nr").onclick = ()=>{ SV[p].nr = !SV[p].nr; statsRender(p); };
+}
+function statsSet(p, vals, o){ Object.assign(SV[p], o || {}, {v:vals}); statsRender(p); }
+function statsRender(p){
+  const V = SV[p], st = stats(V.v), u = V.unit ? " " + V.unit : "", d = V.dec, fv = x=>fmt(x, d), f1 = x=>fmt(x, d + 1);
+  const F = st ? freqRows(st, V.g) : null; V.st = st; V.F = F;
+  $$(`#${p}Ch button`).forEach(b=>b.classList.toggle("on", b.dataset.c===V.c));
+  $("#"+p+"Gr").classList.toggle("on", V.g); $("#"+p+"Nr").classList.toggle("on", V.nr); $("#"+p+"NrRow").hidden = !(V.g && V.c==="h");
+  $("#"+p+"R").innerHTML = [["Datos", st ? st.n : "–"], ["Media", st ? f1(st.mean) : "–"], ["Mediana", st ? fv(st.med) : "–"], ["Desv. est.", st ? f1(st.sd) : "–"]]
+    .map(([l, v])=>`<div class="read"><span>${l}</span><b>${v}</b></div>`).join("");
+  if(!st){ $("#"+p+"Dev").innerHTML = `<p class="tnote" style="margin-top:8px">Aún no hay datos.</p>`; ["TH","TB","TF"].forEach(k=>$("#"+p+k).innerHTML = ""); $("#"+p+"TN").textContent = ""; statsDraw(p); return; }
+  const xb = `<i>x̄</i>`, n = st.n;
+  const pos = n % 2 ? `el dato que está en la posición ${(n + 1)/2}` : `el promedio de los datos en las posiciones ${n/2} y ${n/2 + 1}`;
+  const mo = st.modes.length ? (st.modes.length > 4 ? `hay ${st.modes.length} valores empatados (${st.mc} veces cada uno)` : st.modes.map(fv).join(" y ") + u + ` (se repite${st.modes.length > 1 ? "n" : ""} ${st.mc} veces)`) : "no hay moda: ningún dato se repite";
+  let dev = eqBox([
+    `${xb} = ${frac(`Σ${I("x")}`, I("n"))} = ${frac(fv(st.sum), n)} = <b>${f1(st.mean)}${u}</b>`,
+    `Rango = ${fv(st.max)} − ${fv(st.min)} = <b>${fv(st.range)}${u}</b>`,
+    `Q₁ = ${fv(st.q1)} ; Me = ${fv(st.med)} ; Q₃ = ${fv(st.q3)}`,
+    `RIC = Q₃ − Q₁ = ${fv(st.q3)} − ${fv(st.q1)} = <b>${fv(st.iqr)}${u}</b>`,
+    `σ² = ${frac(`Σ(${I("x")} − ${xb})²`, I("n"))} = ${frac(fmt(st.ss, d + 1), n)} = ${fmt(st.vr, d + 2)}`,
+    `σ = √σ² = <b>${f1(st.sd)}${u}</b>`]);
+  dev += `<ul class="facts"><li><b>Mediana:</b> con los ${n} datos ordenados de menor a mayor, es ${pos}: Me = ${fv(st.med)}${u}.</li><li><b>Moda:</b> ${mo}.</li>`;
+  if(st.mean > 0) dev += `<li><b>Coeficiente de variación:</b> CV = ${frac("σ", xb)} · 100 % = ${fmt(100*st.sd/st.mean, 1)} %.</li>`;
+  if(n >= 10){ const k1 = st.a.filter(x=>Math.abs(x - st.mean) <= st.sd).length;
+    dev += `<li><b>Entre ${xb} − σ y ${xb} + σ</b> (de ${f1(st.mean - st.sd)} a ${f1(st.mean + st.sd)}) están ${k1} de ${n} datos: ${fmt(100*k1/n, 0)} %. En una distribución normal es cerca del 68 %.</li>`; }
+  dev += `<li class="muted">Cuartiles: mediana de cada mitad de los datos ordenados. σ es la desviación estándar poblacional (se divide por ${I("n")}).</li></ul>`;
+  $("#"+p+"Dev").innerHTML = dev;
+  const head = F.grp ? ["Intervalo","Marca xᵢ","f","F","fr","Fr","%"] : ["Valor","f","F","fr","Fr","%"];
+  $("#"+p+"TH").innerHTML = `<tr>${head.map(x=>`<th>${x}</th>`).join("")}</tr>`;
+  let acum = 0;
+  $("#"+p+"TB").innerHTML = F.rows.map(r=>{ acum += r.f; const fr = r.f/n;
+    return `<tr><td class="n">${F.grp ? `[${fmt(r.lo, F.dl)} ; ${fmt(r.hi, F.dl)})` : fv(r.x)}</td>${F.grp ? `<td>${fmt(r.x, decs(r.x))}</td>` : ""}<td>${r.f}</td><td>${acum}</td><td>${fmt(fr, 3)}</td><td>${fmt(acum/n, 3)}</td><td>${fmt(100*fr, 1)}</td></tr>`; }).join("");
+  $("#"+p+"TF").innerHTML = `<tr><td>Total</td>${F.grp ? "<td></td>" : ""}<td>${n}</td><td></td><td>1</td><td></td><td>100</td></tr>`;
+  $("#"+p+"TN").innerHTML = (F.grp ? `${F.rows.length} intervalos de amplitud ${fmt(F.A, F.dl)}${u} (regla de Sturges: ${I("k")} ≈ 1 + 3,322 · log ${I("n")} = ${fmt(1 + 3.322*Math.log10(n), 1)}). Cada intervalo incluye su límite inferior y no el superior. ` : "")
+    + `f: frecuencia absoluta · F: absoluta acumulada · fr: relativa · Fr: relativa acumulada.`;
+  statsDraw(p);
+}
+function statsDraw(p){
+  const V = SV[p], cv = V && $("#"+p+"Cv"); if(!cv || !cv.offsetParent) return;
+  const {x:c, w, h} = fit(cv); c.clearRect(0, 0, w, h);
+  const st = V.st, F = V.F, col = {t:cssv("text"), m:cssv("muted"), l:cssv("line"), a:cssv("accent"), s:cssv("accent-soft"), cu:cssv("curve")}, d = V.dec;
+  const font = (wt, sz)=>c.font = `${wt} ${sz}px "Chakra Petch", system-ui, sans-serif`;
+  if(!st){ font(600, 15); c.fillStyle = col.m; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("Sin datos todavía", w/2, h/2); return; }
+  if(V.c==="h"){
+    const L = 42, R = 12, T = 14, B = 40, pw = w - L - R, ph = h - T - B;
+    let ym = Math.max(...F.rows.map(r=>r.f))*1.15, nf = null;
+    if(F.grp && V.nr && st.sd > 0){ nf = x=>st.n*F.A*Math.exp(-0.5*((x - st.mean)/st.sd)**2)/(st.sd*Math.sqrt(2*Math.PI)); ym = Math.max(ym, nf(st.mean)*1.1); }
+    const ys = Math.max(1, niceStep(ym, 4)); ym = Math.ceil(ym/ys)*ys;
+    const sy = v=>T + ph - v/ym*ph; font(500, 12); c.textAlign = "right"; c.textBaseline = "middle"; c.strokeStyle = col.l; c.lineWidth = 1;
+    for(let v=0; v<=ym + 1e-9; v+=ys){ c.beginPath(); c.moveTo(L, sy(v)); c.lineTo(L + pw, sy(v)); c.stroke(); c.fillStyle = col.m; c.fillText(fmt(v, 0), L - 6, sy(v)); }
+    c.fillStyle = col.a; c.strokeStyle = col.t; c.lineWidth = 1.5; font(500, 11.5); c.textAlign = "center"; c.textBaseline = "top";
+    if(F.grp){
+      const x0 = F.rows[0].lo, x1 = F.rows[F.rows.length - 1].hi, sx = v=>L + (v - x0)/(x1 - x0)*pw, every = Math.max(1, Math.ceil(42/((pw/F.rows.length) || 1)));
+      F.rows.forEach(r=>{ const X = sx(r.lo), W = sx(r.hi) - X; c.fillStyle = col.a; c.globalAlpha = .8; c.fillRect(X, sy(r.f), W, sy(0) - sy(r.f)); c.globalAlpha = 1; c.strokeRect(X, sy(r.f), W, sy(0) - sy(r.f)); });
+      c.fillStyle = col.m; F.rows.concat([{lo:x1}]).forEach((r, i)=>{ if(i % every===0) c.fillText(fmt(r.lo, F.dl), sx(r.lo), T + ph + 5); });
+      if(nf){ c.strokeStyle = col.cu; c.lineWidth = 2.5; c.beginPath(); for(let i=0; i<=160; i++){ const x = x0 + (x1 - x0)*i/160, Y = sy(nf(x)); if(i) c.lineTo(sx(x), Y); else c.moveTo(sx(x), Y); } c.stroke(); }
+      const mx = sx(st.mean); c.strokeStyle = col.t; c.setLineDash([5, 4]); c.lineWidth = 1.5; c.beginPath(); c.moveTo(mx, T); c.lineTo(mx, T + ph); c.stroke(); c.setLineDash([]);
+      font(700, 12); c.fillStyle = col.t; c.textAlign = "left"; c.fillText("x̄", mx + 4, T + 2);
+    } else {
+      const bw = pw/F.rows.length, every = Math.max(1, Math.ceil(30/bw));
+      F.rows.forEach((r, i)=>{ const X = L + i*bw + bw*0.15, W = bw*0.7; c.fillStyle = col.a; c.globalAlpha = .8; c.fillRect(X, sy(r.f), W, sy(0) - sy(r.f)); c.globalAlpha = 1; c.strokeRect(X, sy(r.f), W, sy(0) - sy(r.f));
+        if(i % every===0){ c.fillStyle = col.m; c.fillText(fmt(r.x, d), L + i*bw + bw/2, T + ph + 5); } });
+    }
+    c.strokeStyle = col.t; c.lineWidth = 1.5; c.beginPath(); c.moveTo(L, T); c.lineTo(L, T + ph); c.lineTo(L + pw, T + ph); c.stroke();
+    font(700, 12); c.fillStyle = col.t; c.textAlign = "right"; c.textBaseline = "bottom"; c.fillText(V.xl || (V.unit ? `dato (${V.unit})` : "dato"), L + pw, h - 1);
+    c.save(); c.translate(11, T + ph/2); c.rotate(-Math.PI/2); c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("frecuencia", 0, 0); c.restore();
+  } else {
+    const L = 20, R = 20, pw = w - L - R, ay = h - 30, cy = (14 + ay - 10)/2, bh = Math.min(46, (ay - 60)*0.5);
+    let x0 = st.min, x1 = st.max; if(x1 - x0 < 1e-9){ x0 -= 1; x1 += 1; } const pad = (x1 - x0)*0.06; x0 -= pad; x1 += pad;
+    const sx = v=>L + (v - x0)/(x1 - x0)*pw, xs = niceStep(x1 - x0, Math.max(3, Math.floor(pw/70))), xd = stepDec(xs);
+    font(500, 12); c.fillStyle = col.m; c.strokeStyle = col.t; c.lineWidth = 1.5; c.textAlign = "center"; c.textBaseline = "top";
+    c.beginPath(); c.moveTo(L, ay); c.lineTo(L + pw, ay); c.stroke();
+    for(let v = Math.ceil(x0/xs)*xs; v <= x1 + 1e-9; v += xs){ c.beginPath(); c.moveTo(sx(v), ay); c.lineTo(sx(v), ay + 4); c.stroke(); c.fillText(fmt(v, xd), sx(v), ay + 6); }
+    const lo = st.q1 - 1.5*st.iqr, hi = st.q3 + 1.5*st.iqr, inl = st.a.filter(x=>x >= lo && x <= hi), wl = inl[0], wh = inl[inl.length - 1];
+    c.strokeStyle = col.t; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(sx(wl), cy); c.lineTo(sx(st.q1), cy); c.moveTo(sx(st.q3), cy); c.lineTo(sx(wh), cy);
+    c.moveTo(sx(wl), cy - bh/4); c.lineTo(sx(wl), cy + bh/4); c.moveTo(sx(wh), cy - bh/4); c.lineTo(sx(wh), cy + bh/4); c.stroke();
+    c.fillStyle = col.s; c.fillRect(sx(st.q1), cy - bh/2, sx(st.q3) - sx(st.q1), bh); c.strokeRect(sx(st.q1), cy - bh/2, sx(st.q3) - sx(st.q1), bh);
+    c.strokeStyle = col.a; c.lineWidth = 3.5; c.beginPath(); c.moveTo(sx(st.med), cy - bh/2); c.lineTo(sx(st.med), cy + bh/2); c.stroke();
+    const mx = sx(st.mean); c.strokeStyle = col.cu; c.lineWidth = 2.5; c.beginPath(); c.moveTo(mx - 5, cy - 5); c.lineTo(mx + 5, cy + 5); c.moveTo(mx + 5, cy - 5); c.lineTo(mx - 5, cy + 5); c.stroke();
+    c.fillStyle = col.t; st.a.filter(x=>x < lo || x > hi).forEach(x=>{ c.beginPath(); c.arc(sx(x), cy, 4, 0, 7); c.stroke(); });
+    font(600, 11.5); c.fillStyle = col.t;
+    [["Mín", st.min], ["Q₁", st.q1], ["Me", st.med], ["Q₃", st.q3], ["Máx", st.max]].forEach(([nm, v], i)=>{ const up = i % 2===0;
+      c.textBaseline = up ? "bottom" : "top"; c.fillText(`${nm} ${fmt(v, d)}`, clamp(sx(v), L + 24, L + pw - 24), up ? cy - bh/2 - 6 : cy + bh/2 + 6); });
+    font(600, 11.5); c.fillStyle = col.cu; c.textAlign = "right"; c.textBaseline = "top"; c.fillText("× media", w - 6, 4);
+  }
+}
+/* variable cualitativa */
+function catHTML(p){ return `
+  <div class="card"><h2>Gráfico</h2><div class="seg" id="${p}Ch"><button data-c="b">Barras</button><button data-c="p">Circular</button></div><div class="view zview" style="height:270px"><canvas id="${p}Cv"></canvas></div></div>
+  <div class="card"><h2>Medidas</h2><div id="${p}Dev"></div></div>
+  <div class="card"><h2>Tabla de frecuencias</h2><div class="tblwrap"><table class="tbl sm"><thead><tr><th>Categoría</th><th>f</th><th>fr</th><th>%</th><th>Ángulo</th></tr></thead><tbody id="${p}TB"></tbody><tfoot id="${p}TF"></tfoot></table></div><span class="hint">El ángulo es el que ocupa cada categoría en el gráfico circular: fr · 360°.</span></div>`; }
+function catInit(p, root){ root.innerHTML = catHTML(p); SV[p] = {c:"b", v:[], cats:[]}; $$(`#${p}Ch button`).forEach(b=>b.onclick = ()=>{ SV[p].c = b.dataset.c; catRender(p); }); }
+function catRender(p, vals, cats){
+  const V = SV[p]; if(vals){ V.v = vals; V.cats = cats; }
+  const n = V.v.length, cnt = V.cats.map(k=>V.v.filter(x=>x===k).length); V.cnt = cnt;
+  $$(`#${p}Ch button`).forEach(b=>b.classList.toggle("on", b.dataset.c===V.c));
+  $("#"+p+"TB").innerHTML = V.cats.map((k, i)=>`<tr><td class="n"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${PAL[i % PAL.length]};margin-right:6px"></span>${esc(k)}</td><td>${cnt[i]}</td><td>${n ? fmt(cnt[i]/n, 3) : "–"}</td><td>${n ? fmt(100*cnt[i]/n, 1) : "–"}</td><td>${n ? fmt(360*cnt[i]/n, 1) + "°" : "–"}</td></tr>`).join("");
+  $("#"+p+"TF").innerHTML = `<tr><td>Total</td><td>${n}</td><td>${n ? 1 : "–"}</td><td>${n ? 100 : "–"}</td><td>${n ? "360°" : "–"}</td></tr>`;
+  if(!n){ $("#"+p+"Dev").innerHTML = `<p class="tnote">Aún no hay respuestas.</p>`; }
+  else { const mx = Math.max(...cnt), mods = V.cats.filter((k, i)=>cnt[i]===mx), i0 = cnt.indexOf(mx);
+    $("#"+p+"Dev").innerHTML = eqBox([`${I("n")} = ${n} respuestas`, `Moda: <b>${mods.map(esc).join(", ")}</b> (${mx} ${mx===1 ? "vez" : "veces"})`,
+      `ángulo = ${I("fr")} · 360° = ${frac(mx, n)} · 360° = <b>${fmt(360*mx/n, 1)}°</b>`]) +
+      `<p class="tnote" style="margin-top:6px">En una variable cualitativa no se calculan media ni mediana: solo tiene sentido la <b>moda</b> (la categoría más frecuente${mods.length > 1 ? "; aquí hay empate" : ""}). El último cálculo es el ángulo del sector de «${esc(V.cats[i0])}».</p>`; }
+  catDraw(p);
+}
+function catDraw(p){
+  const V = SV[p], cv = V && $("#"+p+"Cv"); if(!cv || !cv.offsetParent) return;
+  const {x:c, w, h} = fit(cv); c.clearRect(0, 0, w, h);
+  const n = V.v.length, cnt = V.cnt || [], col = {t:cssv("text"), m:cssv("muted"), l:cssv("line")}, font = (wt, sz)=>c.font = `${wt} ${sz}px "Chakra Petch", system-ui, sans-serif`;
+  if(!n){ font(600, 15); c.fillStyle = col.m; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("Sin respuestas todavía", w/2, h/2); return; }
+  const short = s=>s.length > 9 ? s.slice(0, 8) + "…" : s;
+  if(V.c==="b"){
+    const L = 36, R = 10, T = 14, B = 36, pw = w - L - R, ph = h - T - B, ym0 = Math.max(...cnt)*1.15, ys = Math.max(1, niceStep(ym0, 4)), ym = Math.ceil(ym0/ys)*ys, sy = v=>T + ph - v/ym*ph, bw = pw/cnt.length;
+    font(500, 12); c.textAlign = "right"; c.textBaseline = "middle"; c.strokeStyle = col.l; c.lineWidth = 1;
+    for(let v=0; v<=ym + 1e-9; v+=ys){ c.beginPath(); c.moveTo(L, sy(v)); c.lineTo(L + pw, sy(v)); c.stroke(); c.fillStyle = col.m; c.fillText(fmt(v, 0), L - 6, sy(v)); }
+    cnt.forEach((f, i)=>{ const X = L + i*bw + bw*0.14, W = bw*0.72; c.fillStyle = PAL[i % PAL.length]; c.fillRect(X, sy(f), W, sy(0) - sy(f)); c.strokeStyle = col.t; c.lineWidth = 1.5; c.strokeRect(X, sy(f), W, sy(0) - sy(f));
+      font(600, bw < 50 ? 10.5 : 12); c.fillStyle = col.t; c.textAlign = "center"; c.textBaseline = "top"; c.fillText(short(V.cats[i]), L + i*bw + bw/2, T + ph + 5, bw - 2); });
+    c.strokeStyle = col.t; c.beginPath(); c.moveTo(L, T); c.lineTo(L, T + ph); c.lineTo(L + pw, T + ph); c.stroke();
+  } else {
+    const R = Math.min(h/2 - 14, w*0.27), cx = R + 16, cy = h/2; let a = -Math.PI/2;
+    cnt.forEach((f, i)=>{ if(!f) return; const da = f/n*2*Math.PI; c.beginPath(); c.moveTo(cx, cy); c.arc(cx, cy, R, a, a + da); c.closePath(); c.fillStyle = PAL[i % PAL.length]; c.fill(); c.strokeStyle = "#fff"; c.lineWidth = 2; c.stroke();
+      if(f/n >= 0.06){ const m = a + da/2; font(700, 12); c.fillStyle = "#fff"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText(fmt(100*f/n, 0) + "%", cx + Math.cos(m)*R*0.64, cy + Math.sin(m)*R*0.64); }
+      a += da; });
+    const lx = cx + R + 18, rowH = Math.min(22, (h - 10)/cnt.length); font(600, 12.5); c.textAlign = "left"; c.textBaseline = "middle";
+    cnt.forEach((f, i)=>{ const y = 8 + rowH*(i + 0.5); c.fillStyle = PAL[i % PAL.length]; c.fillRect(lx, y - 6, 12, 12); c.fillStyle = col.t; c.fillText(`${V.cats[i]} (${f})`, lx + 18, y, w - lx - 22); });
+  }
+}
+
+/* =====================================================================================
+   SOMBRAS Y TALES: semejanza de triángulos (método de las sombras o del espejo)
+   ===================================================================================== */
+function talCur(){ const e = S.talm==="e"; return {m:S.talm, h1:e ? S.teh1 : S.tsh1, a:e ? S.ted1 : S.tss1, b:e ? S.ted2 : S.tss2}; }
+const talH = r=>r.a > 0 ? r.h1*r.b/r.a : null;
+function talDev(r){
+  const H = talH(r); if(H==null) return `<p class="tnote">${r.m==="e" ? "La distancia entre tú y el espejo" : "La sombra de la referencia"} debe ser mayor que 0.</p>`;
+  const v = r.m==="e" ? "d" : "s", hh = k=>`${I("h")}${k}`, ss = k=>`${I(v)}${k}`;
+  const note = r.m==="e"
+    ? `El espejo refleja la luz con el mismo ángulo con que llega (ley de reflexión), así que tu triángulo (${hh("₁")}, ${ss("₁")}) y el del objeto (${hh("₂")}, ${ss("₂")}) tienen los mismos ángulos: son <b>semejantes</b>. ${hh("₁")} es la altura de tus ojos.`
+    : `Los rayos del Sol llegan paralelos: cada objeto vertical y su sombra forman un triángulo rectángulo con el mismo ángulo, así que los triángulos son <b>semejantes</b> (teorema de Tales). Ángulo de elevación del Sol: tan ${I("β")} = ${frac(hh("₁"), ss("₁"))} = ${fmt(r.h1/r.a, 3)} → ${I("β")} = ${fmt(Math.atan(r.h1/r.a)*DEG, 1)}°.`;
+  return eqBox([`${frac(hh("₂"), hh("₁"))} = ${frac(ss("₂"), ss("₁"))}`,
+    `${hh("₂")} = ${frac(`${hh("₁")} · ${ss("₂")}`, ss("₁"))}`,
+    `${hh("₂")} = ${frac(`${fL(r.h1)} · ${fL(r.b)}`, fL(r.a))} = <b>${fL(H)} m</b>`]) +
+    `<p class="tnote" style="margin-top:8px">${note} Razón de semejanza: ${I("k")} = ${frac(ss("₂"), ss("₁"))} = ${fmt(r.b/r.a, 3)}.</p>`;
+}
+const TALK = {
+  s:[["tsh1","Altura ref.","Altura del objeto de referencia (un palo vertical o un compañero), medida con huincha."],["tss1","Sombra ref.","Largo de la sombra de la referencia, desde su base hasta la punta de la sombra."],["tss2","Sombra obj.","Largo de la sombra del objeto alto (árbol, poste, edificio), medida al mismo tiempo."]],
+  e:[["teh1","Tus ojos","Altura desde el suelo hasta tus ojos."],["ted1","Tú-espejo","Distancia horizontal desde tus pies hasta el espejo."],["ted2","Espejo-obj.","Distancia horizontal desde el espejo hasta la base del objeto."]]};
+function talUI(){
+  const K = TALK[S.talm];
+  $("#tReads").innerHTML = K.map(([k, l])=>`<button class="read tap" data-k="${k}"><span>${l}</span><b>${fL(S[k])} m</b><i>Cambiar</i></button>`).join("");
+  $("#tReads").querySelectorAll("[data-k]").forEach(b=>{ const d = K.find(x=>x[0]===b.dataset.k); b.onclick = ()=>editNum(d[1], d[2], d[0], talUI); });
+  const r = talCur(); $("#tDev").innerHTML = talDev(r); $("#tReg").disabled = talH(r)==null;
+  $("#tHow").innerHTML = (S.talm==="e" ? [
+    "Pon un espejo pequeño en el suelo, bien horizontal, entre tú y el objeto.",
+    "Acércate o aléjate hasta ver la punta del objeto justo en el centro del espejo.",
+    `Mide la distancia de tus pies al espejo (${I("d")}₁), del espejo a la base del objeto (${I("d")}₂) y la altura de tus ojos (${I("h")}₁).`] : [
+    "Elige un momento con sol. Pon un objeto de altura conocida (un palo de 1 m bien vertical, o un compañero) cerca del objeto alto.",
+    "Mide <b>al mismo tiempo</b> la sombra de la referencia y la del objeto alto: las sombras cambian con la hora.",
+    "Mide cada sombra desde la base del objeto hasta la punta de la sombra, en metros.",
+    "Compara con la altura que obtienes en la herramienta Alturas."]).map(x=>`<li>${x}</li>`).join("");
+  talDraw();
+}
+function talDraw(){
+  if(route.name!=="tales") return;
+  const {x:c, w, h} = fit($("#tcv")); c.clearRect(0, 0, w, h);
+  const r = talCur(), H = talH(r), col = {t:cssv("text"), m:cssv("muted"), a:cssv("accent"), cu:cssv("curve")}, font = (wt, sz)=>c.font = `${wt} ${sz}px "Chakra Petch", system-ui, sans-serif`;
+  if(H==null){ font(600, 15); c.fillStyle = col.m; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("Revisa los datos", w/2, h/2); return; }
+  const gy = h - 30, top = 34;
+  const lbl = (t, x, y, al, bl, cl, wt)=>{ font(wt || 700, 13); c.fillStyle = cl || col.t; c.textAlign = al; c.textBaseline = bl; c.fillText(t, x, y); };
+  c.strokeStyle = col.m; c.lineWidth = 2; c.beginPath(); c.moveTo(6, gy); c.lineTo(w - 6, gy); c.stroke();
+  if(r.m==="s"){
+    const gap = 0.22*(r.a + r.b) + 90/Math.max(1, w)*(r.a + r.b), k = Math.min((w - 100)/(r.a + r.b + gap), (gy - top)/Math.max(r.h1, H)), x1 = 84, x2 = 84 + (r.a + gap)*k, beta = Math.atan(r.h1/r.a);
+    c.fillStyle = "#ffcf33"; c.strokeStyle = "#c99a06"; c.lineWidth = 2; c.beginPath(); c.arc(18, 18, 10, 0, 7); c.fill(); c.stroke();
+    [[x1, r.h1, r.a, col.t, "h₁", "s₁"], [x2, H, r.b, col.cu, "h₂", "s₂"]].forEach(([x, hm, sm, cl, hn, sn], i)=>{
+      const tx = x, ty = gy - hm*k, ex = x + sm*k;
+      c.strokeStyle = "rgba(0,0,0,.45)"; c.lineWidth = 6; c.lineCap = "round"; c.beginPath(); c.moveTo(x, gy); c.lineTo(ex, gy); c.stroke();
+      c.strokeStyle = cl; c.lineWidth = i ? 7 : 4; c.beginPath(); c.moveTo(x, gy); c.lineTo(tx, ty); c.stroke();
+      c.strokeStyle = "#e09a06"; c.lineWidth = 2; c.setLineDash([6, 5]); c.beginPath(); c.moveTo(tx - (ex - tx)*0.25, ty - (gy - ty)*0.25); c.lineTo(ex, gy); c.stroke(); c.setLineDash([]);
+      c.strokeStyle = col.a; c.lineWidth = 2; c.beginPath(); c.arc(ex, gy, 20, Math.PI, Math.PI + beta); c.stroke();
+      if(i) lbl(`${hn} = ${fL(H)} m`, x - 8, (gy + ty)/2, "right", "middle", col.a); else lbl(`${hn} = ${fL(hm)} m`, x, ty - 6, "center", "bottom", col.t);
+      font(600, 13); const tw = c.measureText(`${sn} = ${fL(sm)} m`).width; let lx = (x + ex)/2; if(i) lx = Math.max(lx, c._sEnd + 10 + tw/2); else lx = Math.max(lx, tw/2 + 4); c._sEnd = lx + tw/2;
+      lbl(`${sn} = ${fL(sm)} m`, lx, gy + 6, "center", "top", col.t, 600);
+      if(sm*k > 44) lbl("β", ex - 26, gy - 4, "right", "bottom", col.a, 700); });
+  } else {
+    const k = Math.min((w - 180)/(r.a + r.b), (gy - top)/Math.max(r.h1, H)), xe = 86, xm = xe + r.a*k, xo = xm + r.b*k, ye = gy - r.h1*k, yo = gy - H*k;
+    c.strokeStyle = col.t; c.lineWidth = 4; c.lineCap = "round"; c.beginPath(); c.moveTo(xe, gy); c.lineTo(xe, ye); c.stroke();
+    c.fillStyle = col.t; c.beginPath(); c.arc(xe, ye, 5, 0, 7); c.fill();
+    c.strokeStyle = col.cu; c.lineWidth = 7; c.beginPath(); c.moveTo(xo, gy); c.lineTo(xo, yo); c.stroke();
+    c.fillStyle = "#8fc7ff"; c.strokeStyle = col.t; c.lineWidth = 1.5; c.fillRect(xm - 12, gy - 4, 24, 5); c.strokeRect(xm - 12, gy - 4, 24, 5);
+    c.strokeStyle = col.a; c.lineWidth = 2.5; c.beginPath(); c.moveTo(xo, yo); c.lineTo(xm, gy - 2); c.lineTo(xe, ye); c.stroke();
+    c.setLineDash([4, 4]); c.strokeStyle = col.m; c.lineWidth = 1.2; c.beginPath(); c.moveTo(xm, gy); c.lineTo(xm, gy - Math.min(40, gy - top)); c.stroke(); c.setLineDash([]);
+    lbl(`h₁ = ${fL(r.h1)} m`, xe - 6, (gy + ye)/2, "right", "middle");
+    lbl(`h₂ = ${fL(H)} m`, xo + 8, (gy + yo)/2, "left", "middle", col.a);
+    font(600, 13); const t1 = `d₁ = ${fL(r.a)} m`, t2 = `d₂ = ${fL(r.b)} m`, w1 = c.measureText(t1).width, w2 = c.measureText(t2).width;
+    const c1 = Math.max((xe + xm)/2, w1/2 + 4), c2 = Math.max((xm + xo)/2, c1 + w1/2 + 12 + w2/2);
+    lbl(t1, c1, gy + 6, "center", "top", col.t, 600); lbl(t2, c2, gy + 6, "center", "top", col.t, 600);
+    lbl("espejo", xm, gy - 44, "center", "bottom", col.m, 600);
+  }
+}
+$("#tReg").onclick = ()=>{
+  const r = talCur(); r.h = talH(r); if(r.h==null) return; const def = "Objeto " + (D.tal.length + 1);
+  const b = sheet(`<h2>Altura: ${fL(r.h)} m</h2>${talDev(r)}
+    <label class="l" for="soObj">Objeto</label><input type="text" id="soObj" maxlength="50" value="${esc(def)}" data-nofocus="1">
+    <label class="l" for="soN">Nota (opcional)</label><input type="text" id="soN" maxlength="200" placeholder="Hora, lugar, grupo…">
+    <div class="acts"><button class="btn" id="soNo">Descartar</button><button class="btn primary" id="soOk">Guardar</button></div>`);
+  b.querySelector("#soNo").onclick = closeSheet;
+  b.querySelector("#soOk").onclick = ()=>{ Object.assign(r, {id:newId(), t:Date.now(), obj:b.querySelector("#soObj").value.trim() || def, n:b.querySelector("#soN").value.trim()});
+    D.tal.push(r); save(); closeSheet(); beep(1320, .1); ledFlash(); toast(`${r.obj}: ${fL(r.h)} m · guardado en Datos`); };
+};
+
+/* =====================================================================================
+   ÁREA DEL TERRENO: vértices con GPS → coordenadas en metros → fórmula del zapato (Gauss)
+   ===================================================================================== */
+const AR = {w:null, fix:null, avg:null, avgT:null, left:0};
+const ER = 6371000;
+const vName = i=>i < 26 ? String.fromCharCode(65 + i) : "P" + (i + 1);
+function llXY(ll){ if(!ll.length) return []; const o = ll[0], kx = Math.cos(o[0]*RAD)*ER*RAD, ky = ER*RAD; return ll.map(p=>[(p[1] - o[1])*kx, (p[0] - o[0])*ky]); }
+function polyCalc(P){
+  const n = P.length, sides = [], terms = []; let per = 0, sum = 0;
+  for(let i=0; i<n; i++){ const a = P[i], b = P[(i + 1) % n];
+    if(n >= 3 || i < n - 1){ const L = Math.hypot(b[0] - a[0], b[1] - a[1]); sides.push(L); per += L; }
+    const t = a[0]*b[1] - b[0]*a[1]; terms.push(t); sum += t; }
+  return {per, sides, terms, sum, area:n >= 3 ? Math.abs(sum)/2 : 0};
+}
+function areaDev(P){
+  const C = polyCalc(P), n = P.length; if(n < 3) return `<p class="tnote">Se necesitan al menos 3 vértices.</p>`;
+  const sn = i=>vName(i) + vName((i + 1) % n), pl = n <= 5 ? C.sides.map((s, i)=>sn(i)).join(" + ") : `${sn(0)} + ${sn(1)} + … + ${sn(n - 1)}`;
+  const tbl = `<div class="tblwrap"><table class="tbl sm" style="margin-top:8px"><thead><tr><th>Vértice</th><th>x (m)</th><th>y (m)</th><th>xᵢ·yᵢ₊₁ − xᵢ₊₁·yᵢ</th><th>Lado</th><th>Largo (m)</th></tr></thead><tbody>${P.map((p, i)=>`<tr><td class="n">${vName(i)}</td><td>${fmt(p[0], 1)}</td><td>${fmt(p[1], 1)}</td><td>${fmt(C.terms[i], 1)}</td><td>${sn(i)}</td><td>${fmt(C.sides[i], 1)}</td></tr>`).join("")}</tbody><tfoot><tr><td>Suma</td><td></td><td></td><td>${fmt(C.sum, 1)}</td><td>Perímetro</td><td>${fmt(C.per, 1)}</td></tr></tfoot></table></div>`;
+  return eqBox([`${I("A")} = ${frac("1", "2")} · |Σ (${I("x")}ᵢ · ${I("y")}ᵢ₊₁ − ${I("x")}ᵢ₊₁ · ${I("y")}ᵢ)|`,
+    `${I("A")} = ${frac("1", "2")} · |${fmt(C.sum, 1)}| = <b>${fmt(C.area, 1)} m²</b>` + (C.area >= 1000 ? ` = ${fmt(C.area/10000, 3)} ha` : ""),
+    `${I("P")} = ${pl} = <b>${fmt(C.per, 1)} m</b>`]) + tbl +
+    `<p class="tnote" style="margin-top:8px">Es la <b>fórmula del zapato</b> (o de Gauss): se multiplican las coordenadas en cruz, vértice con vértice siguiente, y el último con el primero. Coordenadas en metros desde el vértice A, que queda en el origen; el eje ${I("x")} apunta al este y el eje ${I("y")} al norte. Cada lado se calcula con el teorema de Pitágoras: ${I("d")} = √((Δ${I("x")})² + (Δ${I("y")})²).</p>`;
+}
+function drawPoly(cv, P, cur, live){
+  const {x:c, w, h} = fit(cv); c.clearRect(0, 0, w, h);
+  const col = {t:cssv("text"), m:cssv("muted"), l:cssv("line"), a:cssv("accent"), cu:cssv("curve")}, font = (wt, sz)=>c.font = `${wt} ${sz}px "Chakra Petch", system-ui, sans-serif`;
+  const all = P.concat(cur ? [cur.xy] : []);
+  if(!all.length){ font(600, 15); c.fillStyle = col.m; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText(live ? "Esperando señal GPS…" : "Sin vértices", w/2, h/2); return; }
+  const xs = all.map(p=>p[0]), ys = all.map(p=>p[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  const s = Math.min((w - 60)/Math.max(x1 - x0, 10), (h - 60)/Math.max(y1 - y0, 10)), mx = (x0 + x1)/2, my = (y0 + y1)/2;
+  const X = x=>w/2 + (x - mx)*s, Y = y=>h/2 - (y - my)*s, st = niceStep(w/s, 6);
+  c.strokeStyle = col.l; c.lineWidth = 1;
+  for(let g = Math.floor((mx - w/2/s)/st)*st; X(g) <= w; g += st){ c.beginPath(); c.moveTo(X(g), 0); c.lineTo(X(g), h); c.stroke(); }
+  for(let g = Math.floor((my - h/2/s)/st)*st; Y(g) >= 0; g += st){ c.beginPath(); c.moveTo(0, Y(g)); c.lineTo(w, Y(g)); c.stroke(); }
+  if(P.length >= 2){
+    c.beginPath(); P.forEach((p, i)=>i ? c.lineTo(X(p[0]), Y(p[1])) : c.moveTo(X(p[0]), Y(p[1])));
+    if(P.length >= 3){ c.closePath(); c.fillStyle = col.a; c.globalAlpha = .18; c.fill(); c.globalAlpha = 1; }
+    c.strokeStyle = col.a; c.lineWidth = 3; c.lineJoin = "round"; c.stroke();
+    const C = polyCalc(P); font(600, 11.5); c.fillStyle = col.t; c.textAlign = "center"; c.textBaseline = "middle";
+    C.sides.forEach((L, i)=>{ const a = P[i], b = P[(i + 1) % P.length]; if(L*s > 46) c.fillText(fmt(L, 1) + " m", X((a[0] + b[0])/2), Y((a[1] + b[1])/2) - 9); });
+  }
+  P.forEach((p, i)=>{ c.beginPath(); c.arc(X(p[0]), Y(p[1]), 6, 0, 7); c.fillStyle = col.a; c.fill(); c.strokeStyle = "#fff"; c.lineWidth = 2; c.stroke();
+    font(700, 13); c.fillStyle = col.t; c.textAlign = "left"; c.textBaseline = "bottom"; c.fillText(vName(i), X(p[0]) + 7, Y(p[1]) - 3); });
+  if(cur){ const cx = X(cur.xy[0]), cy = Y(cur.xy[1]); c.beginPath(); c.arc(cx, cy, Math.max(8, cur.acc*s), 0, 7); c.fillStyle = col.cu; c.globalAlpha = .15; c.fill(); c.globalAlpha = 1;
+    c.beginPath(); c.arc(cx, cy, 7, 0, 7); c.fillStyle = col.cu; c.fill(); c.strokeStyle = "#fff"; c.lineWidth = 2.5; c.stroke(); }
+  const bl = st*s; c.strokeStyle = col.t; c.lineWidth = 2.5; c.beginPath(); c.moveTo(12, h - 14); c.lineTo(12 + bl, h - 14); c.moveTo(12, h - 19); c.lineTo(12, h - 9); c.moveTo(12 + bl, h - 19); c.lineTo(12 + bl, h - 9); c.stroke();
+  font(600, 12); c.fillStyle = col.t; c.textAlign = "left"; c.textBaseline = "bottom"; c.fillText(fmt(st, stepDec(st)) + " m", 16 + bl, h - 8);
+  font(700, 13); c.textAlign = "right"; c.textBaseline = "top"; c.fillText("N ↑", w - 8, 8);
+}
+function areaEnter(){
+  if(AR.w!=null) return;
+  if(!navigator.geolocation){ $("#armsg").textContent = "Este navegador no tiene GPS. Puedes ingresar coordenadas a mano."; return; }
+  $("#armsg").textContent = "Buscando señal GPS… sal al aire libre y espera unos segundos.";
+  AR.w = navigator.geolocation.watchPosition(p=>{ AR.fix = {lat:p.coords.latitude, lon:p.coords.longitude, acc:p.coords.accuracy, t:Date.now()}; $("#armsg").textContent = ""; if(AR.avg) AR.avg.push(AR.fix); },
+    e=>{ $("#armsg").textContent = e.code===1 ? "Sin permiso para la ubicación. Actívalo en los ajustes del navegador o de la app." : "No se pudo obtener la ubicación. Sal al aire libre y espera unos segundos."; },
+    {enableHighAccuracy:true, maximumAge:0, timeout:30000});
+  keepAwake();
+}
+function areaLeave(){ if(AR.w!=null){ try{ navigator.geolocation.clearWatch(AR.w); }catch(e){} AR.w = null; } if(AR.avgT){ clearInterval(AR.avgT); AR.avgT = null; } AR.avg = null; }
+function areaCur(){ const f = AR.fix; if(!f || Date.now() - f.t > 15000) return null; const ll = D.arCur.ll.length ? [D.arCur.ll[0], [f.lat, f.lon]] : [[f.lat, f.lon]]; const xy = llXY(ll); return {xy:xy[xy.length - 1], acc:f.acc}; }
+function areaUI(){
+  const P = llXY(D.arCur.ll), C = polyCalc(P), f = AR.fix;
+  $("#arN").textContent = P.length; $("#arP").textContent = P.length >= 2 ? fmt(C.per, 0) + " m" : "–"; $("#arA").textContent = P.length >= 3 ? fmt(C.area, 0) + " m²" : "–";
+  $("#arG").textContent = f ? "±" + fmt(f.acc, 0) + " m" : "–";
+  $("#arM").textContent = AR.avg ? `Midiendo… ${AR.left}` : `Marcar vértice ${vName(P.length)}`; $("#arM").classList.toggle("on", !!AR.avg);
+  $("#arU").disabled = !P.length || !!AR.avg; $("#arS").disabled = P.length < 3 || !!AR.avg;
+  drawPoly($("#arcv"), P, areaCur(), true);
+}
+$("#arM").onclick = ()=>{
+  if(AR.avg) return; const f = AR.fix;
+  if(!f || Date.now() - f.t > 15000){ toast("Aún no hay señal GPS. Espera unos segundos al aire libre."); return; }
+  AR.avg = [f]; AR.left = 5; beep(990, .06); areaUI();
+  AR.avgT = setInterval(()=>{ AR.left--; if(AR.left > 0){ areaUI(); return; }
+    clearInterval(AR.avgT); AR.avgT = null; const A = AR.avg; AR.avg = null;
+    const best = Math.min(...A.map(x=>x.acc)), G = A.filter(x=>x.acc <= Math.max(20, best*1.5)); let sw = 0, la = 0, lo = 0;
+    G.forEach(x=>{ const wt = 1/Math.max(1, x.acc)**2; sw += wt; la += x.lat*wt; lo += x.lon*wt; });
+    D.arCur.ll.push([la/sw, lo/sw]); save(); beep(1320, .1); buzz(50); ledFlash();
+    toast(`Vértice ${vName(D.arCur.ll.length - 1)} marcado (±${fmt(best, 0)} m, ${G.length} ${G.length===1 ? "lectura" : "lecturas"})`); areaUI(); }, 1000);
+};
+$("#arU").onclick = ()=>{ if(!D.arCur.ll.length) return; D.arCur.ll.pop(); save(); areaUI(); };
+function saveTerrain(pts, ll, defName){
+  const b = sheet(`<h2>Área: ${fmt(polyCalc(pts).area, 1)} m²</h2>${areaDev(pts)}
+    <label class="l" for="soObj">Nombre</label><input type="text" id="soObj" maxlength="60" value="${esc(defName)}" data-nofocus="1">
+    <div class="acts"><button class="btn" id="soNo">Cancelar</button><button class="btn primary" id="soOk">Guardar</button></div>`);
+  b.querySelector("#soNo").onclick = closeSheet;
+  b.querySelector("#soOk").onclick = ()=>{ const t = {id:newId(), name:b.querySelector("#soObj").value.trim() || defName, created:Date.now(), pts, ll};
+    D.ter.unshift(t); if(ll) D.arCur.ll = []; save(); closeSheet(); toast("Guardado en Datos"); nav("a-" + t.id); };
+}
+$("#arS").onclick = ()=>{ if(D.arCur.ll.length < 3) return; saveTerrain(llXY(D.arCur.ll), D.arCur.ll.slice(), "Terreno " + (D.ter.length + 1)); };
+$("#arMan").onclick = ()=>{
+  const b = sheet(`<h2>Polígono con coordenadas</h2><p class="muted" style="margin:0">Escribe un vértice por línea, en orden: <b>x ; y</b> (en metros). Sirve para practicar en el plano cartesiano o para un plano dibujado.</p>
+    <label class="l" for="pmT">Vértices</label><textarea id="pmT" style="min-height:150px" placeholder="0 ; 0\n40 ; 0\n40 ; 25\n0 ; 25"></textarea>
+    <div class="acts"><button class="btn" id="pmNo">Cancelar</button><button class="btn primary" id="pmOk">Calcular</button></div>`);
+  b.querySelector("#pmNo").onclick = closeSheet;
+  b.querySelector("#pmOk").onclick = ()=>{ const P = [];
+    for(const ln of b.querySelector("#pmT").value.split(/\n/)){ if(!ln.trim()) continue; const t = ln.trim().split(/\s*[;\t]\s*|\s+/).map(num);
+      if(t.length < 2 || !isFinite(t[0]) || !isFinite(t[1]) || t[0]==null || t[1]==null){ toast(`No se entendió la línea “${ln.trim()}”. Usa x ; y`); return; } P.push([t[0], t[1]]); }
+    if(P.length < 3){ toast("Escribe al menos 3 vértices"); return; } saveTerrain(P, null, "Polígono " + (D.ter.length + 1)); };
+};
+const terById = id=>D.ter.find(t=>t.id===id) || null;
+function aredRender(id){ const t = terById(id); $("#arDev").innerHTML = areaDev(t.pts); drawPoly($("#arcv2"), t.pts, null, false); }
+$("#arCsv").onclick = ()=>{ const t = terById(route.id), C = polyCalc(t.pts);
+  let s = csvOf(t.name, ["Vértice","x (m)","y (m)", "Latitud", "Longitud"], t.pts.map((p, i)=>[vName(i), n2(p[0], 2), n2(p[1], 2), t.ll ? n2(t.ll[i][0], 7) : "", t.ll ? n2(t.ll[i][1], 7) : ""]));
+  s += `\r\n\r\nPerímetro (m);${n2(C.per, 2)}\r\nÁrea (m²);${n2(C.area, 2)}`; exportFiles([csvFile(s, fname(t.name))], t.name, "download"); };
+$("#arRen").onclick = ()=>{ const t = terById(route.id); renameDlg(t, ()=>{ $("#tTitle").textContent = t.name; }); };
+$("#arDel").onclick = ()=>{ const t = terById(route.id); if(!confirm(`¿Eliminar “${t.name}”?`)) return; D.ter = D.ter.filter(x=>x!==t); save(); toast("Eliminado"); history.replaceState(null, "", "#datos"); render(); };
+
+/* =====================================================================================
+   TIEMPO DE REACCIÓN: datos reales del curso para estadística
+   ===================================================================================== */
+const RX = {st:"idle", tm:null, t0:0, last:null};
+function tone(f, d){ try{ actx = actx || new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume();
+  const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime; o.frequency.value = f; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.6, t + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + d + 0.02); return ((actx.outputLatency || actx.baseLatency || 0)*1000); }catch(e){ return 0; } }
+function rxPadUI(){
+  const snd = S.rxs==="s", st = RX.st;
+  $("#rxPad").className = "rxpad" + ({idle:"", wait:snd ? " neutral" : " wait", go:snd ? " neutral" : " go", res:" res", early:" early"}[st]);
+  const T = {idle:["Toca para empezar", snd ? "Cuando suene el pitido, toca lo más rápido que puedas." : "Cuando la pantalla se ponga verde, toca lo más rápido que puedas."],
+    wait:[snd ? "Atento al sonido…" : "Espera el verde…", "No toques todavía"], go:[snd ? "Atento al sonido…" : "¡Toca!", snd ? "No toques todavía" : ""],
+    res:[fmt(RX.last, 0) + " ms", "Toca para otro intento"], early:["¡Muy pronto!", "Tocaste antes de tiempo. Toca para reintentar."]}[st];
+  $("#rxBig").textContent = T[0]; $("#rxSmall").textContent = T[1];
+}
+function rxGo(){ RX.tm = null; RX.st = "go"; rxPadUI();
+  if(S.rxs==="s"){ const lat = tone(1000, .18); RX.t0 = performance.now() + lat; }
+  else requestAnimationFrame(()=>requestAnimationFrame(()=>{ if(RX.st==="go") RX.t0 = performance.now(); })); }
+$("#rxPad").addEventListener("pointerdown", e=>{
+  e.preventDefault(); const now = performance.now();
+  if(RX.st==="wait"){ clearTimeout(RX.tm); RX.tm = null; RX.st = "early"; buzz(150); rxPadUI(); return; }
+  if(RX.st==="go"){ if(!RX.t0) return; const ms = now - RX.t0; RX.t0 = 0;
+    if(ms < 100){ RX.st = "early"; rxPadUI(); toast("Menos de 100 ms: fue una anticipación y no se registra"); return; }
+    if(ms > 2000){ RX.st = "idle"; rxPadUI(); toast("Más de 2 segundos: no se registra"); return; }
+    RX.last = ms; D.rx.tries.push({p:D.rx.p, s:S.rxs, ms:Math.round(ms), t:Date.now()}); save(); RX.st = "res"; buzz(30); rxRender(); return; }
+  try{ actx = actx || new (window.AudioContext||window.webkitAudioContext)(); actx.resume(); }catch(er){}
+  RX.st = "wait"; RX.t0 = 0; rxPadUI(); RX.tm = setTimeout(rxGo, 1500 + Math.random()*2500);
+});
+function rxLeave(){ if(RX.tm){ clearTimeout(RX.tm); RX.tm = null; } RX.st = "idle"; RX.t0 = 0; }
+const avg = v=>v.length ? v.reduce((s, x)=>s + x, 0)/v.length : null;
+function rxRender(){
+  const T = D.rx.tries, mine = T.filter(t=>t.p===D.rx.p).map(t=>t.ms);
+  $("#rxP").textContent = D.rx.p; $("#rxN").textContent = mine.length; $("#rxL").textContent = mine.length ? mine[mine.length - 1] + " ms" : "–";
+  $("#rxA").textContent = mine.length ? fmt(avg(mine), 0) + " ms" : "–"; $("#rxB").textContent = mine.length ? Math.min(...mine) + " ms" : "–";
+  let vals;
+  if(S.rxsc==="per"){ const by = new Map(); T.forEach(t=>{ if(!by.has(t.p)) by.set(t.p, []); by.get(t.p).push(t.ms); }); vals = [...by.values()].map(avg); }
+  else vals = T.map(t=>t.ms);
+  statsSet("rx", vals, {unit:"ms", dec:0, xl:"tiempo de reacción (ms)"});
+  const v = T.filter(t=>t.s!=="s").map(t=>t.ms), s = T.filter(t=>t.s==="s").map(t=>t.ms);
+  $("#rxCmp").innerHTML = (S.rxsc==="per" ? `Se analiza el promedio de cada una de las ${vals.length} personas. ` : `Se analizan los ${vals.length} intentos de todo el curso. `) +
+    (v.length && s.length ? `Promedio con estímulo visual: <b>${fmt(avg(v), 0)} ms</b> (${v.length} intentos) · con estímulo sonoro: <b>${fmt(avg(s), 0)} ms</b> (${s.length}). ¿Cuál es más rápido?` : "");
+  $("#rxBody").innerHTML = T.length ? T.map((t, i)=>({t, i})).reverse().map(({t, i})=>`<tr data-i="${i}"><td class="n">${i + 1}</td><td>${esc(t.p)}</td><td>${t.s==="s" ? "Sonoro" : "Visual"}</td><td>${t.ms} ms</td></tr>`).join("") : `<tr><td colspan="4" class="muted">Aún no hay intentos.</td></tr>`;
+  $("#rxBody").querySelectorAll("[data-i]").forEach(tr=>tr.onclick = ()=>{ const t = T[+tr.dataset.i]; if(confirm(`¿Eliminar el intento ${+tr.dataset.i + 1} (${t.p}, ${t.ms} ms)?`)){ T.splice(+tr.dataset.i, 1); save(); rxRender(); } });
+  rxPadUI();
+}
+function nextName(){ const m = /^(.*?)(\d+)$/.exec(D.rx.p); return m ? m[1] + (parseInt(m[2], 10) + 1) : "Persona " + (new Set(D.rx.tries.map(t=>t.p)).size + 1); }
+$("#rxPn").onclick = ()=>{ rxLeave(); D.rx.p = nextName(); save(); rxRender(); toast("Ahora participa " + D.rx.p); };
+$("#rxPc").onclick = ()=>{
+  const b = sheet(`<h2>Participante</h2><p class="muted" style="margin:0">Los próximos intentos se guardan con este nombre.</p><label class="l" for="rxNm">Nombre</label><input type="text" id="rxNm" maxlength="40" value="${esc(D.rx.p)}">
+    <div class="acts"><button class="btn" id="rxNo">Cancelar</button><button class="btn primary" id="rxOk">Usar este nombre</button></div>`);
+  b.querySelector("#rxNm").select(); b.querySelector("#rxNo").onclick = closeSheet;
+  b.querySelector("#rxOk").onclick = ()=>{ D.rx.p = b.querySelector("#rxNm").value.trim() || D.rx.p; save(); closeSheet(); rxRender(); };
+};
+function rxCsvText(name, tries){
+  const by = new Map(); tries.forEach(t=>{ if(!by.has(t.p)) by.set(t.p, []); by.get(t.p).push(t.ms); });
+  let s = csvOf(name, ["N°","Persona","Estímulo","Tiempo (ms)","Fecha","Hora"], tries.map((t, i)=>[i + 1, t.p, t.s==="s" ? "Sonoro" : "Visual", t.ms, ymd(t.t), hhmm(t.t)]));
+  s += "\r\n\r\nPersona;Intentos;Promedio (ms);Mejor (ms)\r\n" + [...by].map(([p, v])=>[q(p), v.length, n2(avg(v), 1), Math.min(...v)].join(";")).join("\r\n");
+  return s;
+}
+$("#rxCsv").onclick = ()=>{ if(!D.rx.tries.length){ toast("Aún no hay intentos"); return; } const nm = "Tiempo de reacción " + dmy(Date.now()); exportFiles([csvFile(rxCsvText(nm, D.rx.tries), fname(nm))], nm, "download"); };
+$("#rxReset").onclick = ()=>{ if(D.rx.tries.length && !confirm(`¿Borrar los ${D.rx.tries.length} intentos y empezar de nuevo?`)) return; rxLeave(); D.rx = {p:"Persona 1", tries:[]}; save(); rxRender(); };
+$("#rxSave").onclick = ()=>{
+  if(!D.rx.tries.length){ toast("Aún no hay intentos para guardar"); return; }
+  const def = `Reacción · ${new Set(D.rx.tries.map(t=>t.p)).size} personas · ${dmy(Date.now())}`;
+  const b = sheet(`<h2>Guardar sesión</h2><p class="muted" style="margin:0">Queda en Datos para abrirla o descargarla después.</p><label class="l" for="rsN">Nombre</label><input type="text" id="rsN" maxlength="60" value="${esc(def)}">
+    <div class="acts"><button class="btn" id="rsNo">Cancelar</button><button class="btn primary" id="rsOk">Guardar</button></div>`);
+  b.querySelector("#rsN").select(); b.querySelector("#rsNo").onclick = closeSheet;
+  b.querySelector("#rsOk").onclick = ()=>{ D.reac.unshift({id:newId(), name:b.querySelector("#rsN").value.trim() || def, created:Date.now(), tries:D.rx.tries.map(t=>Object.assign({}, t))}); save(); closeSheet(); toast("Sesión guardada en Datos"); };
+};
+function reacSheet(id){
+  const z = D.reac.find(o=>o.id===id); if(!z) return;
+  const b = sheet(`<h2>${esc(z.name)}</h2><p class="muted" style="margin:0">${z.tries.length} intentos · ${new Set(z.tries.map(t=>t.p)).size} personas · ${dmy(z.created)}</p>
+    <div class="acts"><button class="btn primary" id="zO">Abrir</button><button class="btn" id="zC">Descargar CSV</button></div>
+    <div class="acts"><button class="btn" id="zR">Editar nombre</button><button class="btn danger" id="zD">Eliminar</button></div>
+    <div class="acts"><button class="btn" id="zNo">Cerrar</button></div>`);
+  b.querySelector("#zNo").onclick = closeSheet;
+  b.querySelector("#zO").onclick = ()=>{ if(D.rx.tries.length && !confirm(`Se reemplaza la sesión que tienes abierta (${D.rx.tries.length} intentos). ¿Continuar?`)) return;
+    D.rx = {p:z.tries.length ? z.tries[z.tries.length - 1].p : "Persona 1", tries:z.tries.map(t=>Object.assign({}, t))}; save(); closeSheet(); nav("reac"); };
+  b.querySelector("#zC").onclick = ()=>exportFiles([csvFile(rxCsvText(z.name, z.tries), fname(z.name))], z.name, "download");
+  b.querySelector("#zR").onclick = ()=>renameDlg(z, renderDatos);
+  b.querySelector("#zD").onclick = ()=>{ if(!confirm(`¿Eliminar “${z.name}”?`)) return; D.reac = D.reac.filter(o=>o!==z); save(); closeSheet(); renderDatos(); toast("Sesión eliminada"); };
+}
+
+/* =====================================================================================
+   ENCUESTA DEL CURSO: una variable cuantitativa o cualitativa
+   ===================================================================================== */
+const encById = id=>D.enc.find(e=>e.id===id) || null;
+let ED = null;
+$("#encNew").onclick = ()=>{
+  let ty = "n";
+  const b = sheet(`<h2>Nueva variable</h2><label class="l" for="evN">Nombre</label><input type="text" id="evN" maxlength="60" placeholder="Ej.: Estatura, Deporte favorito">
+    <label class="l">Tipo de variable</label><div class="seg" id="evT"><button data-t="n" class="on">Cuantitativa (números)</button><button data-t="c">Cualitativa (categorías)</button></div>
+    <div id="evUw"><label class="l" for="evU">Unidad (opcional)</label><input type="text" id="evU" maxlength="12" placeholder="cm, kg, minutos…"></div>
+    <div class="acts"><button class="btn" id="evNo">Cancelar</button><button class="btn primary" id="evOk">Crear</button></div>`);
+  b.querySelectorAll("#evT button").forEach(x=>x.onclick = ()=>{ ty = x.dataset.t; b.querySelectorAll("#evT button").forEach(y=>y.classList.toggle("on", y===x)); b.querySelector("#evUw").hidden = ty!=="n"; });
+  b.querySelector("#evNo").onclick = closeSheet;
+  b.querySelector("#evOk").onclick = ()=>{ const name = b.querySelector("#evN").value.trim(); if(!name){ toast("Escribe el nombre de la variable"); return; }
+    const e = {id:newId(), name, type:ty, unit:ty==="n" ? b.querySelector("#evU").value.trim() : "", vals:[], cats:[], created:Date.now()};
+    D.enc.unshift(e); save(); closeSheet(); nav("e-" + e.id); };
+};
+function encList(){
+  $("#encList").innerHTML = D.enc.length ? D.enc.map((e, k)=>item(`data-href="e-${e.id}"`, "enc", e.type==="n" ? "CUANTITATIVA" : "CUALITATIVA", e.name, `${dmy(e.created)} · ${e.vals.length} datos`)).join("") : `<div class="empty">Aún no hay variables. Crea una con el botón de arriba.</div>`;
+  bindItems($("#encList"));
+}
+function encMeta(){ const e = ED; $("#edMeta").textContent = `${e.type==="n" ? "Variable cuantitativa" : "Variable cualitativa"}${e.unit ? " · unidad: " + e.unit : ""} · ${e.vals.length} ${e.vals.length===1 ? "dato" : "datos"}`; $("#edUndo").disabled = !e.vals.length; }
+function encRender(id){
+  const e = encById(id); ED = e; $("#edName").textContent = e.name;
+  if(e.type==="n"){
+    $("#edIn").innerHTML = `<label class="l" for="edV">Agregar datos</label><div class="row"><input type="text" id="edV" placeholder="Ej.: 152 160 158,5" autocomplete="off"><button class="btn primary" id="edAdd">Agregar</button></div>
+      <p class="tnote" style="margin-top:6px">Separa los datos con espacios (la coma es para decimales). También puedes pegar una columna copiada de Excel.</p>`;
+    const add = ()=>{ const inp = $("#edV"), toks = inp.value.split(/[\s;]+/).filter(Boolean), ok = [];
+      for(const t of toks){ const v = num(t); if(v==null || !isFinite(v)){ toast(`No se entendió “${t}”`); return; } ok.push(v); }
+      if(!ok.length) return; e.vals.push(...ok); save(); inp.value = ""; beep(1300, .04); encStats(); inp.focus(); };
+    $("#edAdd").onclick = add; $("#edV").onkeydown = ev=>{ if(ev.key==="Enter") add(); };
+  } else encCatsUI();
+  $("#edSN").hidden = e.type!=="n"; $("#edSC").hidden = e.type==="n";
+  encStats();
+}
+function encCatsUI(){
+  const e = ED;
+  $("#edIn").innerHTML = `<div class="catg">${e.cats.map((k, i)=>`<button class="btn" data-i="${i}"><span style="display:block">${esc(k)}</span><span class="cnt">${e.vals.filter(x=>x===k).length}</span></button>`).join("")}</div>
+    <label class="l" for="edC">Nueva categoría</label><div class="row"><input type="text" id="edC" maxlength="30" placeholder="Ej.: Fútbol" autocomplete="off"><button class="btn primary" id="edAddC">Agregar</button></div>
+    <p class="tnote" style="margin-top:6px">Toca una categoría cada vez que alguien la elija. Una categoría nueva se agrega con una respuesta.</p>`;
+  $("#edIn").querySelectorAll("[data-i]").forEach(b=>b.onclick = ()=>{ e.vals.push(e.cats[+b.dataset.i]); save(); beep(1300, .04); buzz(15); encCatsUI(); encStats(); });
+  const add = ()=>{ const v = $("#edC").value.trim(); if(!v) return; const ex = e.cats.find(k=>k.toLowerCase()===v.toLowerCase()); if(!ex) e.cats.push(v); e.vals.push(ex || v); save(); encCatsUI(); encStats(); };
+  $("#edAddC").onclick = add; $("#edC").onkeydown = ev=>{ if(ev.key==="Enter") add(); };
+}
+function encStats(){ const e = ED; encMeta(); if(e.type==="n") statsSet("ed", e.vals, {unit:e.unit, dec:dataDec(e.vals), xl:e.unit ? `${e.name.toLowerCase()} (${e.unit})` : e.name.toLowerCase()}); else catRender("ec", e.vals, e.cats); }
+$("#edUndo").onclick = ()=>{ const e = ED; if(!e.vals.length) return; e.vals.pop(); save(); if(e.type==="c") encCatsUI(); encStats(); };
+$("#edEdit").onclick = ()=>{
+  const e = ED;
+  const b = sheet(`<h2>Datos de “${esc(e.name)}”</h2><p class="muted" style="margin:0">Un dato por línea. Puedes corregir, borrar o pegar datos.</p>
+    <textarea id="eeT" style="min-height:220px;margin-top:10px">${esc(e.vals.map(v=>e.type==="n" ? String(v).replace(".", ",") : v).join("\n"))}</textarea>
+    <div class="acts"><button class="btn" id="eeNo">Cancelar</button><button class="btn primary" id="eeOk">Guardar</button></div>`);
+  b.querySelector("#eeNo").onclick = closeSheet;
+  b.querySelector("#eeOk").onclick = ()=>{ const lines = b.querySelector("#eeT").value.split(/\n/).map(s=>s.trim()).filter(Boolean);
+    if(e.type==="n"){ const vs = []; for(const l of lines){ for(const t of l.split(/[\s;]+/).filter(Boolean)){ const v = num(t); if(v==null || !isFinite(v)){ toast(`No se entendió “${t}”`); return; } vs.push(v); } } e.vals = vs; }
+    else { const vs = lines.map(l=>{ const ex = e.cats.find(k=>k.toLowerCase()===l.toLowerCase()); return ex || l; }); vs.forEach(v=>{ if(e.cats.indexOf(v) < 0) e.cats.push(v); }); e.cats = e.cats.filter(k=>vs.indexOf(k) >= 0); e.vals = vs; }
+    save(); closeSheet(); encRender(e.id); };
+};
+$("#edCsv").onclick = ()=>{
+  const e = ED; if(!e.vals.length){ toast("Aún no hay datos"); return; }
+  let s;
+  if(e.type==="n"){ const st = stats(e.vals), F = freqRows(st, SV.ed.g), d = dataDec(e.vals); let ac = 0;
+    s = csvOf(`${e.name}${e.unit ? " (" + e.unit + ")" : ""} · n = ${st.n}`, F.grp ? ["Intervalo","Marca","f","F","fr","Fr","%"] : ["Valor","f","F","fr","Fr","%"],
+      F.rows.map(r=>{ ac += r.f; const base = [r.f, ac, n2(r.f/st.n, 4), n2(ac/st.n, 4), n2(100*r.f/st.n, 2)]; return F.grp ? [`[${n2(r.lo, F.dl)} ; ${n2(r.hi, F.dl)})`, n2(r.x, decs(r.x))].concat(base) : [n2(r.x, d)].concat(base); }));
+    s += `\r\n\r\nMedia;${n2(st.mean, d + 2)}\r\nMediana;${n2(st.med, d + 1)}\r\nModa;${q(st.modes.map(x=>n2(x, d)).join(" y ") || "sin moda")}\r\nMínimo;${n2(st.min, d)}\r\nQ1;${n2(st.q1, d + 1)}\r\nQ3;${n2(st.q3, d + 1)}\r\nMáximo;${n2(st.max, d)}\r\nRango;${n2(st.range, d)}\r\nRIC;${n2(st.iqr, d + 1)}\r\nVarianza (poblacional);${n2(st.vr, d + 3)}\r\nDesviación estándar (poblacional);${n2(st.sd, d + 2)}`;
+    s += "\r\n\r\nDatos\r\n" + e.vals.map(v=>n2(v, d)).join("\r\n"); }
+  else { const n = e.vals.length; s = csvOf(`${e.name} · n = ${n}`, ["Categoría","f","fr","%","Ángulo (°)"], e.cats.map(k=>{ const f = e.vals.filter(x=>x===k).length; return [k, f, n2(f/n, 4), n2(100*f/n, 2), n2(360*f/n, 1)]; })); }
+  exportFiles([csvFile(s, fname(e.name))], e.name, "download");
+};
+$("#edRen").onclick = ()=>renameDlg(ED, ()=>{ $("#tTitle").textContent = ED.name; $("#edName").textContent = ED.name; });
+$("#edDel").onclick = ()=>{ const e = ED; if(!confirm(`¿Eliminar la variable “${e.name}” con ${e.vals.length} datos?`)) return; D.enc = D.enc.filter(x=>x!==e); save(); toast("Variable eliminada"); history.replaceState(null, "", "#enc"); render(); };
+
 /* ============================== datos y tablas ============================== */
 const IC = {
   alt:'<path d="M3 20h18"/><path d="M17 20V5"/><path d="M4 20L17 5" stroke-dasharray="1.6 2.4"/><path d="M8.6 20a4.6 4.6 0 0 0-1.4-3.3"/><circle class="f" cx="17" cy="5" r="1.6"/>',
   pend:'<path d="M3 19h18V8z"/><path d="M18.3 19v-2.7H21"/><path d="M8.2 19a5.2 5.2 0 0 0-.4-2.1"/>',
   fotos:'<rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="M5 17.5c3-11.5 11-11.5 14 0"/><circle class="f" cx="7.3" cy="11.8" r="1.3"/><circle class="f" cx="12" cy="8.2" r="1.3"/><circle class="f" cx="16.7" cy="11.8" r="1.3"/>',
+  tales:'<circle cx="19" cy="5" r="2.2"/><path d="M2.5 20.5h19"/><path d="M5 20.5V15"/><path d="M11.5 20.5V8"/><path d="M5 15l4 5.5M11.5 8l9 12.5" stroke-dasharray="1.6 2.2"/>',
+  area:'<path d="M4 17.5L7 5.5l10.5 2.5 3 10.5z"/><circle class="f" cx="4" cy="17.5" r="1.6"/><circle class="f" cx="7" cy="5.5" r="1.6"/><circle class="f" cx="17.5" cy="8" r="1.6"/><circle class="f" cx="20.5" cy="18.5" r="1.6"/>',
+  reac:'<circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5l3.2-3.2M10 2.5h4M12 2.5V6M18.4 6.6l1.6-1.6"/>',
+  enc:'<path d="M3.5 20.5h17"/><rect x="5" y="12" width="3.2" height="8.5"/><rect x="10.4" y="5.5" width="3.2" height="15"/><rect x="15.8" y="9" width="3.2" height="11.5"/>',
   azar:'<rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle class="f" cx="8.4" cy="8.4" r="1.45"/><circle class="f" cx="15.6" cy="15.6" r="1.45"/><circle class="f" cx="12" cy="12" r="1.45"/><circle class="f" cx="15.6" cy="8.4" r="1.45"/><circle class="f" cx="8.4" cy="15.6" r="1.45"/>'
 };
 const svgI = k=>`<svg viewBox="0 0 24 24">${IC[k]}</svg>`;
 const item = (attrs, ic, em, name, small)=>`<button class="regitem" ${attrs}><span class="ic">${svgI(ic)}</span><span class="tx"><em>${em}</em><b>${esc(name)}</b><small>${small}</small></span></button>`;
-function bindItems(root){ root.querySelectorAll("[data-href]").forEach(b=>b.onclick = ()=>nav(b.dataset.href)); root.querySelectorAll("[data-az]").forEach(b=>b.onclick = ()=>azSheet(b.dataset.az)); }
+function bindItems(root){ root.querySelectorAll("[data-href]").forEach(b=>b.onclick = ()=>nav(b.dataset.href)); root.querySelectorAll("[data-az]").forEach(b=>b.onclick = ()=>azSheet(b.dataset.az)); root.querySelectorAll("[data-rx]").forEach(b=>b.onclick = ()=>reacSheet(b.dataset.rx)); }
 function renderDatos(){
-  $("#dsMed").innerHTML = item('data-href="l-alt"', "alt", "TABLA", "Alturas", `${D.alt.length} ${D.alt.length===1 ? "medición" : "mediciones"}`) + item('data-href="l-pend"', "pend", "TABLA", "Pendientes", `${D.pend.length} ${D.pend.length===1 ? "medición" : "mediciones"}`);
+  const med = k=>`${D[k].length} ${D[k].length===1 ? "medición" : "mediciones"}`;
+  $("#dsMed").innerHTML = item('data-href="l-alt"', "alt", "TABLA", "Alturas", med("alt")) + item('data-href="l-tal"', "tales", "TABLA", "Sombras y Tales", med("tal")) + item('data-href="l-pend"', "pend", "TABLA", "Pendientes", med("pend"));
+  $("#dsTer").innerHTML = D.ter.length ? D.ter.map(t=>{ const C = polyCalc(t.pts); return item(`data-href="a-${t.id}"`, "area", t.ll ? "GPS" : "COORDENADAS", t.name, `${dmy(t.created)} · ${t.pts.length} vértices · ${fmt(C.area, 0)} m²`); }).join("") : `<div class="empty">Marca un terreno en Área del terreno y aparecerá aquí.</div>`;
+  $("#dsEnc").innerHTML = D.enc.length ? D.enc.map(e=>item(`data-href="e-${e.id}"`, "enc", e.type==="n" ? "CUANTITATIVA" : "CUALITATIVA", e.name, `${dmy(e.created)} · ${e.vals.length} datos`)).join("") : `<div class="empty">Crea una variable en Encuesta del curso y aparecerá aquí.</div>`;
+  $("#dsRx").innerHTML = D.reac.length ? D.reac.map(z=>item(`data-rx="${z.id}"`, "reac", "SESIÓN", z.name, `${dmy(z.created)} · ${z.tries.length} intentos`)).join("") : `<div class="empty">Guarda una sesión en Tiempo de reacción y aparecerá aquí.</div>`;
   $("#dsFot").innerHTML = D.fot.length ? D.fot.map((f, k)=>item(`data-href="f-${f.id}"`, "fotos", "N.º " + String(D.fot.length - k).padStart(3, "0"), f.name, `${dmy(f.created)} · ${f.pts.length} puntos · ${FITN[f.fit]}`)).join("") : `<div class="empty">Toma una foto en Funciones en fotos y aparecerá aquí.</div>`;
   $("#dsAz").innerHTML = D.azar.length ? D.azar.map(z=>item(`data-az="${z.id}"`, "azar", EXP[z.x].name.toUpperCase(), z.name, `${dmy(z.created)} · ${z.s.length} lanzamientos`)).join("") : `<div class="empty">Guarda un experimento en Dados y monedas y aparecerá aquí.</div>`;
   bindItems($("#s-datos"));
@@ -1237,6 +1899,11 @@ const TB = {
     row:(r, i)=>[i + 1, esc(r.obj), r.m==="d" ? "Distancia" : "Dos ángulos", r.m==="2" ? fA(r.e1) : "–", fA(r.e), fL(r.d) + " m", fL(r.h0) + " m", `<b>${fL(r.h)} m</b>`, r.foto ? "Sí" : "–", esc(r.n), `${dmy(r.t)} ${hhmm(r.t)}`],
     csvH:["N°","Objeto","Método","α1 (°)","α o α2 (°)","d o s (m)","h0 (m)","Altura h (m)","Foto","Nota","Fecha","Hora"],
     csvR:(r, i)=>[i + 1, r.obj, r.m==="d" ? "Con distancia" : "Dos ángulos", r.m==="2" ? n2(r.e1) : "", n2(r.e), n2(r.d), n2(r.h0), n2(r.h), r.foto ? phName(r, i) : "", r.n, ymd(r.t), hhmm(r.t)]},
+  tal:{title:"Sombras y Tales", go:"tales", rows:()=>D.tal, dev:talDev,
+    head:["N°","Objeto","Método","h₁ (ref.)","s₁ o d₁","s₂ o d₂","Altura h₂","Nota","Fecha"],
+    row:(r, i)=>[i + 1, esc(r.obj), r.m==="e" ? "Espejo" : "Sombras", fL(r.h1) + " m", fL(r.a) + " m", fL(r.b) + " m", `<b>${fL(r.h)} m</b>`, esc(r.n), `${dmy(r.t)} ${hhmm(r.t)}`],
+    csvH:["N°","Objeto","Método","h1 (m)","s1 o d1 (m)","s2 o d2 (m)","Altura h2 (m)","Nota","Fecha","Hora"],
+    csvR:(r, i)=>[i + 1, r.obj, r.m==="e" ? "Espejo" : "Sombras", n2(r.h1), n2(r.a), n2(r.b), n2(r.h), r.n, ymd(r.t), hhmm(r.t)]},
   pend:{title:"Pendientes", go:"pend", rows:()=>D.pend, dev:pendDev,
     head:["N°","Lugar","Ángulo θ","Pendiente m","Porcentaje","Razón","Nota","Fecha"],
     row:(r, i)=>{ const m = tanD(r.a); return [i + 1, esc(r.obj), fA(r.a), fmt(m, 3), `<b>${fmt(100*m, 1)} %</b>`, m > 0.001 ? "1 : " + fmt(1/m, 1) : "–", esc(r.n), `${dmy(r.t)} ${hhmm(r.t)}`]; },
@@ -1269,7 +1936,7 @@ $("#tbShare").onclick = ()=>{ const id = route.id; shareCsvText(tbCsvText(id), f
 $("#tbPh").onclick = async ()=>{ const files = [];
   for(let i=0; i<D.alt.length; i++){ const r = D.alt[i]; if(!r.foto) continue; const bl = await PH.get("al-"+r.id).catch(()=>null); if(bl) files.push(new File([bl], phName(r, i), {type:"image/jpeg"})); }
   if(!files.length){ toast("No hay fotos guardadas en este navegador"); return; } exportFiles(files, "Alturas", "share"); };
-$("#tbGo").onclick = async ()=>{ const g = TB[route.id].go; await ensureSensors(); nav(g); };
+$("#tbGo").onclick = async ()=>{ const g = TB[route.id].go; if(g!=="tales") await ensureSensors(); nav(g); };
 $("#tbClr").onclick = ()=>{ const id = route.id, rows = TB[id].rows(); if(!rows.length) return;
   if(!confirm(`¿Borrar las ${rows.length} mediciones de ${TB[id].title.toLowerCase()}? No se puede deshacer.`)) return;
   if(id==="alt") rows.forEach(r=>{ if(r.foto) PH.del("al-"+r.id); }); D[id] = []; save(); renderTabla(id); toast("Tabla borrada"); };
@@ -1278,7 +1945,8 @@ $("#tbClr").onclick = ()=>{ const id = route.id, rows = TB[id].rows(); if(!rows.
 function bindSegs(root){ root.querySelectorAll(".seg[data-k]").forEach(sg=>{ const k = sg.dataset.k, bs = Array.from(sg.querySelectorAll("button"));
   const sync = ()=>bs.forEach(b=>b.classList.toggle("on", String(S[k])===b.dataset.v)); sync();
   bs.forEach(b=>b.onclick = ()=>{ let v = b.dataset.v; if(k==="dec") v = parseFloat(v); S[k] = v; save(); sync();
-    if(k==="theme") theme(); if(k==="altm"){ AL.a1 = null; AL.held = null; altUI(); } }); }); }
+    if(k==="theme") theme(); if(k==="altm"){ AL.a1 = null; AL.held = null; altUI(); } if(k==="talm") talUI();
+    if((k==="rxs" || k==="rxsc") && route.name==="reac"){ if(k==="rxs") rxLeave(); rxRender(); } }); }); }
 $$(".tog[data-k]").forEach(t=>{ const k = t.dataset.k; t.classList.toggle("on", !!S[k]); t.onclick = ()=>{ S[k] = !S[k]; save(); t.classList.toggle("on", !!S[k]); }; });
 const setH0Txt = ()=>$("#setH0").textContent = fmt(S.h0, 2) + " m · Cambiar";
 $("#setH0").onclick = ()=>editNum("Altura de tus ojos h₀", "Desde el suelo hasta tus ojos. Se suma en Alturas porque el ángulo se mide desde tus ojos.", "h0", setH0Txt);
@@ -1287,8 +1955,12 @@ $("#setH0").onclick = ()=>editNum("Altura de tus ojos h₀", "Desde el suelo has
 const TI = {alt:{name:"Alturas", tag:"TRIGONOMETRÍA", sub:"Altura de árboles y edificios con tan α", cam:true},
   fotos:{name:"Funciones en fotos", tag:"FUNCIONES", sub:"Marca puntos en una foto y ajusta un modelo", cam:true},
   pend:{name:"Pendientes", tag:"FUNCIÓN AFÍN", sub:"Pendiente y porcentaje de rampas y calles"},
-  azar:{name:"Dados y monedas", tag:"PROBABILIDAD", sub:"Frecuencia relativa y ley de los grandes números"}};
-const DEX = [["Cámara", ["alt","fotos"]], ["Sensores de movimiento", ["pend"]], ["Azar", ["azar"]]];
+  azar:{name:"Dados y monedas", tag:"PROBABILIDAD", sub:"Frecuencia relativa y ley de los grandes números"},
+  tales:{name:"Sombras y Tales", tag:"SEMEJANZA", sub:"Altura con sombras o con un espejo"},
+  area:{name:"Área del terreno", tag:"ÁREA · GPS", sub:"Perímetro y área caminando el borde"},
+  reac:{name:"Tiempo de reacción", tag:"ESTADÍSTICA", sub:"Datos del curso: media, cuartiles, σ"},
+  enc:{name:"Encuesta del curso", tag:"ESTADÍSTICA", sub:"Tablas, gráficos y medidas de una variable"}};
+const DEX = [["Geometría y medición", ["alt","tales","pend","area"]], ["Funciones", ["fotos"]], ["Datos y azar", ["enc","reac","azar"]]];
 function renderDex(){
   $("#dexList").innerHTML = DEX.map(([g, ids])=>`<h2 class="sect dexsec">${g}</h2><div class="dexgrid">` + ids.map(id=>{ const T = TI[id];
     return `<button class="dex${T.cam ? " cam" : ""}" data-t="${id}"><span class="ic">${svgI(id)}</span><em>${T.tag}</em><b>${T.name}</b><small>${T.sub}</small></button>`; }).join("") + `</div>`).join("");
@@ -1297,23 +1969,29 @@ function renderDex(){
 
 /* ============================== navegación (con el botón atrás del teléfono) ============================== */
 const route = {name:"inicio", id:null};
-const ROUTES = ["inicio","alt","pend","fotos","fedit","azar","datos","tabla","ajustes"];
+const ROUTES = ["inicio","alt","pend","fotos","fedit","azar","datos","tabla","ajustes","tales","area","ared","reac","enc","encd"];
 function parse(){ const h = (location.hash||"").replace(/^#/,"");
-  if(["alt","pend","fotos","azar","datos","ajustes"].indexOf(h) >= 0) return {name:h};
+  if(["alt","pend","fotos","azar","datos","ajustes","tales","area","reac","enc"].indexOf(h) >= 0) return {name:h};
+  if(h.indexOf("a-")===0) return {name:"ared", id:h.slice(2)}; if(h.indexOf("e-")===0) return {name:"encd", id:h.slice(2)};
   if(h.indexOf("f-")===0) return {name:"fedit", id:h.slice(2)}; if(h.indexOf("l-")===0) return {name:"tabla", id:h.slice(2)}; return {name:"inicio"}; }
 function nav(h){ if(location.hash !== "#"+h) location.hash = h; else render(); }
 function render(){
   const r = parse(); Object.assign(route, {name:r.name, id:r.id||null});
   if(route.name==="fedit" && !fotById(route.id)){ history.replaceState(null, "", "#fotos"); route.name = "fotos"; }
   if(route.name==="tabla" && !TB[route.id]){ history.replaceState(null, "", "#datos"); route.name = "datos"; }
+  if(route.name==="ared" && !terById(route.id)){ history.replaceState(null, "", "#datos"); route.name = "datos"; }
+  if(route.name==="encd" && !encById(route.id)){ history.replaceState(null, "", "#enc"); route.name = "enc"; }
   closeSheet();
   ROUTES.forEach(n=>$("#s-"+n).hidden = n!==route.name);
   $("#back").hidden = route.name==="inicio";
   const grp = ["datos","tabla"].indexOf(route.name) >= 0 ? "datos" : route.name;
   $$(".hw [data-go]").forEach(b=>b.classList.toggle("on", b.dataset.go===grp));
   const T = {inicio:["MatematicApp","Matemática con el teléfono"], alt:["Alturas","Trigonometría con la cámara"], pend:["Pendientes","Inclinación, pendiente y porcentaje"],
-    fotos:["Funciones en fotos","Puntos sobre una foto y ajuste"], azar:["Dados y monedas","Frecuencia relativa y probabilidad"], datos:["Datos","Todo lo que has guardado"], ajustes:["Ajustes","Preferencias y ayuda"]};
+    fotos:["Funciones en fotos","Puntos sobre una foto y ajuste"], azar:["Dados y monedas","Frecuencia relativa y probabilidad"], datos:["Datos","Todo lo que has guardado"], ajustes:["Ajustes","Preferencias y ayuda"],
+    tales:["Sombras y Tales","Semejanza de triángulos"], area:["Área del terreno","Perímetro y área con GPS"], reac:["Tiempo de reacción","Datos para estadística"], enc:["Encuesta del curso","Variables y estadística"]};
   if(route.name==="fedit"){ $("#tTitle").textContent = fotById(route.id).name; $("#tSub").textContent = "Funciones en fotos"; }
+  else if(route.name==="ared"){ $("#tTitle").textContent = terById(route.id).name; $("#tSub").textContent = "Área del terreno"; }
+  else if(route.name==="encd"){ $("#tTitle").textContent = encById(route.id).name; $("#tSub").textContent = "Encuesta del curso"; }
   else if(route.name==="tabla"){ $("#tTitle").textContent = TB[route.id].title; $("#tSub").textContent = "Tabla de mediciones"; }
   else { $("#tTitle").textContent = T[route.name][0]; $("#tSub").textContent = T[route.name][1]; }
   if(route.name==="alt"){ altUI();
@@ -1327,9 +2005,18 @@ function render(){
   if(route.name==="datos") renderDatos();
   if(route.name==="tabla") renderTabla(route.id);
   if(route.name==="ajustes") setH0Txt();
+  if(route.name==="tales") talUI();
+  if(route.name==="area"){ areaEnter(); areaUI(); } else areaLeave();
+  if(route.name==="ared") aredRender(route.id);
+  if(route.name==="reac") rxRender(); else rxLeave();
+  if(route.name==="enc") encList();
+  if(route.name==="encd") encRender(route.id);
 }
+function redraw(){ const n = route.name;
+  if(n==="fedit") fDraw(); if(n==="azar") azDraw(); if(n==="tales") talDraw(); if(n==="reac") statsDraw("rx");
+  if(n==="encd"){ statsDraw("ed"); catDraw("ec"); } if(n==="ared") aredRender(route.id); if(n==="area") areaUI(); }
 window.addEventListener("hashchange", render);
-window.addEventListener("resize", ()=>{ if(route.name==="fedit") fDraw(); if(route.name==="azar") azDraw(); });
+window.addEventListener("resize", ()=>redraw());
 $("#back").onclick = ()=>{ if(history.length > 1 && route.name!=="inicio") history.back(); else nav(""); };
 $$(".hw [data-go]").forEach(b=>b.onclick = ()=>{ const g = b.dataset.go; nav(g==="inicio" ? "" : g); });
 
@@ -1339,6 +2026,7 @@ function leds(){
   let g = false, y = false;
   if(route.name==="alt"){ const m = AL.held || AL.live; g = !!m && Math.abs(m.roll) <= 1; y = !!AL.held || AL.a1!=null; }
   else if(route.name==="pend"){ g = !!PD.v && !PD.frozen; y = PD.frozen; }
+  else if(route.name==="area"){ const f = AR.fix; g = !!f && Date.now() - f.t < 15000 && f.acc <= 10; y = !!AR.avg; $("#lens").classList.toggle("on", AR.w!=null); }
   $("#ledG").classList.toggle("on", g); $("#ledY").classList.toggle("on", y);
 }
 let lastUI = 0;
@@ -1351,10 +2039,12 @@ function loop(now){
       if(hh) hh.textContent = m ? fL(altH({m:"d", e:m.e, d:S.altd, h0:S.h0})) + " m" : "–";
       leds(); }
   } else if(route.name==="pend"){ pStep(); pDraw(); if(now - lastUI > 120){ lastUI = now; pReads(); leds(); } }
+  else if(route.name==="area"){ if(now - lastUI > 400){ lastUI = now; areaUI(); leds(); } }
   else if(now - lastUI > 300){ lastUI = now; leds(); }
   requestAnimationFrame(loop);
 }
 
+statsInit("rx", $("#rxStats"), {nr:true}); statsInit("ed", $("#edSN")); catInit("ec", $("#edSC"));
 azLoad(D.az); theme(); bindSegs(document); renderDex(); render(); requestAnimationFrame(loop);
 if(!window.isSecureContext && location.protocol!=="file:") toast("Abre la página desde su dirección https para usar los sensores");
 })();
