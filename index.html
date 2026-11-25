@@ -255,6 +255,30 @@ textarea{min-height:70px;resize:vertical}
 .catg{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:6px}
 .catg .btn{flex-direction:column;gap:0;min-height:58px}
 .cnt{font-family:var(--pix);font-size:11px;color:var(--accent)}
+.xt{max-height:52vh;overflow:auto;border:2px solid var(--ink);border-radius:8px}
+.xtbl{min-width:0}
+.xtbl th{position:sticky;top:0;z-index:1;cursor:pointer;border-radius:0!important}
+.xtbl td{cursor:pointer}
+.xtbl td.fx{color:var(--curve);font-weight:600}
+.xtbl tr.hl td{background:var(--accent-soft)!important}
+.xtbl tr.hl td.n{box-shadow:inset 4px 0 0 var(--accent)}
+.fxm{color:var(--yellow);font-style:italic}
+.er{color:var(--danger)}
+.chips{margin-top:10px}
+.chips .cr{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 0 6px;scrollbar-width:thin}
+.chip{flex:0 0 auto;white-space:nowrap}
+.chip{font-family:var(--body);font-size:14px;padding:6px 11px;min-height:34px;border:1.5px solid var(--ink);border-radius:99px;background:var(--surface2);color:var(--text)}
+.chip.col{background:var(--accent-soft);font-weight:700}
+.chip:active{transform:translateY(1px)}
+.xres{margin-top:12px;padding:12px;border:2px solid var(--ink);border-radius:10px;background:var(--surface2)}
+.xres.err{border-color:var(--danger);color:var(--text)}
+.xval{font-family:var(--head);font-size:30px;font-weight:700;color:var(--accent);line-height:1.15;word-break:break-word}
+.canon{font-family:var(--math);font-size:16px;color:var(--text)}
+.xcalc{display:flex;align-items:center;gap:8px;padding:10px 4px;border-bottom:1px dashed var(--line);cursor:pointer}
+.xcalc:last-child{border-bottom:0}
+.xcalc .e{flex:1;min-width:0;font-size:15px;color:var(--text);word-break:break-word}
+.xcalc .v{font-family:var(--head);font-weight:700;color:var(--accent);white-space:nowrap}
+.xcalc .x{width:34px;height:34px;border-radius:8px;border:1.5px solid var(--ink);font-size:18px;line-height:1;flex:0 0 auto;color:var(--muted)}
 @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
 </style>
 </head>
@@ -471,6 +495,41 @@ textarea{min-height:70px;resize:vertical}
     </div>
   </section>
 
+  <!-- ============ TABLA Y CÁLCULOS: lista ============ -->
+  <section class="scr" id="s-tablas" hidden>
+    <button class="btn primary wide big" id="tbNew"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nueva tabla</button>
+    <div class="acts"><button class="btn" id="tbEx">Abrir un ejemplo</button><label class="btn"><input type="file" accept=".csv,.txt,text/csv,text/plain" id="tbFile" hidden>Importar CSV</label></div>
+    <div class="card" style="margin-top:14px">
+      <h2>Cómo funciona</h2>
+      <ul>
+        <li>Escribe los datos, pégalos desde Excel o importa un archivo CSV.</li>
+        <li>Pide cálculos con palabras: <b>contar donde nota &gt;= 4</b>, <b>promedio de nota donde curso es 2A</b>, <b>porcentaje donde nota entre 4 y 5</b>.</li>
+        <li>También entiende funciones de Excel: <b>CONTAR.SI(nota; "&gt;=4")</b>, <b>CONTAR.SI.CONJUNTO</b>, <b>PROMEDIO.SI</b>, <b>SUMA.SI</b>…</li>
+        <li>Crea <b>columnas calculadas</b> con una fórmula, por ejemplo la nota a partir del puntaje.</li>
+      </ul>
+    </div>
+    <h2 class="sect">Tablas guardadas</h2>
+    <div class="reglist" id="tbList"></div>
+  </section>
+
+  <!-- ============ TABLA Y CÁLCULOS: una tabla ============ -->
+  <section class="scr" id="s-tabd" hidden>
+    <div class="card">
+      <div class="tblwrap xt"><table class="tbl xtbl"><thead id="xH"></thead><tbody id="xB"></tbody></table></div>
+      <span class="hint" id="xInfo"></span>
+      <div class="acts"><button class="btn" id="xRow">+ Fila</button><button class="btn" id="xCol">+ Columna</button><button class="btn" id="xFx">+ Calculada</button></div>
+      <div class="acts"><button class="btn" id="xPaste">Pegar datos</button><button class="btn" id="xMore">Más opciones</button></div>
+    </div>
+    <div class="card">
+      <h2>Calcular</h2>
+      <div class="row"><input type="text" id="xIn" placeholder="Ej.: promedio de nota donde curso es 2A" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn primary" id="xGo" aria-label="Calcular" style="font-size:22px;min-width:56px">=</button></div>
+      <div class="chips" id="xChips"></div>
+      <div id="xOut"></div>
+      <div class="acts"><button class="btn" id="xSaveC">Guardar cálculo</button><button class="btn" id="xHelp">¿Cómo escribir?</button></div>
+    </div>
+    <div class="card"><h2>Cálculos guardados</h2><div id="xCalcs"></div><span class="hint">Se recalculan solos cuando cambian los datos. Tócalos para ver el detalle.</span></div>
+  </section>
+
   <!-- ============ DATOS ============ -->
   <section class="scr" id="s-datos" hidden>
     <h2 class="sect" style="margin-top:4px!important">Mediciones</h2>
@@ -479,6 +538,8 @@ textarea{min-height:70px;resize:vertical}
     <div class="reglist" id="dsTer"></div>
     <h2 class="sect">Funciones en fotos</h2>
     <div class="reglist" id="dsFot"></div>
+    <h2 class="sect">Tablas y cálculos</h2>
+    <div class="reglist" id="dsTab"></div>
     <h2 class="sect">Encuestas del curso</h2>
     <div class="reglist" id="dsEnc"></div>
     <h2 class="sect">Tiempo de reacción</h2>
@@ -544,6 +605,15 @@ textarea{min-height:70px;resize:vertical}
         <li>Al aire libre, párate en una esquina, espera a que la precisión del GPS sea de pocos metros y toca <b>Marcar vértice</b>: la app promedia 5 segundos de lecturas.</li>
         <li>Recorre el borde en orden y marca cada esquina. Con 3 o más vértices calcula el perímetro y el área con la fórmula del zapato.</li>
         <li>Con <b>Coordenadas a mano</b> puedes calcular el área de cualquier polígono del plano cartesiano.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>Tabla y cálculos</h2>
+      <ol>
+        <li>Escribe los datos, pégalos desde Excel o importa un CSV. Toca una celda para editarla y el nombre de una columna para ordenarla, renombrarla o borrarla.</li>
+        <li>Calcula con palabras: <b>contar donde nota &gt;= 4</b>, <b>promedio de nota donde curso es 2A</b>, <b>porcentaje donde nota entre 4 y 5</b>; o con funciones de Excel: <b>CONTAR.SI(nota; "&gt;=4")</b>.</li>
+        <li>La app muestra cómo entendió el cálculo y destaca en la tabla las filas que cumplen la condición. En la tabla, <b>¿Cómo escribir?</b> tiene la lista completa.</li>
+        <li>Una <b>columna calculada</b> (ƒ) aplica una fórmula a cada fila, por ejemplo la escala de notas a partir del puntaje.</li>
       </ol>
     </div>
     <div class="card">
@@ -632,7 +702,7 @@ D.s = Object.assign({dec:1, h0:1.5, altd:10, alts:5, altm:"d", resp:"normal", so
   talm:"s", tsh1:1, tss1:1.6, tss2:12, teh1:1.5, ted1:2, ted2:10, rxs:"v", rxsc:"all"}, D.s||{});
 if(!D.arCur || !Array.isArray(D.arCur.ll)) D.arCur = {ll:[]};
 if(!D.rx || !Array.isArray(D.rx.tries)) D.rx = {p:"Persona 1", tries:[]};
-["alt","pend","fot","azar","tal","ter","reac","enc"].forEach(k=>{ if(!Array.isArray(D[k])) D[k] = []; });
+["alt","pend","fot","azar","tal","ter","reac","enc","tab"].forEach(k=>{ if(!Array.isArray(D[k])) D[k] = []; });
 if(!D.az) D.az = {x:"moneda", s:"", ev:null};
 const S = D.s;
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){ toast("No se pudo guardar en este navegador"); } }
@@ -1868,6 +1938,527 @@ $("#edCsv").onclick = ()=>{
 $("#edRen").onclick = ()=>renameDlg(ED, ()=>{ $("#tTitle").textContent = ED.name; $("#edName").textContent = ED.name; });
 $("#edDel").onclick = ()=>{ const e = ED; if(!confirm(`¿Eliminar la variable “${e.name}” con ${e.vals.length} datos?`)) return; D.enc = D.enc.filter(x=>x!==e); save(); toast("Variable eliminada"); history.replaceState(null, "", "#enc"); render(); };
 
+/* =====================================================================================
+   TABLA Y CÁLCULOS: intérprete de expresiones en lenguaje casi natural (y funciones tipo Excel)
+   «promedio de nota donde curso es 2A», «contar donde nota >= 4 y sexo = F», «CONTAR.SI(nota; ">=4")»
+   ===================================================================================== */
+const XL = (()=>{
+  const nz = s=>String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  class XErr extends Error{}
+  const AGG = {contar:"contar", cuenta:"contar", cuantos:"contar", cuantas:"contar", contara:"contar", suma:"suma", sumar:"suma", total:"suma",
+    promedio:"promedio", media:"promedio", mediana:"mediana", moda:"moda", minimo:"min", min:"min", maximo:"max", max:"max", rango:"rango",
+    desviacion:"desv", desvestp:"desv", "desvest.p":"desv", desvest:"desvm", "desvest.m":"desvm", varianza:"var", varp:"var", "var.p":"var", var:"varm", "var.s":"varm",
+    porcentaje:"pct", proporcion:"prop", q1:"q1", q3:"q3", ric:"ric"};
+  const XLF = {"contar.si":"cs", "contar.si.conjunto":"cs", "suma.si":"ss", "sumar.si":"ss", "promedio.si":"ps", "suma.si.conjunto":"ssc", "sumar.si.conjunto":"ssc",
+    "promedio.si.conjunto":"psc", "max.si.conjunto":"maxsc", "min.si.conjunto":"minsc"};
+  const FN = {si:1, redondear:1, raiz:1, abs:1, ln:1, log:1, exp:1, sen:1, cos:1, tan:1, potencia:1, entero:1};
+  const ART = ["de", "del", "la", "el", "los", "las", "lo"];
+  const CONDW = ["donde", "cuando", "si", "con", "para", "que", "tienen", "tiene", "cuyo", "cuya", "cuyos", "cuyas", "en"];
+  const KW = new Set(ART.concat(CONDW, ["y", "o", "no", "entre", "contiene", "empieza"]));
+  const COUNTISH = {contar:1, pct:1, prop:1};
+  const P0 = [[">=", ["mayor o igual que", "mayor o igual a", "al menos", "como minimo", "no menor que", "no menor a"]],
+    ["<=", ["menor o igual que", "menor o igual a", "a lo mas", "como maximo", "no mayor que", "no mayor a"]],
+    [">", ["mayor que", "mayor a", "mas que", "mas de", "superior a"]], ["<", ["menor que", "menor a", "menos que", "menos de", "inferior a"]],
+    ["<>", ["distinto de", "distinta de", "distinto a", "distinta a", "diferente de", "diferente a", "no es igual a", "no es", "no son"]],
+    ["=", ["es igual a", "igual a", "igual que", "es", "son", "sea", "igual"]]];
+  const PHR = [];
+  P0.forEach(([op, L])=>L.forEach(ph=>{ const w = ph.split(" "); PHR.push([op, w]); if(op!=="=" && !/^(no|es) /.test(ph)) ["es", "sea", "son", "esta", "tiene", "tienen"].forEach(pre=>PHR.push([op, [pre].concat(w)])); }));
+  PHR.sort((a, b)=>b[1].length - a[1].length);
+  const colWords = n=>nz(n).split(/[^\p{L}\p{N}_.]+/u).filter(Boolean);
+
+  function lex(src, cols){
+    const T = []; let i = 0;
+    while(i < src.length){
+      const ch = src[i], rest = src.slice(i); let m;
+      if(/\s/.test(ch)){ i++; continue; }
+      if(ch==="["){ const j = src.indexOf("]", i); if(j < 0) throw new XErr("Falta cerrar el corchete ]"); T.push({t:"colname", v:src.slice(i + 1, j).trim(), s:i, e:j + 1}); i = j + 1; continue; }
+      if(/["'“”«]/.test(ch)){ const cl = {'"':'"', "'":"'", "“":"”", "”":"”", "«":"»"}[ch]; let j = src.indexOf(cl, i + 1); if(j < 0 && cl==="”") j = src.indexOf('"', i + 1);
+        if(j < 0) throw new XErr("Falta cerrar las comillas"); T.push({t:"str", v:src.slice(i + 1, j), s:i, e:j + 1}); i = j + 1; continue; }
+      if((m = /^\d+(?:[.,]\d+)?(?![\p{L}_\d])/u.exec(rest))){ T.push({t:"num", v:parseFloat(m[0].replace(",", ".")), s:i, e:i + m[0].length}); i += m[0].length; continue; }
+      if((m = /^[\p{L}\p{N}_][\p{L}\p{N}_.]*/u.exec(rest))){ const w = m[0].replace(/\.+$/, ""); T.push({t:"word", v:w, z:nz(w), s:i, e:i + w.length}); i += w.length; continue; }
+      if((m = /^(>=|<=|<>|!=|==|&&|\|\|)/.exec(rest)) || (m = /^[≥≤≠]/.exec(rest))){
+        const v = {"≥":">=", "≤":"<=", "≠":"<>", "!=":"<>", "==":"=", "&&":"y", "||":"o"}[m[0]] || m[0];
+        T.push(v==="y" || v==="o" ? {t:"word", v, z:v, s:i, e:i + m[0].length} : {t:"op", v, s:i, e:i + m[0].length}); i += m[0].length; continue; }
+      if("+-−*×·/÷^%=<>&(),;".includes(ch)){ const v = {"−":"-", "×":"*", "·":"*", "÷":"/"}[ch] || ch;
+        T.push({t:v==="(" ? "lp" : v===")" ? "rp" : (v===";" || v===",") ? "sep" : "op", v, s:i, e:i + 1}); i++; continue; }
+      throw new XErr(`No se entiende el símbolo «${ch}»`);
+    }
+    const out = [];
+    for(let k=0; k<T.length;){
+      const t = T[k];
+      if(t.t==="colname"){ const ci = cols.findIndex(c=>c.z===nz(t.v)); if(ci < 0) throw new XErr(`No hay una columna llamada «${t.v}»`); out.push({t:"col", ci, s:t.s, e:t.e}); k++; continue; }
+      if(t.t==="word" || t.t==="num"){
+        let best = -1, bl = 0;
+        cols.forEach((c, ci)=>{ const L = c.w.length; if(L && L > bl && k + L <= T.length && c.w.every((w, j)=>{ const u = T[k + j]; return (u.t==="word" && (u.z===w || (j===L - 1 && (u.z===w + "s" || u.z===w + "es")))) || (u.t==="num" && String(u.v)===w); })){ best = ci; bl = L; } });
+        if(best >= 0){ out.push({t:"col", ci:best, s:t.s, e:T[k + bl - 1].e}); k += bl; continue; }
+      }
+      if(t.t==="word"){
+        const hit = PHR.find(([, ws])=>k + ws.length <= T.length && ws.every((w, j)=>T[k + j].t==="word" && T[k + j].z===w));
+        if(hit){ out.push({t:"op", v:hit[0], s:t.s, e:T[k + hit[1].length - 1].e}); k += hit[1].length; continue; }
+      }
+      out.push(t); k++;
+    }
+    return out;
+  }
+
+  const isCond = n=>["cmp", "btw", "has", "starts", "and", "or", "not"].includes(n.k);
+  function lev(a, b){ const d = Array.from({length:a.length + 1}, (_, i)=>[i]); for(let j=1; j<=b.length; j++) d[0][j] = j;
+    for(let i=1; i<=a.length; i++) for(let j=1; j<=b.length; j++) d[i][j] = Math.min(d[i-1][j] + 1, d[i][j-1] + 1, d[i-1][j-1] + (a[i-1]===b[j-1] ? 0 : 1)); return d[a.length][b.length]; }
+  function parse(T, src, cols){
+    let p = 0;
+    const guess = w=>{ if(!cols) return ""; let best = null, bd = 3; cols.forEach(c=>{ const d = lev(nz(w), c.z); if(d < bd){ bd = d; best = c; } }); return best ? ` ¿Quisiste decir «${best.n}»?` : ""; };
+    const peek = (o)=>T[p + (o || 0)], isW = (t, ...ws)=>!!t && t.t==="word" && ws.includes(t.z), isOp = (t, ...ops)=>!!t && t.t==="op" && ops.includes(t.v);
+    const err = (m, t)=>{ throw new XErr(m + (t ? ` (cerca de «${src.slice(t.s, t.e)}»)` : "")); };
+    const expect = (type, msg)=>{ const t = T[p]; if(!t || t.t!==type) err(msg, t); p++; return t; };
+    const CMP = ["=", "<>", ">", "<", ">=", "<="];
+    function pOr(){ let a = pAnd(); while(isW(peek(), "o")){ p++; a = {k:"or", a, b:pAnd()}; } return a; }
+    function pAnd(){ let a = pNot(); while(isW(peek(), "y")){ p++; a = {k:"and", a, b:pNot()}; } return a; }
+    function pNot(){ if(isW(peek(), "no")){ p++; return {k:"not", a:pNot()}; } return pCmp(); }
+    function pCmp(){
+      const a = pCat(), t = peek();
+      if(a.k==="str" && a.bare && (isOp(t, ...CMP) || isW(t, "entre", "contiene", "empieza"))) err(`No hay una columna llamada «${a.v}».${guess(a.v)}`);
+      if(isOp(t, ...CMP)){ p++; return {k:"cmp", op:t.v, a, b:pCat()}; }
+      if(isW(t, "entre")){ p++; const lo = pCat(); if(!isW(peek(), "y")) err("Después de «entre» escribe: entre A y B", peek()); p++; return {k:"btw", a, lo, hi:pCat()}; }
+      if(isW(t, "contiene")){ p++; return {k:"has", a, b:pCat()}; }
+      if(isW(t, "empieza")){ p++; if(isW(peek(), "con", "por")) p++; return {k:"starts", a, b:pCat()}; }
+      if(a.k==="col" && t && (t.t==="num" || t.t==="str" || (t.t==="word" && !KW.has(t.z) && !AGG[t.z]))) return {k:"cmp", op:"=", a, b:pCat()};
+      return a;
+    }
+    function pCat(){ let a = pAdd(); while(isOp(peek(), "&")){ p++; a = {k:"cat", a, b:pAdd()}; } return a; }
+    function pAdd(){ let a = pMul(); while(isOp(peek(), "+", "-")){ const op = T[p++].v; a = {k:"bin", op, a, b:pMul()}; } return a; }
+    function pMul(){ let a = pUn(); while(isOp(peek(), "*", "/")){ const op = T[p++].v; a = {k:"bin", op, a, b:pUn()}; } return a; }
+    function pUn(){ if(isOp(peek(), "-")){ p++; return {k:"neg", a:pUn()}; } if(isOp(peek(), "+")){ p++; return pUn(); } return pPow(); }
+    function pPow(){ const a = pPost(); if(isOp(peek(), "^")){ p++; return {k:"bin", op:"^", a, b:pUn()}; } return a; }
+    function pPost(){ let a = pPrim(); while(isOp(peek(), "%")){ p++; a = {k:"bin", op:"/", a, b:{k:"num", v:100}}; } return a; }
+    function args(crit){ const A = []; if(peek() && peek().t!=="rp"){ do{ A.push(crit && isOp(peek(), ...CMP) ? (()=>{ const o = T[p++].v; return {k:"crit", op:o, b:pCat()}; })() : pOr()); } while(peek() && peek().t==="sep" && ++p); } return A; }
+    function pPrim(){
+      const t = peek(); if(!t) err("La expresión está incompleta");
+      if(t.t==="num"){ p++; return {k:"num", v:t.v}; }
+      if(t.t==="str"){ p++; return {k:"str", v:t.v}; }
+      if(t.t==="col"){ p++; return {k:"col", ci:t.ci}; }
+      if(t.t==="lp"){ p++; const a = pOr(); expect("rp", "Falta cerrar un paréntesis )"); return a; }
+      if(t.t==="word"){
+        const z = t.z, lp = peek(1) && peek(1).t==="lp";
+        if(XLF[z]){ if(!lp) err(`Después de ${t.v.toUpperCase()} van paréntesis: ${t.v.toUpperCase()}(columna; criterio)`, t); p += 2; const A = args(true); expect("rp", `Falta cerrar el paréntesis de ${t.v.toUpperCase()}(…)`); return {k:"xl", f:XLF[z], name:t.v.toUpperCase(), args:A, s:t.s, e:T[p - 1].e}; }
+        if(AGG[z]!=null) return pAgg();
+        if(FN[z] && lp){ p += 2; const A = args(false); expect("rp", `Falta cerrar el paréntesis de ${t.v}(…)`); return {k:"fn", f:z, args:A}; }
+        if(z==="pi" || z==="π"){ p++; return {k:"num", v:Math.PI}; }
+        if(z==="fila"){ p++; return {k:"row"}; }
+        if(z==="verdadero"){ p++; return {k:"bool", v:true}; } if(z==="falso"){ p++; return {k:"bool", v:false}; }
+        if(KW.has(z)) err(`Falta algo antes de «${t.v}»`, t);
+        p++; return {k:"str", v:t.v, bare:true};
+      }
+      if(t.t==="op") err(`Falta un valor antes de «${t.v}»`, t);
+      if(t.t==="sep") err("Hay un «;» fuera de una función", t);
+      err("Falta un valor", t);
+    }
+    function pAgg(){
+      const t = T[p++], f = AGG[t.z], cnt = !!COUNTISH[f]; let target = null, cond = null;
+      if(f==="desv" && isW(peek(), "estandar", "tipica")) p++;
+      if(peek() && peek().t==="lp"){
+        p++; const A = args(false); expect("rp", `Falta cerrar el paréntesis de ${t.v}(…)`);
+        if((f==="max" || f==="min") && A.length >= 2 && !isCond(A[1])) return {k:"fn", f, args:A};
+        target = A[0] || null; cond = A[1] || null;
+      } else {
+        while(isW(peek(), ...ART)) p++;
+        const u = peek();
+        if(u && u.t==="col"){ if(cnt){ const n = pOr(); if(isCond(n)) cond = n; else target = n; } else { p++; target = {k:"col", ci:u.ci}; } }
+        else if(u && u.t==="word" && !KW.has(u.z) && !AGG[u.z] && !FN[u.z] && !XLF[u.z]){
+          if(cnt){ while(peek() && peek().t==="word" && !KW.has(peek().z) && !AGG[peek().z]) p++; }
+          else err(`No hay una columna llamada «${u.v}».${guess(u.v)}`);
+        }
+        if(!cond && isW(peek(), ...CONDW)){ p++; while(isW(peek(), "que", "en", "el", "la", "los", "las")) p++; cond = pOr(); }
+      }
+      if(target && !cond && cnt && isCond(target)){ cond = target; target = null; }
+      if((f==="pct" || f==="prop") && !cond) err(`«${t.v}» necesita una condición, por ejemplo: ${t.v} donde nota >= 4`, t);
+      if(!cnt && !target) err(`Indica la columna, por ejemplo: ${t.v} de nota`, t);
+      return {k:"agg", f, name:t.v, target, cond, s:t.s, e:T[p - 1].e};
+    }
+    if(!T.length) throw new XErr("Escribe un cálculo");
+    const n = pOr(); if(p < T.length) err("Sobra algo en la expresión", T[p]); return n;
+  }
+
+  /* --------- valores --------- */
+  const V = s=>{ if(s==null) return null; const x = String(s).trim(); if(x==="") return null;
+    if(/^[-−]?\d+(?:[.,]\d+)?\s*%?$/.test(x)) return parseFloat(x.replace("−", "-").replace(",", ".").replace("%", "")); return x; };
+  function fmtNum(v){ if(!isFinite(v)) return "–"; const a = Math.abs(v); let s = v.toFixed(a >= 1000 ? 2 : a >= 1 || a===0 ? 4 : 6); if(s.indexOf(".") >= 0) s = s.replace(/0+$/, "").replace(/\.$/, ""); if(s==="-0") s = "0"; return s.replace(".", ",").replace("-", "−"); }
+  const fmtV = v=>v==null ? "" : typeof v==="number" ? fmtNum(v) : typeof v==="boolean" ? (v ? "verdadero" : "falso") : typeof v==="object" ? "#error" : String(v);
+  const S_ = v=>v==null ? "" : typeof v==="number" ? fmtNum(v) : typeof v==="boolean" ? (v ? "verdadero" : "falso") : String(v);
+  const N = v=>{ if(typeof v==="number") return v; if(typeof v==="boolean") return v ? 1 : 0; throw new XErr(`«${v}» no es un número`); };
+  const truthy = v=>v===true || (typeof v==="number" && v!==0) || (typeof v==="string" && ["si", "verdadero", "x", "1"].includes(nz(v).trim()));
+  function cmp(a, op, b){
+    const ea = a==null || a==="", eb = b==null || b==="";
+    if(ea || eb){ if(op==="=") return ea && eb; if(op==="<>") return !(ea && eb); return false; }
+    let c; if(typeof a!=="string" && typeof b!=="string") c = N(a) - N(b); else { const x = nz(S_(a)).trim(), y = nz(S_(b)).trim(); c = x < y ? -1 : x > y ? 1 : 0; }
+    return {"=":c===0, "<>":c!==0, ">":c > 0, "<":c < 0, ">=":c >= 0, "<=":c <= 0}[op];
+  }
+  const sum = v=>v.reduce((s, x)=>s + x, 0);
+  function numStats(v){ const a = v.slice().sort((x, y)=>x - y), n = a.length, m = sum(a)/n, ss = a.reduce((s, x)=>s + (x - m)**2, 0), med = k=>k.length % 2 ? k[(k.length - 1)/2] : (k[k.length/2 - 1] + k[k.length/2])/2;
+    const lo = a.slice(0, Math.floor(n/2)), hi = a.slice(Math.ceil(n/2)); return {a, n, m, ss, med:med(a), q1:n > 1 ? med(lo) : a[0], q3:n > 1 ? med(hi) : a[0]}; }
+
+  /* --------- evaluación sobre una tabla --------- */
+  function env(tab){
+    const cols = tab.cols, rows = tab.rows, info = cols.map(c=>({n:c.n, z:nz(c.n), w:colWords(c.n)})), cache = new Map(), busy = new Set(), astC = new Map(), aggC = new Map(), traces = [];
+    const compile = src=>parse(lex(src, info), src, info);
+    function fAst(ci){ if(!astC.has(ci)){ try{ astC.set(ci, compile(cols[ci].f)); }catch(e){ astC.set(ci, {err:e.message}); } } const a = astC.get(ci); if(a.err) throw new XErr(a.err); return a; }
+    function cell(ci, r){
+      const c = cols[ci]; if(!c.f) return V(rows[r][ci]);
+      const key = ci + ":" + r; if(cache.has(key)) return cache.get(key);
+      if(busy.has(ci)) throw new XErr(`La columna «${c.n}» depende de sí misma`);
+      busy.add(ci); let v; try{ v = ev(fAst(ci), r); }catch(e){ v = {err:e.message}; } busy.delete(ci);
+      cache.set(key, v); return v;
+    }
+    function crit(cn){
+      if(cn.k==="crit"){ const b = ev(cn.b, -1); return v=>cmp(v, cn.op, b); }
+      const c = ev(cn, -1);
+      if(typeof c==="string"){ const m = /^\s*(>=|<=|<>|!=|=|>|<|≥|≤|≠)?\s*(.*)$/.exec(c), op = {"!=":"<>", "≥":">=", "≤":"<=", "≠":"<>"}[m[1]] || m[1] || "=", b = V(m[2]);
+        if((op==="=" || op==="<>") && typeof b==="string" && /[*?]/.test(b)){ const re = new RegExp("^" + nz(b).replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*").replace(/\?/g, ".") + "$");
+          return v=>{ const ok = v!=null && re.test(nz(S_(v))); return op==="=" ? ok : !ok; }; }
+        return v=>cmp(v, op, b==null ? "" : b); }
+      return v=>cmp(v, "=", c);
+    }
+    function agg(n){
+      if(aggC.has(n)) return aggC.get(n);
+      if(n.cond && n.cond.k==="str" && n.cond.bare) throw new XErr(`No hay una columna llamada «${n.cond.v}»`);
+      const R = []; for(let r=0; r<rows.length; r++) if(!n.cond || truthy(ev(n.cond, r))) R.push(r);
+      const vals = n.target ? R.map(r=>ev(n.target, r)).filter(v=>v!=null && v!=="") : null, nums = vals ? vals.filter(v=>typeof v==="number") : null;
+      const need = ()=>{ if(!nums.length) throw new XErr(`No hay números para calcular «${n.name}»${n.cond ? " en las filas que cumplen la condición" : ""}`); return numStats(nums); };
+      let res; const f = n.f;
+      if(f==="contar") res = vals ? vals.length : R.length;
+      else if(f==="pct" || f==="prop"){ if(!rows.length) throw new XErr("La tabla no tiene filas"); res = R.length/rows.length*(f==="pct" ? 100 : 1); }
+      else if(f==="moda"){ if(!vals.length) throw new XErr("No hay datos para la moda"); const M = new Map(); vals.forEach(v=>{ const k = typeof v==="string" ? nz(v) : v; const e = M.get(k) || {v, c:0}; e.c++; M.set(k, e); });
+        const mx = Math.max(...[...M.values()].map(e=>e.c)); if(mx===1) res = "sin moda"; else { const ms = [...M.values()].filter(e=>e.c===mx).map(e=>e.v); res = ms.length===1 ? ms[0] : ms.map(S_).join(" y "); } }
+      else { const st = need();
+        res = {suma:()=>sum(st.a), promedio:()=>st.m, mediana:()=>st.med, min:()=>st.a[0], max:()=>st.a[st.n - 1], rango:()=>st.a[st.n - 1] - st.a[0], q1:()=>st.q1, q3:()=>st.q3, ric:()=>st.q3 - st.q1,
+          desv:()=>Math.sqrt(st.ss/st.n), var:()=>st.ss/st.n,
+          desvm:()=>{ if(st.n < 2) throw new XErr("Se necesitan al menos 2 datos"); return Math.sqrt(st.ss/(st.n - 1)); }, varm:()=>{ if(st.n < 2) throw new XErr("Se necesitan al menos 2 datos"); return st.ss/(st.n - 1); }}[f](); }
+      aggC.set(n, res); traces.push({n, nR:R.length, nV:vals ? vals.length : null, nNum:nums ? nums.length : null, total:rows.length, res, R}); return res;
+    }
+    function xl(n){
+      if(aggC.has(n)) return aggC.get(n);
+      const A = n.args, f = n.f, need = k=>{ if(A.length < k) throw new XErr(`${n.name} necesita al menos ${k} argumentos separados por «;»`); };
+      const rng = a=>{ if(a.k==="crit") throw new XErr(`En ${n.name} falta la columna antes del criterio`); return r=>ev(a, r); };
+      const pairs = from=>{ const P = []; for(let i=from; i<A.length; i+=2){ if(i + 1 >= A.length) throw new XErr(`En ${n.name} cada columna va seguida de su criterio`); P.push([rng(A[i]), crit(A[i + 1])]); } return P; };
+      const match = P=>{ const o = []; for(let r=0; r<rows.length; r++) if(P.every(([g, c])=>c(g(r)))) o.push(r); return o; };
+      let R, res, nums = null;
+      if(f==="cs"){ need(2); if(n.name==="CONTAR.SI" && A.length > 2) throw new XErr("CONTAR.SI lleva solo una columna y un criterio; para más condiciones usa CONTAR.SI.CONJUNTO"); R = match(pairs(0)); res = R.length; }
+      else if(f==="ss" || f==="ps"){ need(2); const g = rng(A[0]), c = crit(A[1]), s = A[2] ? rng(A[2]) : g; R = []; for(let r=0; r<rows.length; r++) if(c(g(r))) R.push(r);
+        nums = R.map(s).filter(x=>typeof x==="number"); if(f==="ps" && !nums.length) throw new XErr("Ninguna fila cumple el criterio"); res = f==="ss" ? sum(nums) : sum(nums)/nums.length; }
+      else { need(3); const s = rng(A[0]); R = match(pairs(1)); nums = R.map(s).filter(x=>typeof x==="number");
+        if(f!=="ssc" && !nums.length) throw new XErr("Ninguna fila cumple los criterios"); res = {ssc:()=>sum(nums), psc:()=>sum(nums)/nums.length, maxsc:()=>Math.max(...nums), minsc:()=>Math.min(...nums)}[f](); }
+      aggC.set(n, res); traces.push({n, nR:R.length, nV:nums ? nums.length : null, total:rows.length, res, R}); return res;
+    }
+    function fn(n, r){
+      const A = n.args, f = n.f, a = i=>{ if(!A[i]) throw new XErr(`Faltan argumentos en ${f}(…)`); return ev(A[i], r); }, x = i=>{ const v = a(i); return v==null ? null : N(v); };
+      if(f==="si"){ if(A.length < 2) throw new XErr("si(…) se escribe: si(condición; valor si se cumple; valor si no)"); return truthy(a(0)) ? a(1) : (A[2] ? a(2) : false); }
+      if(f==="max" || f==="min"){ const v = A.map((_, i)=>x(i)).filter(z=>z!=null); return v.length ? Math[f](...v) : null; }
+      const v = x(0); if(v==null) return null;
+      switch(f){
+        case "redondear": { const d = A[1] ? x(1) : 0, k = Math.pow(10, d); return Math.sign(v)*Math.round(Math.abs(v)*k + 1e-9)/k; }
+        case "raiz": if(v < 0) throw new XErr("No existe la raíz cuadrada (real) de un número negativo"); return Math.sqrt(v);
+        case "abs": return Math.abs(v);
+        case "ln": if(v <= 0) throw new XErr("ln(x) necesita x > 0"); return Math.log(v);
+        case "log": if(v <= 0) throw new XErr("log(x) necesita x > 0"); return A[1] ? Math.log(v)/Math.log(x(1)) : Math.log10(v);
+        case "exp": return Math.exp(v);
+        case "sen": return Math.sin(v*Math.PI/180); case "cos": return Math.cos(v*Math.PI/180); case "tan": return Math.tan(v*Math.PI/180);
+        case "potencia": return Math.pow(v, x(1));
+        case "entero": return Math.floor(v);
+      }
+    }
+    function ev(n, r){
+      switch(n.k){
+        case "num": case "str": case "bool": return n.v;
+        case "row": if(r < 0) throw new XErr("«fila» solo se usa en una columna calculada"); return r + 1;
+        case "col": { const c = cols[n.ci]; if(r < 0) throw new XErr(`«${c.n}» es una columna completa: usa por ejemplo «promedio de ${c.n}» o «contar donde ${c.n} …»`);
+          const v = cell(n.ci, r); if(v && typeof v==="object") throw new XErr(`Hay un error en la columna «${c.n}», fila ${r + 1}: ${v.err}`); return v; }
+        case "neg": { const a = ev(n.a, r); return a==null ? null : -N(a); }
+        case "bin": { const a = ev(n.a, r), b = ev(n.b, r); if(a==null || b==null) return null; const p = N(a), q = N(b);
+          if(n.op==="+") return p + q; if(n.op==="-") return p - q; if(n.op==="*") return p*q; if(n.op==="^") return Math.pow(p, q);
+          if(q===0) throw new XErr("División por cero"); return p/q; }
+        case "cat": return S_(ev(n.a, r)) + S_(ev(n.b, r));
+        case "cmp": return cmp(ev(n.a, r), n.op, ev(n.b, r));
+        case "btw": { const a = ev(n.a, r); return a!=null && cmp(a, ">=", ev(n.lo, r)) && cmp(a, "<=", ev(n.hi, r)); }
+        case "has": { const a = ev(n.a, r); return a!=null && nz(S_(a)).includes(nz(S_(ev(n.b, r)))); }
+        case "starts": { const a = ev(n.a, r); return a!=null && nz(S_(a)).startsWith(nz(S_(ev(n.b, r)))); }
+        case "and": return truthy(ev(n.a, r)) && truthy(ev(n.b, r));
+        case "or": return truthy(ev(n.a, r)) || truthy(ev(n.b, r));
+        case "not": return !truthy(ev(n.a, r));
+        case "agg": return agg(n);
+        case "xl": return xl(n);
+        case "fn": return fn(n, r);
+        case "crit": throw new XErr("Un criterio como «>= 4» solo va dentro de CONTAR.SI y funciones parecidas");
+      }
+    }
+    const OPS = {">=":"≥", "<=":"≤", "<>":"≠"};
+    function un(n, top){
+      const w = x=>["bin", "cmp", "and", "or", "cat", "btw"].includes(x.k) || (x.k==="agg" && x.cond) ? `(${un(x)})` : un(x);
+      switch(n.k){
+        case "num": return fmtNum(n.v); case "str": return `"${n.v}"`; case "bool": return n.v ? "verdadero" : "falso"; case "row": return "fila";
+        case "col": return `[${cols[n.ci].n}]`; case "neg": return "−" + w(n.a);
+        case "bin": return `${w(n.a)} ${{"*":"·", "/":"/", "+":"+", "-":"−", "^":"^"}[n.op]} ${w(n.b)}`;
+        case "cat": return `${un(n.a)} & ${un(n.b)}`;
+        case "cmp": return `${un(n.a)} ${OPS[n.op] || n.op} ${un(n.b)}`;
+        case "btw": return `${un(n.a)} entre ${un(n.lo)} y ${un(n.hi)}`;
+        case "has": return `${un(n.a)} contiene ${un(n.b)}`; case "starts": return `${un(n.a)} empieza con ${un(n.b)}`;
+        case "and": return `${n.a.k==="or" ? "(" + un(n.a) + ")" : un(n.a)} y ${n.b.k==="or" ? "(" + un(n.b) + ")" : un(n.b)}`;
+        case "or": return `${un(n.a)} o ${un(n.b)}`; case "not": return `no (${un(n.a)})`;
+        case "agg": return `${n.name.toLowerCase()}${n.target ? " de " + un(n.target) : ""}${n.cond ? " donde " + un(n.cond) : ""}`;
+        case "xl": return `${n.name}(${n.args.map(x=>un(x)).join("; ")})`;
+        case "fn": return `${n.f}(${n.args.map(x=>un(x)).join("; ")})`;
+        case "crit": return `${OPS[n.op] || n.op} ${un(n.b)}`;
+      }
+    }
+    return {cell, compile, ev, un, traces, cols, rows};
+  }
+  function run(tab, src){
+    const E = env(tab), ast = E.compile(src), value = E.ev(ast, -1);
+    if(value==null) throw new XErr("El resultado quedó vacío");
+    return {value, ast, canon:E.un(ast), traces:E.traces.slice(), E};
+  }
+  return {lex, parse, env, run, fmtV, fmtNum, nz, V, XErr, colWords};
+})();
+/* ---------- interfaz de Tabla y cálculos ---------- */
+const tabById = id=>D.tab.find(t=>t.id===id) || null;
+let XT = null, XH = null, XLAST = null;
+const XF = XL.fmtV;
+function splitLine(l, sep){ const o = []; let cur = "", qd = false;
+  for(let i=0; i<l.length; i++){ const ch = l[i];
+    if(qd){ if(ch==='"'){ if(l[i + 1]==='"'){ cur += '"'; i++; } else qd = false; } else cur += ch; }
+    else if(ch==='"' && cur.trim()==="") qd = true; else if(ch===sep){ o.push(cur.trim()); cur = ""; } else cur += ch; }
+  o.push(cur.trim()); return o; }
+function parseGrid(text){
+  const lines = String(text).replace(/^﻿/, "").replace(/\r/g, "").split("\n").filter(l=>l.trim()!=="");
+  if(!lines.length) return [];
+  const sep = lines.some(l=>l.includes("\t")) ? "\t" : lines.some(l=>l.includes(";")) ? ";" : ",";
+  return lines.map(l=>splitLine(l, sep));
+}
+function uniqName(t, n, skip){ let base = n.trim() || "Columna", k = 2, out = base; while(t.cols.some((c, i)=>i!==skip && XL.nz(c.n)===XL.nz(out))) out = base + " " + k++; return out; }
+function newTable(name, cols, rows){ const t = {id:newId(), name, created:Date.now(), cols:cols.map(n=>({n, f:null})), rows:rows || [], calcs:[]}; t.cols.forEach((c, i)=>{ c.n = uniqName(t, c.n, i); }); D.tab.unshift(t); save(); return t; }
+function padRows(t){ t.rows.forEach(r=>{ while(r.length < t.cols.length) r.push(""); }); }
+
+$("#tbNew").onclick = ()=>{
+  const b = sheet(`<h2>Nueva tabla</h2><label class="l" for="ntN">Nombre</label><input type="text" id="ntN" maxlength="60" placeholder="Ej.: Notas 2° Medio A">
+    <label class="l" for="ntC">Columnas</label><input type="text" id="ntC" maxlength="300" placeholder="Ej.: Estudiante; Curso; Nota" data-nofocus="1">
+    <p class="tnote" style="margin-top:6px">Separa los nombres de las columnas con punto y coma. Después puedes agregar más.</p>
+    <div class="acts"><button class="btn" id="ntNo">Cancelar</button><button class="btn primary" id="ntOk">Crear</button></div>`);
+  b.querySelector("#ntNo").onclick = closeSheet;
+  b.querySelector("#ntOk").onclick = ()=>{ const name = b.querySelector("#ntN").value.trim() || "Tabla " + (D.tab.length + 1);
+    const cols = b.querySelector("#ntC").value.split(/[;\t]|,(?!\d)/).map(s=>s.trim()).filter(Boolean);
+    const t = newTable(name, cols.length ? cols : ["Columna 1", "Columna 2"]); closeSheet(); nav("x-" + t.id); };
+};
+$("#tbFile").onchange = ()=>{ const f = $("#tbFile").files[0]; $("#tbFile").value = ""; if(!f) return;
+  const rd = new FileReader(); rd.onload = ()=>{ const g = parseGrid(rd.result); if(g.length < 1){ toast("El archivo está vacío"); return; }
+    const head = g.shift(), t = newTable(f.name.replace(/\.[^.]+$/, ""), head.map((h, i)=>h || "Columna " + (i + 1)), g); padRows(t); save(); toast(`Importadas ${g.length} filas`); nav("x-" + t.id); };
+  rd.readAsText(f); };
+$("#tbEx").onclick = ()=>{
+  const N = ["Agustina","Benjamín","Catalina","Diego","Emilia","Felipe","Florencia","Gaspar","Isidora","Joaquín","Josefa","Martín","Antonia","Matías","Sofía","Tomás","Valentina","Vicente","Amanda","Lucas","Trinidad","Maximiliano","Renata","Bastián"];
+  let sd = 7; const rnd = ()=>{ sd = (sd*1103515245 + 12345) % 2147483648; return sd/2147483648; };
+  const rows = N.map((n, i)=>{ const cur = i % 2 ? "2B" : "2A", sx = /a$|Sofía|Trinidad|Isidora|Florencia/.test(n) && n!=="Lucas" ? "F" : "M";
+    const p = Math.round(clamp(38 + (rnd() - 0.5)*44 + (cur==="2A" ? 3 : -2), 6, 60)), as = Math.round(clamp(72 + rnd()*28 + (p - 36)*0.2, 60, 100));
+    return [n, cur, sx, String(p), "", String(as)]; });
+  const t = newTable("Ejemplo · Notas 2° Medio", ["Estudiante","Curso","Sexo","Puntaje","Nota","Asistencia"], rows);
+  t.cols[4].f = "redondear(si(puntaje >= 36; 4 + 3 * (puntaje - 36) / 24; 1 + 3 * puntaje / 36); 1)";
+  t.calcs = ["contar donde nota >= 4", "porcentaje donde nota >= 4", "promedio de nota donde curso es 2A", "promedio de nota donde curso es 2B", "CONTAR.SI.CONJUNTO(curso; \"2A\"; nota; \"<4\")", "mediana de asistencia donde nota < 4"].map(e=>({e}));
+  save(); nav("x-" + t.id);
+};
+function renderTabList(){
+  const L = $("#tbList");
+  L.innerHTML = D.tab.length ? D.tab.map(t=>item(`data-href="x-${t.id}"`, "tabla", "TABLA", t.name, `${dmy(t.created)} · ${t.rows.length} filas · ${t.cols.length} columnas`)).join("") : `<div class="empty">Aún no hay tablas. Crea una o abre el ejemplo.</div>`;
+  bindItems(L);
+}
+
+/* ---- la tabla ---- */
+function xEnter(id){ const t = tabById(id); if(XT!==t){ XT = t; XH = null; XLAST = null; $("#xIn").value = ""; $("#xOut").innerHTML = ""; } xRender(); }
+function xRender(){ xTable(); xChips(); xCalcs(); }
+function xTable(){
+  const t = XT, E = XL.env(t), H = XH || new Set();
+  $("#xH").innerHTML = `<tr><th>#</th>${t.cols.map((c, i)=>`<th data-c="${i}">${c.f ? '<span class="fxm">ƒ</span> ' : ""}${esc(c.n)}</th>`).join("")}</tr>`;
+  $("#xB").innerHTML = t.rows.length ? t.rows.map((row, r)=>`<tr${H.has(r) ? ' class="hl"' : ""}><td class="n">${r + 1}</td>${t.cols.map((c, i)=>{
+      if(c.f){ let v; try{ v = E.cell(i, r); }catch(e){ v = {err:e.message}; } return `<td class="fx" data-r="${r}" data-c="${i}">${v && typeof v==="object" ? '<span class="er">#error</span>' : esc(XF(v))}</td>`; }
+      return `<td data-r="${r}" data-c="${i}">${esc(row[i]==null ? "" : row[i])}</td>`; }).join("")}</tr>`).join("")
+    : `<tr><td colspan="${t.cols.length + 1}" class="muted" style="white-space:normal">Sin filas. Toca «+ Fila» o «Pegar datos».</td></tr>`;
+  $("#xH").querySelectorAll("[data-c]").forEach(th=>th.onclick = ()=>colSheet(+th.dataset.c));
+  $("#xB").querySelectorAll("[data-r]").forEach(td=>td.onclick = ()=>{ const c = t.cols[+td.dataset.c];
+    if(c.f){ const v = (()=>{ try{ return E.cell(+td.dataset.c, +td.dataset.r); }catch(e){ return {err:e.message}; } })(); toast(v && v.err ? v.err : `«${c.n}» se calcula sola: toca su nombre para ver o cambiar la fórmula`); }
+    else cellSheet(+td.dataset.r, +td.dataset.c); });
+  $("#xInfo").textContent = `${t.rows.length} filas · ${t.cols.length} columnas. Toca una celda para editarla o el nombre de una columna para sus opciones.` + (H.size ? ` Destacadas: ${H.size} filas que cumplen la condición.` : "");
+}
+function xChips(){
+  const t = XT, W = ["donde", "y", "o", ">=", "<=", "=", "entre", "contar", "promedio de", "suma de", "porcentaje donde", "mediana de", "máximo de", "mínimo de", "CONTAR.SI(", "CONTAR.SI.CONJUNTO("];
+  $("#xChips").innerHTML = `<div class="cr">${t.cols.map(c=>`<button class="chip col" data-t="${esc(/^[\p{L}\p{N}_ ]+$/u.test(c.n) ? c.n.toLowerCase() : "[" + c.n + "]")}">${esc(c.n)}</button>`).join("")}</div><div class="cr">${W.map(w=>`<button class="chip" data-t="${esc(w)}">${esc(w)}</button>`).join("")}</div>`;
+  $("#xChips").querySelectorAll("[data-t]").forEach(b=>b.onclick = ()=>{ const inp = $("#xIn"), tx = b.dataset.t, s0 = inp.selectionStart==null ? inp.value.length : inp.selectionStart, s1 = inp.selectionEnd==null ? s0 : inp.selectionEnd;
+    const pre = inp.value.slice(0, s0), ins = (pre && !/\s$/.test(pre) && !/\($/.test(pre) ? " " : "") + tx + (/\($/.test(tx) ? "" : " ");
+    inp.setRangeText(ins, s0, s1, "end"); inp.focus(); });
+}
+function trLine(tr, src){
+  const part = src.slice(tr.n.s, tr.n.e), parts = [];
+  if(tr.n.cond || tr.n.k==="xl") parts.push(`${tr.nR} de ${tr.total} filas cumplen la condición`);
+  if(tr.nV!=null) parts.push(`se usaron ${tr.nV} ${tr.nV===1 ? "dato" : "datos"}`);
+  return `<li><b>${esc(part)}</b> → ${parts.length ? parts.join("; ") + " → " : ""}<b>${esc(XF(tr.res))}${tr.n.f==="pct" ? " %" : ""}</b></li>`;
+}
+function xCalc(src, quiet){
+  src = src.trim(); if(!src){ $("#xOut").innerHTML = ""; return; }
+  try{
+    const R = XL.run(XT, src), last = R.traces.filter(t=>t.n.cond || t.n.k==="xl").pop();
+    XH = last ? new Set(last.R) : null; XLAST = src;
+    const pct = R.ast.k==="agg" && R.ast.f==="pct";
+    $("#xOut").innerHTML = `<div class="xres"><div class="xval">= ${esc(XF(R.value))}${pct ? " %" : ""}</div>
+      <p class="tnote">Entendí: <span class="canon">${esc(R.canon)}</span></p>${R.traces.length ? `<ul class="facts">${R.traces.map(t=>trLine(t, src)).join("")}</ul>` : ""}
+      ${XH ? `<p class="tnote">Las filas que cumplen la condición quedaron destacadas en la tabla.</p>` : ""}</div>`;
+    if(!quiet) beep(1300, .04);
+  }catch(e){ XH = null; XLAST = null; $("#xOut").innerHTML = `<div class="xres err"><b>No se pudo calcular.</b> ${esc(e.message)}</div>`; }
+  xTable();
+}
+$("#xGo").onclick = ()=>xCalc($("#xIn").value);
+$("#xIn").onkeydown = e=>{ if(e.key==="Enter"){ e.preventDefault(); xCalc($("#xIn").value); } };
+$("#xSaveC").onclick = ()=>{ const s = $("#xIn").value.trim(); if(!s){ toast("Escribe un cálculo primero"); return; }
+  if(XT.calcs.some(c=>c.e===s)){ toast("Ese cálculo ya está guardado"); return; } XT.calcs.push({e:s}); save(); xCalcs(); toast("Cálculo guardado"); };
+function xCalcs(){
+  const t = XT;
+  $("#xCalcs").innerHTML = t.calcs.length ? t.calcs.map((c, i)=>{ let v, bad = false; try{ const R = XL.run(t, c.e); v = XF(R.value) + (R.ast.k==="agg" && R.ast.f==="pct" ? " %" : ""); }catch(e){ v = "error"; bad = true; }
+    return `<div class="xcalc" data-i="${i}"><div class="e">${esc(c.e)}</div><div class="v${bad ? " er" : ""}">= ${esc(v)}</div><button class="x" data-del="${i}" aria-label="Eliminar cálculo">×</button></div>`; }).join("")
+    : `<div class="empty" style="padding:10px">Aún no hay cálculos guardados.</div>`;
+  $("#xCalcs").querySelectorAll(".xcalc").forEach(d=>d.onclick = e=>{ const i = +d.dataset.i;
+    if(e.target.dataset.del!=null){ t.calcs.splice(i, 1); save(); xCalcs(); return; }
+    $("#xIn").value = t.calcs[i].e; xCalc(t.calcs[i].e, true); $("#xIn").scrollIntoView({block:"center", behavior:"smooth"}); });
+}
+function addRowForm(){
+  const t = XT, dc = t.cols.map((c, i)=>({c, i})).filter(o=>!o.c.f);
+  if(!dc.length){ toast("Primero agrega una columna de datos"); return; }
+  const b = sheet(`<h2>Nueva fila (${t.rows.length + 1})</h2>${dc.map(({c, i}, k)=>`<label class="l" for="rf${i}">${esc(c.n)}</label><input type="text" id="rf${i}" data-k="${k}" autocomplete="off"${k ? ' data-nofocus="1"' : ""}>`).join("")}
+    <div class="acts"><button class="btn" id="rfNo">Cerrar</button><button class="btn" id="rfOk">Guardar</button><button class="btn primary" id="rfMore">Guardar y otra</button></div>`);
+  const inputs = dc.map(({i})=>b.querySelector("#rf" + i));
+  const store = ()=>{ if(inputs.every(x=>!x.value.trim())) return false; const row = t.cols.map(()=>""); dc.forEach(({i}, k)=>{ row[i] = inputs[k].value.trim(); }); t.rows.push(row); save(); xRender(); return true; };
+  inputs.forEach((x, k)=>x.onkeydown = e=>{ if(e.key==="Enter"){ e.preventDefault(); if(k < inputs.length - 1) inputs[k + 1].focus(); else b.querySelector("#rfMore").click(); } });
+  b.querySelector("#rfNo").onclick = closeSheet;
+  b.querySelector("#rfOk").onclick = ()=>{ store(); closeSheet(); };
+  b.querySelector("#rfMore").onclick = ()=>{ if(store()){ toast(`Fila ${t.rows.length} guardada`); addRowForm(); } else inputs[0].focus(); };
+}
+$("#xRow").onclick = addRowForm;
+function cellSheet(r, ci){
+  const t = XT, c = t.cols[ci];
+  const b = sheet(`<h2>${esc(c.n)} · fila ${r + 1}</h2><input type="text" id="ceV" value="${esc(t.rows[r][ci]==null ? "" : t.rows[r][ci])}" autocomplete="off" style="margin-top:8px">
+    <p class="tnote" style="margin-top:6px">Con Enter se guarda y pasa a la fila siguiente.</p>
+    <div class="acts"><button class="btn danger" id="ceDel">Borrar fila</button><button class="btn primary" id="ceOk">Guardar</button></div>`);
+  b.querySelector("#ceV").select();
+  const ok = down=>{ t.rows[r][ci] = b.querySelector("#ceV").value.trim(); save(); closeSheet(); xRender(); if(XLAST) xCalc(XLAST, true);
+    if(down && r + 1 < t.rows.length) cellSheet(r + 1, ci); };
+  b.querySelector("#ceOk").onclick = ()=>ok(false); b.querySelector("#ceV").onkeydown = e=>{ if(e.key==="Enter"){ e.preventDefault(); ok(true); } };
+  b.querySelector("#ceDel").onclick = ()=>{ if(!confirm(`¿Borrar la fila ${r + 1}?`)) return; t.rows.splice(r, 1); save(); closeSheet(); XH = null; xRender(); };
+}
+function fxPreview(b, f, skip){
+  const out = b.querySelector("#fxP"); if(!f.trim()){ out.innerHTML = ""; return; }
+  const t = XT, tmp = {cols:t.cols.map((c, i)=>i===skip ? {n:c.n, f} : c).concat(skip==null ? [{n:"", f}] : []), rows:t.rows}, ci = skip==null ? t.cols.length : skip, E = XL.env(tmp);
+  try{ E.compile(f); const vs = []; for(let r=0; r<Math.min(4, t.rows.length); r++){ const v = E.cell(ci, r); vs.push(v && typeof v==="object" ? "error: " + v.err : XF(v)); }
+    out.innerHTML = `<b>Vista previa:</b> ${vs.length ? vs.map((v, r)=>`fila ${r + 1}: ${esc(v)}`).join(" · ") : "la tabla no tiene filas"}`; }
+  catch(e){ out.innerHTML = `<span class="er">${esc(e.message)}</span>`; }
+}
+const FX_HELP = `<p class="tnote" style="margin-top:8px">Se calcula en cada fila usando las otras columnas. Ejemplos: <b>puntaje / 60 * 100</b> · <b>si(nota >= 4; "Aprobado"; "Reprobado")</b> · <b>redondear(nota - promedio de nota; 2)</b> · <b>redondear(si(puntaje >= 36; 4 + 3 * (puntaje - 36) / 24; 1 + 3 * puntaje / 36); 1)</b></p>`;
+$("#xCol").onclick = ()=>{
+  const b = sheet(`<h2>Nueva columna</h2><label class="l" for="ncN">Nombre</label><input type="text" id="ncN" maxlength="40"><div class="acts"><button class="btn" id="ncNo">Cancelar</button><button class="btn primary" id="ncOk">Agregar</button></div>`);
+  b.querySelector("#ncNo").onclick = closeSheet;
+  b.querySelector("#ncOk").onclick = ()=>{ const t = XT; t.cols.push({n:uniqName(t, b.querySelector("#ncN").value || "Columna " + (t.cols.length + 1)), f:null}); padRows(t); save(); closeSheet(); xRender(); };
+};
+$("#xFx").onclick = ()=>{
+  const b = sheet(`<h2>Columna calculada</h2><label class="l" for="ncN">Nombre</label><input type="text" id="ncN" maxlength="40" placeholder="Ej.: Porcentaje">
+    <label class="l" for="ncF">Fórmula</label><input type="text" id="ncF" autocomplete="off" autocapitalize="off" spellcheck="false" data-nofocus="1" placeholder="Ej.: puntaje / 60 * 100">
+    <p class="tnote" id="fxP" style="margin-top:6px"></p>${FX_HELP}
+    <div class="acts"><button class="btn" id="ncNo">Cancelar</button><button class="btn primary" id="ncOk">Agregar</button></div>`);
+  b.querySelector("#ncF").oninput = ()=>fxPreview(b, b.querySelector("#ncF").value, null);
+  b.querySelector("#ncNo").onclick = closeSheet;
+  b.querySelector("#ncOk").onclick = ()=>{ const t = XT, f = b.querySelector("#ncF").value.trim(); if(!f){ toast("Escribe la fórmula"); return; }
+    try{ XL.env(t).compile(f); }catch(e){ toast(e.message); return; }
+    t.cols.push({n:uniqName(t, b.querySelector("#ncN").value || "Cálculo"), f}); padRows(t); save(); closeSheet(); xRender(); };
+};
+function colSheet(ci){
+  const t = XT, c = t.cols[ci];
+  const b = sheet(`<h2>Columna «${esc(c.n)}»</h2><label class="l" for="csN">Nombre</label><input type="text" id="csN" maxlength="40" value="${esc(c.n)}" data-nofocus="1">
+    ${c.f ? `<label class="l" for="csF">Fórmula</label><input type="text" id="csF" value="${esc(c.f)}" autocomplete="off" autocapitalize="off" spellcheck="false" data-nofocus="1"><p class="tnote" id="fxP" style="margin-top:6px"></p>${FX_HELP}` : ""}
+    <div class="acts"><button class="btn" id="csUp">Ordenar ↑</button><button class="btn" id="csDn">Ordenar ↓</button></div>
+    <div class="acts"><button class="btn danger" id="csDel">Eliminar columna</button><button class="btn primary" id="csOk">Guardar</button></div>`);
+  if(c.f){ const F = b.querySelector("#csF"); F.oninput = ()=>fxPreview(b, F.value, ci); fxPreview(b, F.value, ci); }
+  b.querySelector("#csOk").onclick = ()=>{ const nn = b.querySelector("#csN").value.trim(); if(nn) c.n = uniqName(t, nn, ci);
+    if(c.f){ const f = b.querySelector("#csF").value.trim(); if(!f){ toast("La fórmula no puede quedar vacía"); return; } c.f = f; }
+    save(); closeSheet(); xRender(); if(XLAST) xCalc(XLAST, true); };
+  b.querySelector("#csDel").onclick = ()=>{ if(!confirm(`¿Eliminar la columna «${c.n}»? Los cálculos que la usen dejarán de funcionar.`)) return;
+    t.cols.splice(ci, 1); t.rows.forEach(r=>r.splice(ci, 1)); save(); closeSheet(); XH = null; xRender(); };
+  const sort = dir=>{ const E = XL.env(t), k = t.rows.map((row, r)=>{ let v; try{ v = E.cell(ci, r); }catch(e){ v = null; } if(v && typeof v==="object") v = null; return {row, v}; });
+    k.sort((a, b2)=>{ const x = a.v, y = b2.v; if(x==null && y==null) return 0; if(x==null) return 1; if(y==null) return -1;
+      const d = typeof x==="number" && typeof y==="number" ? x - y : String(x).localeCompare(String(y), "es", {numeric:true}); return dir*d; });
+    t.rows = k.map(o=>o.row); save(); closeSheet(); XH = null; xRender(); toast("Tabla ordenada"); };
+  b.querySelector("#csUp").onclick = ()=>sort(1); b.querySelector("#csDn").onclick = ()=>sort(-1);
+}
+$("#xPaste").onclick = ()=>{
+  let mode = "add", head = true;
+  const b = sheet(`<h2>Pegar datos</h2><p class="muted" style="margin:0">Copia celdas en Excel o Google Sheets y pégalas aquí. También sirve texto separado por punto y coma.</p>
+    <textarea id="pgT" style="min-height:160px;margin-top:10px" placeholder="Estudiante	Curso	Nota"></textarea>
+    <div class="field switch"><span class="lb">La primera fila tiene los nombres de las columnas</span><button class="tog on" id="pgH" aria-label="Primera fila con nombres"></button></div>
+    <div class="seg" id="pgM"><button data-m="add" class="on">Agregar al final</button><button data-m="rep">Reemplazar todo</button></div>
+    <div class="acts"><button class="btn" id="pgNo">Cancelar</button><button class="btn primary" id="pgOk">Agregar datos</button></div>`);
+  b.querySelector("#pgH").onclick = e=>{ head = !head; e.currentTarget.classList.toggle("on", head); };
+  b.querySelectorAll("#pgM button").forEach(x=>x.onclick = ()=>{ mode = x.dataset.m; b.querySelectorAll("#pgM button").forEach(y=>y.classList.toggle("on", y===x)); });
+  b.querySelector("#pgNo").onclick = closeSheet;
+  b.querySelector("#pgOk").onclick = ()=>{
+    const t = XT, g = parseGrid(b.querySelector("#pgT").value); if(!g.length){ toast("No hay datos para pegar"); return; }
+    if(mode==="rep" && !confirm("Se borrarán las filas y columnas actuales. ¿Continuar?")) return;
+    const hdr = head ? g.shift() : null;
+    if(mode==="rep"){ t.cols = (hdr || g[0].map((_, i)=>"Columna " + (i + 1))).map(n=>({n, f:null})); t.cols.forEach((c, i)=>{ c.n = uniqName(t, c.n || "Columna " + (i + 1), i); }); t.rows = g; t.calcs = t.calcs || []; }
+    else { let map;
+      if(hdr) map = hdr.map((h, k)=>{ let i = t.cols.findIndex(c=>XL.nz(c.n)===XL.nz(h)); if(i < 0){ t.cols.push({n:uniqName(t, h || "Columna " + (t.cols.length + 1)), f:null}); i = t.cols.length - 1; } return i; });
+      else { const dc = t.cols.map((c, i)=>c.f ? -1 : i).filter(i=>i >= 0); map = g[0].map((_, k)=>{ if(k < dc.length) return dc[k]; t.cols.push({n:uniqName(t, "Columna " + (t.cols.length + 1)), f:null}); return t.cols.length - 1; }); }
+      padRows(t); g.forEach(src=>{ const row = t.cols.map(()=>""); src.forEach((v, k)=>{ if(map[k]!=null && !t.cols[map[k]].f) row[map[k]] = v; }); t.rows.push(row); }); }
+    padRows(t); save(); closeSheet(); XH = null; xRender(); toast(`${g.length} filas agregadas`); };
+};
+function tabCsv(t){
+  const E = XL.env(t), out = [t.cols.map(c=>q(c.n)).join(";")];
+  t.rows.forEach((row, r)=>out.push(t.cols.map((c, i)=>{ if(!c.f) return q(row[i]); let v; try{ v = E.cell(i, r); }catch(e){ v = null; } return q(v && typeof v==="object" ? "#error" : XF(v)); }).join(";")));
+  let s = "﻿" + out.join("\r\n");
+  if(t.calcs.length){ s += "\r\n\r\nCálculo;Resultado\r\n" + t.calcs.map(c=>{ let v; try{ v = XF(XL.run(t, c.e).value); }catch(e){ v = "error"; } return q(c.e) + ";" + q(v); }).join("\r\n"); }
+  return s;
+}
+$("#xMore").onclick = ()=>{
+  const t = XT;
+  const b = sheet(`<h2>${esc(t.name)}</h2><p class="muted" style="margin:0">${t.rows.length} filas · ${t.cols.length} columnas · ${t.calcs.length} cálculos guardados</p>
+    <div class="acts"><button class="btn primary" id="xmCsv">Descargar CSV</button><button class="btn" id="xmSh">Compartir CSV</button></div>
+    <div class="acts"><button class="btn" id="xmRen">Editar nombre</button><button class="btn" id="xmDup">Duplicar</button></div>
+    <div class="acts"><button class="btn danger" id="xmDel">Eliminar tabla</button></div>
+    <div class="acts"><button class="btn" id="xmNo">Cerrar</button></div>`);
+  b.querySelector("#xmNo").onclick = closeSheet;
+  b.querySelector("#xmCsv").onclick = ()=>exportFiles([csvFile(tabCsv(t), fname(t.name))], t.name, "download");
+  b.querySelector("#xmSh").onclick = ()=>shareCsvText(tabCsv(t), fname(t.name), t.name);
+  b.querySelector("#xmRen").onclick = ()=>renameDlg(t, ()=>{ $("#tTitle").textContent = t.name; });
+  b.querySelector("#xmDup").onclick = ()=>{ const c = JSON.parse(JSON.stringify(t)); c.id = newId(); c.name = t.name + " (copia)"; c.created = Date.now(); D.tab.unshift(c); save(); closeSheet(); nav("x-" + c.id); };
+  b.querySelector("#xmDel").onclick = ()=>{ if(!confirm(`¿Eliminar la tabla «${t.name}» con ${t.rows.length} filas?`)) return; D.tab = D.tab.filter(x=>x!==t); XT = null; save(); closeSheet(); toast("Tabla eliminada"); history.replaceState(null, "", "#tablas"); render(); };
+};
+$("#xHelp").onclick = ()=>{
+  sheet(`<h2>¿Cómo escribir un cálculo?</h2>
+    <p class="tnote"><b>Con palabras</b> (no importan las mayúsculas ni los tildes):</p>
+    <ul class="facts">
+      <li><b>contar</b> · <b>contar donde nota &gt;= 4</b> · <b>cuántos tienen nota menor que 4</b></li>
+      <li><b>promedio de nota</b> · <b>promedio de nota donde curso es 2A</b></li>
+      <li><b>suma de</b>, <b>mediana de</b>, <b>moda de</b>, <b>máximo de</b>, <b>mínimo de</b>, <b>rango de</b>, <b>desviación de</b>, <b>varianza de</b>, <b>q1 de</b>, <b>q3 de</b></li>
+      <li><b>porcentaje donde nota &gt;= 4</b> (porcentaje de filas que cumplen)</li>
+    </ul>
+    <p class="tnote"><b>Condiciones</b> (después de «donde»):</p>
+    <ul class="facts">
+      <li><b>=</b> o <b>es</b> · <b>&lt;&gt;</b> o <b>distinto de</b> · <b>&gt;</b> o <b>mayor que</b> · <b>&lt;</b> o <b>menor que</b> · <b>&gt;=</b> o <b>al menos</b> · <b>&lt;=</b></li>
+      <li><b>nota entre 4 y 5</b> · <b>estudiante contiene "an"</b> · <b>estudiante empieza con "M"</b></li>
+      <li>Se combinan con <b>y</b>, <b>o</b>, <b>no</b>: <b>contar donde curso es 2A y sexo es F</b></li>
+      <li>Un texto puede ir sin comillas (<b>curso es 2A</b>); si tiene espacios, usa comillas.</li>
+    </ul>
+    <p class="tnote"><b>Funciones tipo Excel</b> (los argumentos se separan con <b>;</b>):</p>
+    <ul class="facts">
+      <li><b>CONTAR.SI(nota; "&gt;=4")</b> · <b>CONTAR.SI(curso; "2*")</b> (* es comodín)</li>
+      <li><b>CONTAR.SI.CONJUNTO(curso; "2A"; sexo; "F")</b></li>
+      <li><b>PROMEDIO.SI(curso; "2A"; nota)</b> · <b>SUMA.SI(curso; "2B"; puntaje)</b></li>
+      <li><b>PROMEDIO.SI.CONJUNTO(nota; curso; "2A"; sexo; "F")</b> · <b>SUMA.SI.CONJUNTO</b>, <b>MAX.SI.CONJUNTO</b>, <b>MIN.SI.CONJUNTO</b></li>
+      <li><b>PROMEDIO(nota)</b>, <b>SUMA(puntaje)</b>, <b>MAX</b>, <b>MIN</b>, <b>MEDIANA</b>, <b>DESVEST</b> (muestral, como Excel)</li>
+    </ul>
+    <p class="tnote"><b>Operaciones:</b> + − * / ^ y paréntesis; <b>raiz(x)</b>, <b>abs(x)</b>, <b>redondear(x; 1)</b>, <b>potencia(a; b)</b>, <b>log(x)</b>, <b>ln(x)</b>, <b>sen/cos/tan</b> (en grados), <b>si(condición; a; b)</b>. Ejemplo: <b>(contar donde nota &lt; 4) / contar * 100</b>.</p>
+    <p class="tnote">Si el nombre de una columna tiene símbolos, escríbelo entre corchetes: <b>[Asistencia (%)]</b>. La «desviación» con palabras es poblacional (divide por <i>n</i>), igual que en Encuesta del curso.</p>
+    <div class="acts"><button class="btn primary" id="hlOk">Entendido</button></div>`);
+  $("#hlOk").onclick = closeSheet;
+};
 /* ============================== datos y tablas ============================== */
 const IC = {
   alt:'<path d="M3 20h18"/><path d="M17 20V5"/><path d="M4 20L17 5" stroke-dasharray="1.6 2.4"/><path d="M8.6 20a4.6 4.6 0 0 0-1.4-3.3"/><circle class="f" cx="17" cy="5" r="1.6"/>',
@@ -1876,6 +2467,7 @@ const IC = {
   tales:'<circle cx="19" cy="5" r="2.2"/><path d="M2.5 20.5h19"/><path d="M5 20.5V15"/><path d="M11.5 20.5V8"/><path d="M5 15l4 5.5M11.5 8l9 12.5" stroke-dasharray="1.6 2.2"/>',
   area:'<path d="M4 17.5L7 5.5l10.5 2.5 3 10.5z"/><circle class="f" cx="4" cy="17.5" r="1.6"/><circle class="f" cx="7" cy="5.5" r="1.6"/><circle class="f" cx="17.5" cy="8" r="1.6"/><circle class="f" cx="20.5" cy="18.5" r="1.6"/>',
   reac:'<circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5l3.2-3.2M10 2.5h4M12 2.5V6M18.4 6.6l1.6-1.6"/>',
+  tabla:'<rect x="3" y="3.5" width="18" height="17" rx="2"/><path d="M3 9h18M9 9v11.5M3 14.75h6"/><path d="M12.5 13.2h5.5M12.5 16.8h5.5"/>',
   enc:'<path d="M3.5 20.5h17"/><rect x="5" y="12" width="3.2" height="8.5"/><rect x="10.4" y="5.5" width="3.2" height="15"/><rect x="15.8" y="9" width="3.2" height="11.5"/>',
   azar:'<rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle class="f" cx="8.4" cy="8.4" r="1.45"/><circle class="f" cx="15.6" cy="15.6" r="1.45"/><circle class="f" cx="12" cy="12" r="1.45"/><circle class="f" cx="15.6" cy="8.4" r="1.45"/><circle class="f" cx="8.4" cy="15.6" r="1.45"/>'
 };
@@ -1887,6 +2479,7 @@ function renderDatos(){
   $("#dsMed").innerHTML = item('data-href="l-alt"', "alt", "TABLA", "Alturas", med("alt")) + item('data-href="l-tal"', "tales", "TABLA", "Sombras y Tales", med("tal")) + item('data-href="l-pend"', "pend", "TABLA", "Pendientes", med("pend"));
   $("#dsTer").innerHTML = D.ter.length ? D.ter.map(t=>{ const C = polyCalc(t.pts); return item(`data-href="a-${t.id}"`, "area", t.ll ? "GPS" : "COORDENADAS", t.name, `${dmy(t.created)} · ${t.pts.length} vértices · ${fmt(C.area, 0)} m²`); }).join("") : `<div class="empty">Marca un terreno en Área del terreno y aparecerá aquí.</div>`;
   $("#dsEnc").innerHTML = D.enc.length ? D.enc.map(e=>item(`data-href="e-${e.id}"`, "enc", e.type==="n" ? "CUANTITATIVA" : "CUALITATIVA", e.name, `${dmy(e.created)} · ${e.vals.length} datos`)).join("") : `<div class="empty">Crea una variable en Encuesta del curso y aparecerá aquí.</div>`;
+  $("#dsTab").innerHTML = D.tab.length ? D.tab.map(t=>item(`data-href="x-${t.id}"`, "tabla", "TABLA", t.name, `${dmy(t.created)} · ${t.rows.length} filas · ${t.calcs.length} cálculos`)).join("") : `<div class="empty">Crea una tabla en Tabla y cálculos y aparecerá aquí.</div>`;
   $("#dsRx").innerHTML = D.reac.length ? D.reac.map(z=>item(`data-rx="${z.id}"`, "reac", "SESIÓN", z.name, `${dmy(z.created)} · ${z.tries.length} intentos`)).join("") : `<div class="empty">Guarda una sesión en Tiempo de reacción y aparecerá aquí.</div>`;
   $("#dsFot").innerHTML = D.fot.length ? D.fot.map((f, k)=>item(`data-href="f-${f.id}"`, "fotos", "N.º " + String(D.fot.length - k).padStart(3, "0"), f.name, `${dmy(f.created)} · ${f.pts.length} puntos · ${FITN[f.fit]}`)).join("") : `<div class="empty">Toma una foto en Funciones en fotos y aparecerá aquí.</div>`;
   $("#dsAz").innerHTML = D.azar.length ? D.azar.map(z=>item(`data-az="${z.id}"`, "azar", EXP[z.x].name.toUpperCase(), z.name, `${dmy(z.created)} · ${z.s.length} lanzamientos`)).join("") : `<div class="empty">Guarda un experimento en Dados y monedas y aparecerá aquí.</div>`;
@@ -1959,19 +2552,21 @@ const TI = {alt:{name:"Alturas", tag:"TRIGONOMETRÍA", sub:"Altura de árboles y
   tales:{name:"Sombras y Tales", tag:"SEMEJANZA", sub:"Altura con sombras o con un espejo"},
   area:{name:"Área del terreno", tag:"ÁREA · GPS", sub:"Perímetro y área caminando el borde"},
   reac:{name:"Tiempo de reacción", tag:"ESTADÍSTICA", sub:"Datos del curso: media, cuartiles, σ"},
-  enc:{name:"Encuesta del curso", tag:"ESTADÍSTICA", sub:"Tablas, gráficos y medidas de una variable"}};
-const DEX = [["Geometría y medición", ["alt","tales","pend","area"]], ["Funciones", ["fotos"]], ["Datos y azar", ["enc","reac","azar"]]];
+  enc:{name:"Encuesta del curso", tag:"ESTADÍSTICA", sub:"Tablas, gráficos y medidas de una variable"},
+  tablas:{name:"Tabla y cálculos", tag:"HOJA DE CÁLCULO", sub:"Contar, promediar y filtrar datos escribiendo con palabras"}};
+const DEX = [["Geometría y medición", ["alt","tales","pend","area"]], ["Funciones", ["fotos"]], ["Datos y azar", ["tablas","enc","reac","azar"]]];
 function renderDex(){
   $("#dexList").innerHTML = DEX.map(([g, ids])=>`<h2 class="sect dexsec">${g}</h2><div class="dexgrid">` + ids.map(id=>{ const T = TI[id];
-    return `<button class="dex${T.cam ? " cam" : ""}" data-t="${id}"><span class="ic">${svgI(id)}</span><em>${T.tag}</em><b>${T.name}</b><small>${T.sub}</small></button>`; }).join("") + `</div>`).join("");
+    return `<button class="dex${T.cam ? " cam" : ""}" data-t="${id}"><span class="ic">${svgI(id==="tablas" ? "tabla" : id)}</span><em>${T.tag}</em><b>${T.name}</b><small>${T.sub}</small></button>`; }).join("") + `</div>`).join("");
   $$("#dexList [data-t]").forEach(b=>b.onclick = async ()=>{ const id = b.dataset.t; if(id==="alt" || id==="pend") await ensureSensors(); nav(id); });
 }
 
 /* ============================== navegación (con el botón atrás del teléfono) ============================== */
 const route = {name:"inicio", id:null};
-const ROUTES = ["inicio","alt","pend","fotos","fedit","azar","datos","tabla","ajustes","tales","area","ared","reac","enc","encd"];
+const ROUTES = ["inicio","alt","pend","fotos","fedit","azar","datos","tabla","ajustes","tales","area","ared","reac","enc","encd","tablas","tabd"];
 function parse(){ const h = (location.hash||"").replace(/^#/,"");
-  if(["alt","pend","fotos","azar","datos","ajustes","tales","area","reac","enc"].indexOf(h) >= 0) return {name:h};
+  if(["alt","pend","fotos","azar","datos","ajustes","tales","area","reac","enc","tablas"].indexOf(h) >= 0) return {name:h};
+  if(h.indexOf("x-")===0) return {name:"tabd", id:h.slice(2)};
   if(h.indexOf("a-")===0) return {name:"ared", id:h.slice(2)}; if(h.indexOf("e-")===0) return {name:"encd", id:h.slice(2)};
   if(h.indexOf("f-")===0) return {name:"fedit", id:h.slice(2)}; if(h.indexOf("l-")===0) return {name:"tabla", id:h.slice(2)}; return {name:"inicio"}; }
 function nav(h){ if(location.hash !== "#"+h) location.hash = h; else render(); }
@@ -1980,6 +2575,7 @@ function render(){
   if(route.name==="fedit" && !fotById(route.id)){ history.replaceState(null, "", "#fotos"); route.name = "fotos"; }
   if(route.name==="tabla" && !TB[route.id]){ history.replaceState(null, "", "#datos"); route.name = "datos"; }
   if(route.name==="ared" && !terById(route.id)){ history.replaceState(null, "", "#datos"); route.name = "datos"; }
+  if(route.name==="tabd" && !tabById(route.id)){ history.replaceState(null, "", "#tablas"); route.name = "tablas"; }
   if(route.name==="encd" && !encById(route.id)){ history.replaceState(null, "", "#enc"); route.name = "enc"; }
   closeSheet();
   ROUTES.forEach(n=>$("#s-"+n).hidden = n!==route.name);
@@ -1988,9 +2584,10 @@ function render(){
   $$(".hw [data-go]").forEach(b=>b.classList.toggle("on", b.dataset.go===grp));
   const T = {inicio:["MatematicApp","Matemática con el teléfono"], alt:["Alturas","Trigonometría con la cámara"], pend:["Pendientes","Inclinación, pendiente y porcentaje"],
     fotos:["Funciones en fotos","Puntos sobre una foto y ajuste"], azar:["Dados y monedas","Frecuencia relativa y probabilidad"], datos:["Datos","Todo lo que has guardado"], ajustes:["Ajustes","Preferencias y ayuda"],
-    tales:["Sombras y Tales","Semejanza de triángulos"], area:["Área del terreno","Perímetro y área con GPS"], reac:["Tiempo de reacción","Datos para estadística"], enc:["Encuesta del curso","Variables y estadística"]};
+    tales:["Sombras y Tales","Semejanza de triángulos"], area:["Área del terreno","Perímetro y área con GPS"], reac:["Tiempo de reacción","Datos para estadística"], enc:["Encuesta del curso","Variables y estadística"], tablas:["Tabla y cálculos","Hoja de cálculo con palabras"]};
   if(route.name==="fedit"){ $("#tTitle").textContent = fotById(route.id).name; $("#tSub").textContent = "Funciones en fotos"; }
   else if(route.name==="ared"){ $("#tTitle").textContent = terById(route.id).name; $("#tSub").textContent = "Área del terreno"; }
+  else if(route.name==="tabd"){ $("#tTitle").textContent = tabById(route.id).name; $("#tSub").textContent = "Tabla y cálculos"; }
   else if(route.name==="encd"){ $("#tTitle").textContent = encById(route.id).name; $("#tSub").textContent = "Encuesta del curso"; }
   else if(route.name==="tabla"){ $("#tTitle").textContent = TB[route.id].title; $("#tSub").textContent = "Tabla de mediciones"; }
   else { $("#tTitle").textContent = T[route.name][0]; $("#tSub").textContent = T[route.name][1]; }
@@ -2011,6 +2608,8 @@ function render(){
   if(route.name==="reac") rxRender(); else rxLeave();
   if(route.name==="enc") encList();
   if(route.name==="encd") encRender(route.id);
+  if(route.name==="tablas") renderTabList();
+  if(route.name==="tabd") xEnter(route.id);
 }
 function redraw(){ const n = route.name;
   if(n==="fedit") fDraw(); if(n==="azar") azDraw(); if(n==="tales") talDraw(); if(n==="reac") statsDraw("rx");

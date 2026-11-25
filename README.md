@@ -12,11 +12,12 @@ Página web y app Android para hacer matemática con el teléfono (iPhone y Andr
 - **Funciones en fotos**: sobre una foto (un puente, un arco, el chorro de agua) se marcan puntos con lupa, se fija el origen y la escala, y se ajusta un modelo **lineal**, **cuadrático** o **exponencial** con R². Entrega pendiente y coeficiente de posición, vértice, eje de simetría, discriminante y ceros, o valor inicial y factor de crecimiento.
 
 **Datos y azar**
+- **Tabla y cálculos** (hoja de cálculo con palabras): tabla de datos que se escribe, se pega desde Excel o se importa desde CSV. Los cálculos se piden con lenguaje casi natural, por ejemplo `contar donde nota >= 4`, `promedio de nota donde curso es 2A`, `porcentaje donde nota entre 4 y 5`, `contar donde curso es 2A y sexo es F`, o con funciones de Excel: `CONTAR.SI`, `CONTAR.SI.CONJUNTO`, `PROMEDIO.SI`, `SUMA.SI`, `PROMEDIO.SI.CONJUNTO`… Muestra cómo entendió el cálculo, cuántas filas cumplen la condición y las destaca en la tabla. Permite columnas calculadas con fórmulas por fila (por ejemplo, la escala de notas al 60 % a partir del puntaje) y guardar cálculos que se actualizan solos.
 - **Encuesta del curso** (estadística): variables cuantitativas (tabla de frecuencias con o sin intervalos, histograma, diagrama de cajón, media, mediana, moda, cuartiles, rango, RIC, varianza, desviación estándar y CV) o cualitativas (tabla, gráfico de barras y circular con ángulos, moda).
 - **Tiempo de reacción** (estadística): cada estudiante toca cuando la pantalla cambia a verde o cuando suena un pitido; con los datos de todo el curso se obtienen las mismas medidas y gráficos, con curva normal, y se compara el estímulo visual con el sonoro.
 - **Dados y monedas** (probabilidad): moneda, dado o suma de dos dados, simulados o registrando lanzamientos reales. Tabla de frecuencias, gráfico de frecuencia relativa frente a probabilidad teórica (regla de Laplace) y gráfico de convergencia (ley de los grandes números).
 
-Todo queda en **Datos**: tablas con CSV, fotos, terrenos, encuestas, sesiones y experimentos guardados.
+Todo queda en **Datos**: tablas con CSV, fotos, terrenos, tablas, encuestas, sesiones y experimentos guardados.
 
 Ábrela en: https://ggeorgetoledo-collab.github.io/MatrmaticApp/
 
